@@ -25,4 +25,4 @@ def iterprint(elem, xpath='.'):
     Prints element's text.
     """
     for e in elem.findall(xpath):
-        print e.text
+        print "{0}: {1}".format(e.tag, e.text)
