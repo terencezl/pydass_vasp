@@ -1,6 +1,7 @@
 def legitimize_vasprun_xml(filename):
-    """
-    Takes a filename, makes vasprun.xml legitimate.
+    """Add closing tags </calculation> and </modeling> to the tree when job is walled.
+
+    Takes a filename.
     """
     with open(filename, 'r+') as f:
         lines = f.readlines()
@@ -10,8 +11,7 @@ def legitimize_vasprun_xml(filename):
         f.seek(0)
         f.write("".join(lines))
 
-
-def parse_xml(filename):
+def parse(filename):
     """
     Takes a filename, returns the root.
     """

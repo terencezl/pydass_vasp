@@ -1,0 +1,1 @@
+from fitting import eos_fit, polyfit
