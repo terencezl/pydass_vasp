@@ -1,12 +1,5 @@
 import numpy as np
-import matplotlib
-if not matplotlib.is_interactive():
-    matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-try:
-    plt.style.use('ggplot')
-except AttributeError:
-    print "If you upgrade to matplotlib 1.4 and I will change the style to ggplot, just prettier."
 from scipy.optimize import curve_fit
 
 
@@ -44,11 +37,23 @@ def B_M_eqn_pv_fixB0prime(B0_prime):
     return B_M_eqn_pv
 
 
-def eos_fit(V, Y, p_v=False, fix_B0_prime=False, plot=False, new_fig=False):
+def eos_fit(V, Y, p_v=False, fix_B0_prime=False, plot=False, new_fig=False, save_fig=False):
     """
-    Takes volume (Angstrom^3) and total energy (eV) or pressure (GPa) in arrays.
-    Optional: fix_B0_prime. Default to False, or give it a value, like 4.
-    Returns dictionary: parameters, r-squared value and fitted_arrays.
+    Parameters
+    ----------
+    V: arrays of volume (Angstrom^3)
+    Y: arrays of total energy (eV) or pressure (GPa)
+
+    Optional
+
+    fix_B0_prime: Default to False, or give it a value, like 4
+    plot: if plot the fitted arrays
+    new_fig: if plot on new figures, rather than existing ones
+    save_fig: if save the figure to a file. When passed a string, it will be the filename.
+
+    Returns
+    -------
+    a dict, containing parameters, r-squared value and fitted_arrays
     """
     V = np.array(V)
     Y = np.array(Y)
@@ -92,17 +97,38 @@ def eos_fit(V, Y, p_v=False, fix_B0_prime=False, plot=False, new_fig=False):
         else:
             plt.ylabel('P (GPa)')
         plt.tight_layout()
+        if save_figs:
+            if isinstance(save_figs, bool):
+                plt.savefig('eos_fit.pdf')
+            else:
+                plt.savefig(save_figs)
+
+    columns = ['V_fit', 'P_fit']
+    if not p_v:
+        columns[1] = 'E_fit'
 
     return {'parameters': parameters, 'r_squared': r_squared,
-            'fitted_arrays': {'V': V_fit, 'Y': Y_fit}}
+            'fitted_arrays': {'columns': columns, 'data': np.column_stack((V_fit, Y_fit))}}
 
 
 ################################# Polyfit #################################
 
-def polyfit(X, Y, order, plot=False, new_fig=False):
+def polyfit(X, Y, order, plot=False, new_fig=False, save_fig=False):
     """
-    Takes X and Y arrays, and the polynomial order.
-    Returns dictionary: parameters, r-squared value and fitted_arrays.
+    Parameters
+    ----------
+    X, Y: arrays
+    order: the polynomial order
+
+    Optional
+
+    plot: if plot the fitted arrays
+    new_fig: if plot on new figures, rather than existing ones
+    save_fig: if save the figure to a file. When passed a string, it will be the filename.
+
+    Returns
+    -------
+    a dict, containing parameters, r-squared value and fitted_arrays
     """
     popts = np.polyfit(X, Y, order)
     p = np.poly1d(popts)
@@ -119,5 +145,11 @@ def polyfit(X, Y, order, plot=False, new_fig=False):
         plt.xlabel('X')
         plt.ylabel('Y')
         plt.tight_layout()
+        if save_figs:
+            if isinstance(save_figs, bool):
+                plt.savefig('polyfit.pdf')
+            else:
+                plt.savefig(save_figs)
 
-    return {'coeffs': p, 'r_squared': r_squared, 'fitted_arrays': {'X': X_fit, 'Y': Y_fit}}
+    return {'coeffs': p, 'r_squared': r_squared,
+        'fitted_arrays': {'columns': ['X_fit', 'Y_fit'], 'data': np.column_stack((X_fit, Y_fit))}}
