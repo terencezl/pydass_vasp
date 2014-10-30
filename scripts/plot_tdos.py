@@ -13,14 +13,14 @@ parser.add_argument('-i', '--input', metavar='DOSCAR', default='DOSCAR', help="t
 parser.add_argument('-o', '--output-prefix', default='TDOS', help="the output files' prefix")
 args = parser.parse_args()
 if args.display:
-	display = True
-	save_figs = False
+    display = True
+    save_figs = False
 else:
-	display = False
-	save_figs = True
+    display = False
+    save_figs = True
 
 if not args.display:
-	matplotlib.use('Agg')
+    matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 try:
     plt.style.use('ggplot')
@@ -29,4 +29,4 @@ except AttributeError:
 
 from pyass_vasp.plotting import plot_tdos
 plot_tdos(axis_range=args.axis_range, DOSCAR=args.input, ISPIN=args.ISPIN, display=display,
-	save_figs=save_figs, save_data=args.save_data, output_prefix=args.output_prefix)
+    save_figs=save_figs, save_data=args.save_data, output_prefix=args.output_prefix)
