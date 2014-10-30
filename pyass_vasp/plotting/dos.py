@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from helpers import determine_tag_value, plot_helper_figs_assert, plot_helper_figs, plot_helper_settings, plot_helper_post
 
-def plot_tdos(axis_range=None, DOSCAR='DOSCAR', ISPIN=None, display=True,
+def plot_tdos(axis_range=None, ISPIN=None, DOSCAR='DOSCAR', display=True,
     on_figs=None, save_figs=False, save_data=False, output_prefix='TDOS', return_states_at_Ef=False):
     """
     Plot the total density of states, with consideration of spin-polarization.
@@ -12,10 +12,10 @@ def plot_tdos(axis_range=None, DOSCAR='DOSCAR', ISPIN=None, display=True,
     ----------
     axis_range: list
         the range of axes x and y, 4 values in a list
-    DOSCAR: string
-        DOSCAR file name, default to 'DOSCAR'
     ISPIN: int
         user specified ISPIN. If not given, infer from OUTCAR, or INCAR
+    DOSCAR: string
+        DOSCAR file name, default to 'DOSCAR'
     display: bool
         display figures or not
     on_figs: list
@@ -108,7 +108,7 @@ def plot_tdos(axis_range=None, DOSCAR='DOSCAR', ISPIN=None, display=True,
         return {'dos_data':{'columns': col_names, 'data': DOS_data}}
 
 
-def plot_ldos(atom, axis_range=None, DOSCAR='DOSCAR', ISPIN=None, LORBIT=None, display=True,
+def plot_ldos(atom, axis_range=None, ISPIN=None, LORBIT=None, DOSCAR='DOSCAR', display=True,
     on_figs=None, save_figs=False, save_data=False, output_prefix='LDOS'):
     """
     Plot the local projected density of states, with consideration of spin-polarization.
@@ -119,12 +119,12 @@ def plot_ldos(atom, axis_range=None, DOSCAR='DOSCAR', ISPIN=None, LORBIT=None, d
         the atom number in DOSCAR/POSCAR interested, counting from 1
     axis_range: list
         the range of axes x and y, 4 values in a list
-    DOSCAR: string
-        DOSCAR file name, default to 'DOSCAR'
     ISPIN: int
         user specified ISPIN. If not given, infer from OUTCAR, or INCAR
     LORBIT: int
         user specified LORBIT. If not given, infer from OUTCAR, or INCAR
+    DOSCAR: string
+        DOSCAR file name, default to 'DOSCAR'
     display: bool
         display figures or not
     on_figs: list
@@ -276,7 +276,7 @@ def plot_ldos(atom, axis_range=None, DOSCAR='DOSCAR', ISPIN=None, LORBIT=None, d
     return {'dos_data': {'columns': col_names, 'data': DOS_data}}
 
 
-def plot_cohp(bond_to_plot, axis_range=None, COHPCAR='COHPCAR.lobster', ISPIN=None, display=True,
+def plot_cohp(bond_to_plot, axis_range=None, ISPIN=None, COHPCAR='COHPCAR.lobster', display=True,
     on_figs=None, save_figs=False, save_data=False, output_prefix='COHP'):
     """
     Plot the -COHP, with consideration of spin-polarization.
@@ -287,10 +287,10 @@ def plot_cohp(bond_to_plot, axis_range=None, COHPCAR='COHPCAR.lobster', ISPIN=No
         the bond number in COHPCAR.lobster interested, counting from 1
     axis_range: list
         the range of axes x and y, 4 values in a list
-    COHPCAR: string
-        COHPCAR file name, default to 'COHPCAR.lobster'
     ISPIN: int
         user specified ISPIN. If not given, infer from OUTCAR, or INCAR
+    COHPCAR: string
+        COHPCAR file name, default to 'COHPCAR.lobster'
     display: bool
         display figures or not
     on_figs: list

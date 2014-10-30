@@ -29,5 +29,5 @@ except AttributeError:
     print "If you upgrade to matplotlib 1.4 and I will change the style to ggplot, just prettier."
 
 from pyass_vasp.plotting import plot_bs
-plot_bs(axis_range=args.axis_range, EIGENVAL=args.input, ISPIN=args.ISPIN, Ef=args.Ef, display=display,
+plot_bs(axis_range=args.axis_range, ISPIN=args.ISPIN, Ef=args.Ef, EIGENVAL=args.input, display=display,
     save_figs=save_figs, save_data=args.save_data, output_prefix=args.output_prefix)

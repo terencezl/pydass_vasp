@@ -1,6 +1,6 @@
 import numpy as np
 
-def rotate_ions(lines, center, direction, angle, POSCAR='POSCAR', output='POSCAR-rotated', inplace=False):
+def rotate_ions(lines, center, direction, angle, POSCAR='POSCAR', save=False, output='POSCAR-rotated', inplace=False):
     """
     Rotate the ions in certain lines of POSCAR around a certain point,
         along a certain direction, to a certain angle.
@@ -17,16 +17,18 @@ def rotate_ions(lines, center, direction, angle, POSCAR='POSCAR', output='POSCAR
         the rotation angle in degree, counter-clockwise
     POSCAR: string
         POSCAR file name, default to 'POSCAR'
+    save: bool
+        save to file or not, default to False
     output: string
         the output file name, default to 'POSCAR-rotated'
     inplace: bool
-        directly change POSCAR in place without creating a new file
+        directly change POSCAR in place without creating a new file, default to False
 
     Returns
     -------
-    a dict, containing ion_positions_before, ion_positions_after, rotation matrix
+    a dict, containing ion_positions_before, ion_positions_after, rotation_matrix
 
-    If you wish to use it, ion_positions_after = np.dot(ion_positions_before, A.T)
+    If you wish to use it, ion_positions_after = np.dot(ion_positions_before, rotation_matrix.T)
     """
 
     if inplace:
@@ -54,11 +56,11 @@ def rotate_ions(lines, center, direction, angle, POSCAR='POSCAR', output='POSCAR
         basis_vectors[i] = line.split()
 
     # convert the string form of ion positions into a numpy numeral array
-    ion_positions = np.zeros((len(line_number_list), 3))
+    ion_positions_before = np.zeros((len(line_number_list), 3))
     for i, line in enumerate(line_number_list):
-        ion_positions[i] = POSCAR[line].split()[:3]
+        ion_positions_before[i] = POSCAR[line].split()[:3]
     # subtract the translational vector
-    ion_positions -= center
+    ion_positions = ion_positions_before - center
     # transform the coordinates from direct to cartesian
     ion_positions = np.dot(ion_positions, basis_vectors)
     # the matrix multiplication
@@ -71,32 +73,33 @@ def rotate_ions(lines, center, direction, angle, POSCAR='POSCAR', output='POSCAR
     # add the translational vector
     ion_positions_after = ion_positions_after + center
 
-    for i, line in enumerate(line_number_list):
-        POSCAR[line] = '{0[0]:11.8f}   {0[1]:11.8f}   {0[2]:11.8f}\n'.format(ion_positions_after[i])
+    if save:
+        # replace the POSCAR variable content
+        for i, line in enumerate(line_number_list):
+            POSCAR[line] = '{0[0]:11.8f}   {0[1]:11.8f}   {0[2]:11.8f}\n'.format(ion_positions_after[i])
+        with open(output, 'w') as f:
+            f.writelines(POSCAR)
 
-    with open(output, 'w') as f:
-        f.writelines(POSCAR)
-
-    return {'ion_positions': ion_positions, 'ion_positions_after': ion_positions_after, 'rotation_matrix': A}
+    return {'ion_positions_before': ion_positions_before, 'ion_positions_after': ion_positions_after, 'rotation_matrix': A}
 
 
-def apply_strain(lines, strain_matrix, POSCAR='POSCAR', output='POSCAR-strained', inplace=False):
+def apply_strain(strain_matrix, POSCAR='POSCAR', save=False, output='POSCAR-strained', inplace=False):
     """
     Apply strain to the cell basis vectors in POSCAR. Following
         basis_vectors_after = np.dot(basis_vectors_before, A.transpose())
 
     Parameters
     ----------
-    lines: list
-        the line numbers of ions from POSCAR that you wish to rotate, counted from 1
     strain_matrix: 2D list/array
         the 2D
     POSCAR: string
         POSCAR file name, default to 'POSCAR'
+    save: bool
+        save to file or not, default to False
     output: string
         the output file name, default to 'POSCAR-rotated'
     inplace: bool
-        directly change POSCAR in place without creating a new file
+        directly change POSCAR in place without creating a new file, default to False
 
     Returns
     -------
@@ -111,19 +114,18 @@ def apply_strain(lines, strain_matrix, POSCAR='POSCAR', output='POSCAR-strained'
         POSCAR = f.readlines()
 
     # obtain the basis vector 2D array
-    basis_vectors = np.zeros((3, 3))
+    basis_vectors_before = np.zeros((3, 3))
     for i, line in enumerate(POSCAR[2:5]):
-        basis_vectors[i] = line.split()
+        basis_vectors_before[i] = line.split()
 
     # apply the specified strain
-    basis_vectors_after = np.dot(basis_vectors, strain_matrix)
+    basis_vectors_after = np.dot(basis_vectors_before, strain_matrix)
 
-    # replace the POSCAR variable content
-    for i, line_num in enumerate(range(2, 5)):
-        POSCAR[line_num] = '{0[0]:11.8f}   {0[1]:11.8f}   {0[2]:11.8f}\n'.format(basis_vectors_after[i])
+    if save:
+        # replace the POSCAR variable content
+        for i, line_num in enumerate(range(2, 5)):
+            POSCAR[line_num] = '{0[0]:11.8f}   {0[1]:11.8f}   {0[2]:11.8f}\n'.format(basis_vectors_after[i])
+        with open(output, 'w') as f:
+            f.writelines(POSCAR)
 
-    # write to it
-    with open(output, 'w') as f:
-        f.writelines(POSCAR)
-
-    return {'basis_vectors_before': basis_vectors, 'basis_vectors_after': basis_vectors_after}
+    return {'basis_vectors_before': basis_vectors_before, 'basis_vectors_after': basis_vectors_after}

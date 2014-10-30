@@ -72,7 +72,7 @@ def get_reduced_effective_mass(band, kp_start, kp_end, kp_linearized_array, E):
     return effective_mass_reduced
 
 
-def plot_bs(axis_range=None, EIGENVAL='EIGENVAL', ISPIN=None, Ef=None, display=True,
+def plot_bs(axis_range=None, ISPIN=None, Ef=None, EIGENVAL='EIGENVAL', display=True,
     on_figs=None, save_figs=False, save_data=False, output_prefix='BS'):
     """
     Plot the band structure, with consideration of spin-polarization.
@@ -81,12 +81,12 @@ def plot_bs(axis_range=None, EIGENVAL='EIGENVAL', ISPIN=None, Ef=None, display=T
     ----------
     axis_range: list
         the range of axes x and y, 4 values in a list
-    EIGENVAL: string
-        EIGENVAL file name, default to 'EIGENVAL'
     ISPIN: int
         user specified ISPIN. If not given, infer from OUTCAR, or INCAR
     Ef: float
         user specified Ef. If not given, infer from DOSCAR, or OUTCAR
+    EIGENVAL: string
+        EIGENVAL file name, default to 'EIGENVAL'
     display: bool
         display figures or not
     on_figs: list

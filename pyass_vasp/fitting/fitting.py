@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 
-
+# internal use
 def get_r_squared(Y, Y_fit_eqlen):
     ss_resid = np.sum((Y_fit_eqlen - Y) ** 2)
     Y_avg = np.sum(Y) / len(Y)
@@ -10,7 +10,6 @@ def get_r_squared(Y, Y_fit_eqlen):
     r_squared = 1 - ss_resid / ss_total
     return r_squared
 
-################################# EOS ################################
 
 # internal use
 def B_M_eqn(V, V0, B0, B0_prime, E0):
@@ -39,6 +38,8 @@ def B_M_eqn_pv_fixB0prime(B0_prime):
 
 def eos_fit(V, Y, p_v=False, fix_B0_prime=False, plot=False, new_fig=False, save_fig=False):
     """
+    Fit the volume and total energy, or pressure to the Birch-Murnaghan equation of state.
+
     Parameters
     ----------
     V: arrays of volume (Angstrom^3)
@@ -111,10 +112,10 @@ def eos_fit(V, Y, p_v=False, fix_B0_prime=False, plot=False, new_fig=False, save
             'fitted_arrays': {'columns': columns, 'data': np.column_stack((V_fit, Y_fit))}}
 
 
-################################# Polyfit #################################
-
 def polyfit(X, Y, order, plot=False, new_fig=False, save_fig=False):
     """
+    Fit the two equal length arrays to a polynomial with a specified order.
+
     Parameters
     ----------
     X, Y: arrays
