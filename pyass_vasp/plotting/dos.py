@@ -1,7 +1,34 @@
 import re
+import warnings
 import numpy as np
 import matplotlib.pyplot as plt
-from helpers import determine_tag_value, plot_helper_figs_assert, plot_helper_figs, plot_helper_settings, plot_helper_post
+from helpers import determine_tag_value, plot_helper_figs_assert, plot_helper_figs, plot_helper_post
+
+# internal
+def plot_helper_settings(axis_range, data_type):
+    plt.axhline(y=0, c='k')
+    plt.axvline(x=0, ls='--', c='k')
+    if axis_range:
+        plt.axis([axis_range[0], axis_range[1], axis_range[2], axis_range[3]])
+    plt.xlabel('Energy (eV)')
+    if data_type == 'tdos':
+        plt.ylabel('TDOS (States / Unit Cell / eV)')
+    elif data_type == 'ldos':
+        plt.ylabel('LDOS (States / Unit Cell / eV)')
+    elif data_type == 'cohp':
+        plt.ylabel('-pCOHP (Arbituary Unit / Unit Cell / eV)')
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        if data_type == 'tdos' or data_type == 'cohp':
+            plt.legend(loc=0,  fontsize='small')
+        elif data_type == 'ldos':
+            plt.legend(loc=0,  fontsize='x-small')
+
+    try:
+        plt.tight_layout()
+    except RuntimeError:
+        print "Tight layout failed... Not a big deal though."
 
 def plot_tdos(axis_range=None, ISPIN=None, DOSCAR='DOSCAR', display=True,
     on_figs=None, save_figs=False, save_data=False, output_prefix='TDOS', return_states_at_Ef=False):
@@ -35,12 +62,23 @@ def plot_tdos(axis_range=None, ISPIN=None, DOSCAR='DOSCAR', display=True,
         and 'columns', a list of column labels
     """
 
+    from ..xml_utils import parse
+    root = parse('vasprun.xml')
+
+    ISPIN = int(root.find(
+        "./parameters/separator[@name='electronic']/separator[@name='electronic spin']/i[@name='ISPIN']").text)
+    LORBIT = root.find("./parameters/separator[@name='dos']/i[@name='LORBIT']").text
+    NEDOS = root.find("./parameters/separator[@name='dos']/i[@name='NEDOS']").text
+
+    Ef = float(root.find("./calculation/dos/i[@name='efermi']").text)
+
+
     with open(DOSCAR, 'r') as f:
         DOSCAR = f.readlines()
     for i in range(len(DOSCAR)):
         DOSCAR[i] = DOSCAR[i].split()
 
-    N_steps = int(DOSCAR[5][2])
+    NEDOS = int(DOSCAR[5][2])
     Ef = float(DOSCAR[5][3])
 
     if ISPIN:
@@ -52,8 +90,17 @@ def plot_tdos(axis_range=None, ISPIN=None, DOSCAR='DOSCAR', display=True,
 
     if ISPIN == 2:
         col_names = ['E', 'total_up', 'total_down', 'integrated_up', 'integrated_down']
-        DOS_data = np.array(DOSCAR[6:6+N_steps], dtype=float)
+        DOS_data = np.array(DOSCAR[6:6+NEDOS], dtype=float)
         DOS_data[:, 0] -= Ef
+
+
+        ############ vasprun.xml ############
+        # from vasprun.xml
+        DOS_data = np.zeros((NEDOS, 5))
+        for n_step, elem in enumerate(root.findall(
+            "./calculation/dos/total/array/set/set[@comment='spin 1']/r")):
+            DOS_data[n_step] = elem.text.split()[0]
+
 
         # Plot the separated TDOS
         plot_helper_figs(on_figs)
@@ -84,7 +131,7 @@ def plot_tdos(axis_range=None, ISPIN=None, DOSCAR='DOSCAR', display=True,
 
     elif ISPIN == 1:
         col_names = ['E', 'total', 'integrated']
-        DOS_data = np.array(DOSCAR[6:6+N_steps], dtype=float)
+        DOS_data = np.array(DOSCAR[6:6+NEDOS], dtype=float)
         DOS_data[:, 0] -= Ef
 
         plot_helper_figs(on_figs)
@@ -147,7 +194,7 @@ def plot_ldos(atom, axis_range=None, ISPIN=None, LORBIT=None, DOSCAR='DOSCAR', d
     for i in range(len(DOSCAR)):
         DOSCAR[i] = DOSCAR[i].split()
 
-    N_steps = int(DOSCAR[5][2])
+    NEDOS = int(DOSCAR[5][2])
     Ef = float(DOSCAR[5][3])
 
     if ISPIN:
@@ -166,7 +213,7 @@ def plot_ldos(atom, axis_range=None, ISPIN=None, LORBIT=None, DOSCAR='DOSCAR', d
         col_names = ['E', 's_up', 's_down', 'p_y_up', 'p_y_down', 'p_z_up', 'p_z_down', 'p_x_up', 'p_x_down',
                      'd_xy_up', 'd_xy_down', 'd_yz_up', 'd_yz_down', 'd_z2_up', 'd_z2_down',
                      'd_xz_up', 'd_xz_down', 'd_x2y2_up', 'd_x2y2_down']
-        DOS_data = np.array(DOSCAR[(6 + (N_steps + 1) * atom):(6 + (N_steps + 1) * atom + N_steps)], dtype=float)
+        DOS_data = np.array(DOSCAR[(6 + (NEDOS + 1) * atom):(6 + (NEDOS + 1) * atom + NEDOS)], dtype=float)
         DOS_data[:, 0] -= Ef
 
         # Spin up
@@ -205,7 +252,7 @@ def plot_ldos(atom, axis_range=None, ISPIN=None, LORBIT=None, DOSCAR='DOSCAR', d
 
     elif ISPIN == 2 and (LORBIT == 10 or LORBIT == 0):
         col_names = ['E', 's_up', 's_down', 'p_up', 'p_down', 'd_up', 'd_down']
-        DOS_data = np.array(DOSCAR[(6 + (N_steps + 1) * atom):(6 + (N_steps + 1) * atom + N_steps)], dtype=float)
+        DOS_data = np.array(DOSCAR[(6 + (NEDOS + 1) * atom):(6 + (NEDOS + 1) * atom + NEDOS)], dtype=float)
         DOS_data[:, 0] -= Ef
 
         # Spin up
@@ -244,7 +291,7 @@ def plot_ldos(atom, axis_range=None, ISPIN=None, LORBIT=None, DOSCAR='DOSCAR', d
 
     elif ISPIN == 1 and (LORBIT == 11 or LORBIT == 1):
         col_names = ['E', 's', 'p_y', 'p_z', 'p_x', 'd_xy', 'd_yz', 'd_z2', 'd_xz', 'd_x2y2']
-        DOS_data = np.array(DOSCAR[(6 + (N_steps + 1) * atom):(6 + (N_steps + 1) * atom + N_steps)], dtype=float)
+        DOS_data = np.array(DOSCAR[(6 + (NEDOS + 1) * atom):(6 + (NEDOS + 1) * atom + NEDOS)], dtype=float)
         DOS_data[:, 0] -= Ef
 
         plot_helper_figs(on_figs)
@@ -258,7 +305,7 @@ def plot_ldos(atom, axis_range=None, ISPIN=None, LORBIT=None, DOSCAR='DOSCAR', d
 
     elif ISPIN == 1 and (LORBIT == 10 or LORBIT == 0):
         col_names = ['E', 's', 'p', 'd']
-        DOS_data = np.array(DOSCAR[(6 + (N_steps + 1) * atom):(6 + (N_steps + 1) * atom + N_steps)], dtype=float)
+        DOS_data = np.array(DOSCAR[(6 + (NEDOS + 1) * atom):(6 + (NEDOS + 1) * atom + NEDOS)], dtype=float)
         DOS_data[:, 0] -= Ef
 
         plot_helper_figs(on_figs)
@@ -333,16 +380,16 @@ def plot_cohp(bond_to_plot, axis_range=None, ISPIN=None, COHPCAR='COHPCAR.lobste
     for i in range(len(COHPCAR)):
         COHPCAR[i] = COHPCAR[i].split()
 
-    N_steps = int(COHPCAR[1][2])
+    NEDOS = int(COHPCAR[1][2])
 
     if ISPIN == 2:
         col_names = ['E', 'avg_up', 'avg_integrated_up']
         for n_bond in range(1, N_bonds + 1):
-            col_names.extend(['No.{0}_up'.format(n_bond), 'No.{0}_integrated_up'.format(n_bond)])
+            col_names.extend(['{0}_up'.format(n_bond), '{0}_integrated_up'.format(n_bond)])
         col_names.extend(['avg_down', 'avg_integrated_down'])
         for n_bond in range(1, N_bonds + 1):
-            col_names.extend(['No.{0}_down'.format(n_bond), 'No.{0}_integrated_down'.format(n_bond)])
-        COHP_data = np.array(COHPCAR[data_start_line:data_start_line + N_steps], dtype=float)
+            col_names.extend(['{0}_down'.format(n_bond), '{0}_integrated_down'.format(n_bond)])
+        COHP_data = np.array(COHPCAR[data_start_line:data_start_line + NEDOS], dtype=float)
 
         col_up_to_plot = bond_to_plot * 2 + 1
         col_down_to_plot = (bond_to_plot + N_bonds + 1) * 2 + 1
@@ -368,9 +415,9 @@ def plot_cohp(bond_to_plot, axis_range=None, ISPIN=None, COHPCAR='COHPCAR.lobste
     elif ISPIN == 1:
         col_names = ['E', 'avg', 'avg_integrated']
         for n_bond in range(1, N_bonds + 1):
-            col_names.extend(['No.{0}'.format(n_bond), 'No.{0}_integrated'.format(n_bond)])
+            col_names.extend(['{0}'.format(n_bond), '{0}_integrated'.format(n_bond)])
 
-        COHP_data = np.array(COHPCAR[data_start_line:data_start_line + N_steps], dtype=float)
+        COHP_data = np.array(COHPCAR[data_start_line:data_start_line + NEDOS], dtype=float)
 
         col_to_plot = bond_to_plot * 2 + 1
         plot_helper_figs(on_figs)

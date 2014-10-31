@@ -3,6 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from helpers import determine_tag_value, plot_helper_figs_assert, plot_helper_figs, plot_helper_post
 
+###### integrate plotting function #####
+
 
 # Effective mass calculation funcitons.
 def find_band_edges(kp_edge, prec_range, E):
@@ -108,39 +110,47 @@ def plot_bs(axis_range=None, ISPIN=None, Ef=None, EIGENVAL='EIGENVAL', display=T
         'columns', a list of column labels
     """
 
+    # from vasprun.xml
+    from ..xml_utils import parse
+    root = parse('vasprun.xml')
+
     if Ef:
         print "Using user specified Ef."
     else:
-        try:
-            with open('DOSCAR', 'r') as f:
-                for i in range(6):
-                    line = f.readline()
-            # Fermi energy. Found in DOSCAR, 6th line, 4th number.
-            Ef = float(line.split()[3])
-        except IOError:
-            raise IOError("Can't determine Ef! Either manually specify it, or provide DOSCAR.")
+        Ef = float(root.find("./calculation/dos/i[@name='efermi']").text)
 
     if ISPIN:
         print "Using user specified ISPIN."
     else:
-        ISPIN = determine_tag_value('ISPIN')
+        ISPIN = int(root.find(
+        "./parameters/separator[@name='electronic']/separator[@name='electronic spin']/i[@name='ISPIN']").text)
 
     plot_helper_figs_assert(on_figs, ISPIN, 'bs')
 
-    with open(EIGENVAL, 'r') as f:
-        EIGENVAL = f.readlines()
-    for i in range(len(EIGENVAL)):
-        EIGENVAL[i] = EIGENVAL[i].split()
+    # with open(EIGENVAL, 'r') as f:
+    #     EIGENVAL = f.readlines()
+    # for i in range(len(EIGENVAL)):
+    #     EIGENVAL[i] = EIGENVAL[i].split()
 
-    # How many KPs in total? Can be found in EIGENVAL, 6th line, 2nd number.
-    N_kps = int(EIGENVAL[5][1])
-    # How many bands are to be drawn? 6th line, 3rd number.
-    N_bands = int(EIGENVAL[5][2])
+    # # How many KPs in total? Can be found in EIGENVAL, 6th line, 2nd number.
+    # N_kps = int(EIGENVAL[5][1])
+    # # How many bands are to be drawn? 6th line, 3rd number.
+    # N_bands = int(EIGENVAL[5][2])
 
-    with open('KPOINTS', 'r') as f:
-        KPOINTS = f.readlines()
-    N_kps_per_section = int(KPOINTS[1])
-    N_sections = N_kps / N_kps_per_section
+    # with open('KPOINTS', 'r') as f:
+    #     KPOINTS = f.readlines()
+    # N_kps_per_section = int(KPOINTS[1])
+    # N_sections = N_kps / N_kps_per_section
+
+    N_kps_per_section = int(root.find("./kpoints/generation[@param='listgenerated']/i[@name='divisions']").text)
+    N_sections = len(root.findall("./kpoints/generation[@param='listgenerated']/v")) - 1
+    N_kps = len(root.findall("./kpoints/varray[@name='kpointlist']/v"))
+    assert N_kps_per_section * N_sections == N_kps, \
+        "The product of N of kpoints per section and N of sections does not match N of total kpoints. Strange."
+    N_bands = int(root.find("./parameters/separator[@name='electronic']/i[@name='NBANDS']").text)
+
+
+    ##### first try vasprun.xml. make fallback to OUTCAR #####
 
     # Get the start and end point coordinate of each section. From OUTCAR.
     kp_list = np.zeros((N_kps, 3))
@@ -172,38 +182,152 @@ def plot_bs(axis_range=None, ISPIN=None, Ef=None, EIGENVAL='EIGENVAL', display=T
 
     kp_linearized_array = kp_section_linearized_array.flatten()
 
+    # # Get energy for each band, each kpoint step.
+    # E = np.zeros((N_bands, N_kps))
+    # for n_b in range(0, N_bands):
+    #     for n_s in range(0, N_kps):
+    #         E[n_b, n_s] = float(EIGENVAL[8 + n_b + (N_bands + 2) * n_s][1])
+    # E -= Ef
 
-    # Get energy for each band, each kpoint step.
-    E = np.zeros((N_bands, N_kps))
-    for n_b in range(0, N_bands):
-        for n_s in range(0, N_kps):
-            E[n_b, n_s] = float(EIGENVAL[8 + n_b + (N_bands + 2) * n_s][1])
-    E -= Ef
+    # for the returned data column names
+    col_names = [str(i) for i in range(N_bands + 1)]
+    col_names[0] = 'k_points'
 
-    # Plot the bands.
-    plot_helper_figs(on_figs)
-    ax = plt.subplot(111)
-    for band in range(N_bands):
-        plt.plot(kp_linearized_array, E[band])
+    if ISPIN == 2:
+        E_spin1 = np.zeros((N_kps, N_bands))
+        for n_kp in range(N_kps):
+            for n_band, elem in enumerate(root.findall(
+                "./calculation/eigenvalues/array/set/set[@comment='spin 1']/set[@comment='kpoint "
+                + str(n_kp) + "']/r")):
+                E_spin1[n_kp, n_band] = elem.text.split()[0]
+        E_spin1 -= Ef
 
-    plt.xlim(kp_end_point_list[0], kp_end_point_list[-1])
-    ax.xaxis.set_ticks(kp_end_point_list)
-    ax.xaxis.set_ticklabels(kp_end_symbol_list)
-    plt.axhline(0, ls='--', c='k', alpha=0.5)
-    if axis_range:
-        plt.ylim(axis_range[0], axis_range[1])
-    for kp_end_point in range(len(kp_end_point_list)):
-        plt.axvline(kp_end_point_list[kp_end_point], ls='--', c='k', alpha=0.5)
-    plt.ylabel('Energy (eV)')
-    try:
-        plt.tight_layout()
-    except RuntimeError:
-        print "Tight layout failed... Not a big deal though."
-    plt.savefig(output_prefix + '.pdf')
-    plot_helper_post()
+        E_spin2 = np.zeros((N_kps, N_bands))
+        for n_kp in range(N_kps):
+            for n_band, elem in enumerate(root.findall(
+                "./calculation/eigenvalues/array/set/set[@comment='spin 2']/set[@comment='kpoint "
+                + str(n_kp) + "']/r")):
+                E_spin2[n_kp, n_band] = elem.text.split()[0]
+        E_spin2 -= Ef
 
-    columns = [str(i) for i in range(N_bands + 1)]
-    columns[0] = 'k_points'
+        # Plot the bands of spin up.
+        plot_helper_figs(on_figs)
+        ax1 = plt.subplot(111)
+        for band in range(N_bands):
+            plt.plot(kp_linearized_array, E_spin1[:, band])
 
-    return {'reciprocal_points': kp_end_symbol_list, 'reciprocal_point_locations_on_axis': kp_end_point_list,
-            'bs_data': {'columns': columns, 'data': np.columns_stack((kp_linearized_array, E.T))}, 'E_matrix': E}
+        plt.xlim(kp_end_point_list[0], kp_end_point_list[-1])
+        ax1.xaxis.set_ticks(kp_end_point_list)
+        ax1.xaxis.set_ticklabels(kp_end_symbol_list)
+        plt.axhline(0, ls='--', c='k', alpha=0.5)
+        if axis_range:
+            plt.ylim(axis_range[0], axis_range[1])
+        for kp_end_point in range(len(kp_end_point_list)):
+            plt.axvline(kp_end_point_list[kp_end_point], ls='--', c='k', alpha=0.5)
+        plt.ylabel('Energy (eV)')
+        try:
+            plt.tight_layout()
+        except RuntimeError:
+            print "Tight layout failed... Not a big deal though."
+        plt.savefig(output_prefix + '-spin-up.pdf')
+        plot_helper_post()
+
+        # Plot the bands of spin down.
+        plot_helper_figs(on_figs)
+        ax2 = plt.subplot(111)
+        for band in range(N_bands):
+            plt.plot(kp_linearized_array, E_spin2[:, band])
+
+        plt.xlim(kp_end_point_list[0], kp_end_point_list[-1])
+        ax2.xaxis.set_ticks(kp_end_point_list)
+        ax2.xaxis.set_ticklabels(kp_end_symbol_list)
+        plt.axhline(0, ls='--', c='k', alpha=0.5)
+        if axis_range:
+            plt.ylim(axis_range[0], axis_range[1])
+        for kp_end_point in range(len(kp_end_point_list)):
+            plt.axvline(kp_end_point_list[kp_end_point], ls='--', c='k', alpha=0.5)
+        plt.ylabel('Energy (eV)')
+        try:
+            plt.tight_layout()
+        except RuntimeError:
+            print "Tight layout failed... Not a big deal though."
+        plt.savefig(output_prefix + '-spin-down.pdf')
+        plot_helper_post()
+
+        # Plot the bands of up and down overlapped.
+        plot_helper_figs(on_figs)
+        ax3 = plt.subplot(111)
+        for band in range(N_bands):
+            plt.plot(kp_linearized_array, E_spin1[:, band], 'k')
+            plt.plot(kp_linearized_array, E_spin2[:, band], 'b')
+
+        plt.xlim(kp_end_point_list[0], kp_end_point_list[-1])
+        ax3.xaxis.set_ticks(kp_end_point_list)
+        ax3.xaxis.set_ticklabels(kp_end_symbol_list)
+        plt.axhline(0, ls='--', c='k', alpha=0.5)
+        if axis_range:
+            plt.ylim(axis_range[0], axis_range[1])
+        for kp_end_point in range(len(kp_end_point_list)):
+            plt.axvline(kp_end_point_list[kp_end_point], ls='--', c='k', alpha=0.5)
+        plt.ylabel('Energy (eV)')
+        try:
+            plt.tight_layout()
+        except RuntimeError:
+            print "Tight layout failed... Not a big deal though."
+        plt.savefig(output_prefix + '-spin-overlapped.pdf')
+        plot_helper_post()
+
+        return {
+            'reciprocal_points': kp_end_symbol_list,
+            'reciprocal_point_locations_on_axis': kp_end_point_list,
+            'bs_spin_up_data': {
+                'columns': col_names,
+                'data': np.columns_stack((kp_linearized_array, E_spin1))
+            },
+            'bs_spin_down_data': {
+                'columns': col_names,
+                'data': np.columns_stack((kp_linearized_array, E_spin2))
+            },
+            'axes': {'ax_spin_up': ax1, 'ax_spin_down': ax2, 'ax_spin_separated': ax3},
+        }
+
+    if ISPIN == 1:
+        E = np.zeros((N_kps, N_bands))
+        for n_kp in range(N_kps):
+            for n_band, elem in enumerate(root.findall(
+                "./calculation/eigenvalues/array/set/set[@comment='spin 1']/set[@comment='kpoint "
+                + str(n_kp) + "']/r")):
+                E[n_kp, n_band] = elem.text.split()[0]
+        E -= Ef
+
+        # Plot the bands.
+        plot_helper_figs(on_figs)
+        ax = plt.subplot(111)
+        for band in range(N_bands):
+            plt.plot(kp_linearized_array, E[:, band])
+
+        plt.xlim(kp_end_point_list[0], kp_end_point_list[-1])
+        ax.xaxis.set_ticks(kp_end_point_list)
+        ax.xaxis.set_ticklabels(kp_end_symbol_list)
+        plt.axhline(0, ls='--', c='k', alpha=0.5)
+        if axis_range:
+            plt.ylim(axis_range[0], axis_range[1])
+        for kp_end_point in range(len(kp_end_point_list)):
+            plt.axvline(kp_end_point_list[kp_end_point], ls='--', c='k', alpha=0.5)
+        plt.ylabel('Energy (eV)')
+        try:
+            plt.tight_layout()
+        except RuntimeError:
+            print "Tight layout failed... Not a big deal though."
+        plt.savefig(output_prefix + '.pdf')
+        plot_helper_post()
+
+        return {
+            'reciprocal_points': kp_end_symbol_list,
+            'reciprocal_point_locations_on_axis': kp_end_point_list,
+            'bs_data': {
+                'columns': col_names,
+                'data': np.columns_stack((kp_linearized_array, E_spin1))
+            },
+            'axes': ax1
+        }

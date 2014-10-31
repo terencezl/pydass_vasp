@@ -1,5 +1,4 @@
 import re
-import warnings
 import matplotlib.pyplot as plt
 
 # internal
@@ -41,32 +40,6 @@ def plot_helper_figs(on_figs):
         plt.figure()
     else:
         plt.figure(on_figs.pop(0))
-
-# internal
-def plot_helper_settings(axis_range, data_type):
-    plt.axhline(y=0, c='k')
-    plt.axvline(x=0, ls='--', c='k')
-    if axis_range:
-        plt.axis([axis_range[0], axis_range[1], axis_range[2], axis_range[3]])
-    plt.xlabel('Energy (eV)')
-    if data_type == 'tdos':
-        plt.ylabel('TDOS (States / Unit Cell / eV)')
-    elif data_type == 'ldos':
-        plt.ylabel('LDOS (States / Unit Cell / eV)')
-    elif data_type == 'cohp':
-        plt.ylabel('-pCOHP (Arbituary Unit / Unit Cell / eV)')
-
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        if data_type == 'tdos' or data_type == 'cohp':
-            plt.legend(loc=0,  fontsize='small')
-        elif data_type == 'ldos':
-            plt.legend(loc=0,  fontsize='x-small')
-
-    try:
-        plt.tight_layout()
-    except RuntimeError:
-        print "Tight layout failed... Not a big deal though."
 
 # internal
 def plot_helper_post(display):

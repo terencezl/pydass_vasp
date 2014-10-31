@@ -1,6 +1,6 @@
-def legitimize_vasprun_xml(filename):
-    """Add closing tags </calculation> and </modeling> to the tree when job is walled.
-
+def legitimize_vasprun_xml(filename='vasprun.xml'):
+    """
+    Add closing tags </calculation> and </modeling> to the tree when job is walled.
     Takes a filename.
     """
     with open(filename, 'r+') as f:
@@ -11,7 +11,8 @@ def legitimize_vasprun_xml(filename):
         f.seek(0)
         f.write("".join(lines))
 
-def parse(filename):
+
+def parse(filename='vasprun.xml'):
     """
     Takes a filename, returns the root.
     """
@@ -19,10 +20,16 @@ def parse(filename):
     tree = ET.parse(filename)
     return tree.getroot()
 
+
 def iterprint(elem, xpath='.'):
     """
     Takes an xml element, an xpath string.
-    Prints element's text.
+    Prints element's info in a more straightforward way.
     """
     for e in elem.findall(xpath):
-        print "{0}: {1}".format(e.tag, e.text)
+        print e.tag, e.attrib,
+        text = e.text.strip()
+        if text:
+            print text
+        else:
+            print
