@@ -2,12 +2,14 @@ import re
 import warnings
 import numpy as np
 import matplotlib.pyplot as plt
-from helpers import determine_tag_value, plot_helper_figs_assert, plot_helper_figs, plot_helper_post
+from helpers import determine_tag_value, plot_helper_figs_assert, plot_helper_figs
+from ..xml_utils import parse
+
 
 # internal
-def plot_helper_settings(axis_range, data_type):
+def plot_helper_settings(axis_range, data_type, save_figs, output):
     plt.axhline(y=0, c='k')
-    plt.axvline(x=0, ls='--', c='k')
+    plt.axvline(x=0, ls='--', c='k', alpha=0.5)
     if axis_range:
         plt.axis([axis_range[0], axis_range[1], axis_range[2], axis_range[3]])
     plt.xlabel('Energy (eV)')
@@ -17,36 +19,44 @@ def plot_helper_settings(axis_range, data_type):
         plt.ylabel('LDOS (States / Unit Cell / eV)')
     elif data_type == 'cohp':
         plt.ylabel('-pCOHP (Arbituary Unit / Unit Cell / eV)')
-
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        if data_type == 'tdos' or data_type == 'cohp':
-            plt.legend(loc=0,  fontsize='small')
-        elif data_type == 'ldos':
-            plt.legend(loc=0,  fontsize='x-small')
-
+    # with warnings.catch_warnings():
+    #     warnings.simplefilter("ignore")
+    #     if data_type == 'tdos' or data_type == 'cohp':
+    #         plt.legend(loc=0, fontsize='small')
+        # elif data_type == 'ldos':
+        #     plt.legend(loc=0, fontsize='x-small')
+    plt.legend(fontsize='small')
     try:
         plt.tight_layout()
     except RuntimeError:
         print "Tight layout failed... Not a big deal though."
+    if save_figs:
+        plt.savefig(output)
 
-def plot_tdos(axis_range=None, ISPIN=None, DOSCAR='DOSCAR', display=True,
-    on_figs=None, save_figs=False, save_data=False, output_prefix='TDOS', return_states_at_Ef=False):
+
+def plot_tdos(axis_range=None, ISPIN=None, input_file='DOSCAR', display=True,
+              on_figs=None, close_figs=False, save_figs=False, save_data=False, output_prefix='TDOS',
+              return_states_at_Ef=False):
     """
     Plot the total density of states, with consideration of spin-polarization.
+    Accepts input file 'DOSCAR', or 'vasprun.xml'.
 
     Parameters
     ----------
     axis_range: list
         the range of axes x and y, 4 values in a list
     ISPIN: int
-        user specified ISPIN. If not given, infer from OUTCAR, or INCAR
-    DOSCAR: string
-        DOSCAR file name, default to 'DOSCAR'
+        user specified ISPIN. If not given, infer from 'OUTCAR'/'INCAR'
+        for 'vasprun.xml' input, infer from 'vasprun.xml'
+    input_file: string
+        input file name, default to 'DOSCAR'. Can also be 'vasprun.xml'
     display: bool
         display figures or not
     on_figs: list
         the current figure numbers to plot to, default to new figures
+    close_figs: bool
+        close figs after drawing. Figures leave axes handlers in memory when the function is called.
+        If you care about memory usage, this might be useful.
     save_figs: bool
         save figures or not
     save_data: bool
@@ -58,107 +68,127 @@ def plot_tdos(axis_range=None, ISPIN=None, DOSCAR='DOSCAR', display=True,
 
     Returns
     -------
-    a dict, containing 'data', a 2D numpy array of data from DOSCAR,
-        and 'columns', a list of column labels
+    a dict, containing
+        'data': a dict that has 2D array of data,
+            easily to Pandas DataFrame by pd.DataFrame(**returned_dict['data'])
+        'axes': a dict that contains axes handlers of current figures
     """
+    if re.match(r".*\.xml", input_file):
+        root = parse(input_file)
 
-    from ..xml_utils import parse
-    root = parse('vasprun.xml')
+        NEDOS = int(root.find("./parameters/separator[@name='dos']/i[@name='NEDOS']").text)
+        Ef = float(root.find("./calculation/dos/i[@name='efermi']").text)
+        if ISPIN:
+            print "Using user specified ISPIN."
+        else:
+            ISPIN = int(root.find(
+                "./parameters/separator[@name='electronic']/separator[@name='electronic spin']/i[@name='ISPIN']").text)
 
-    ISPIN = int(root.find(
-        "./parameters/separator[@name='electronic']/separator[@name='electronic spin']/i[@name='ISPIN']").text)
-    LORBIT = root.find("./parameters/separator[@name='dos']/i[@name='LORBIT']").text
-    NEDOS = root.find("./parameters/separator[@name='dos']/i[@name='NEDOS']").text
+        if ISPIN == 1:
+            data = np.zeros((NEDOS, 3))
+            for n_step, elem in enumerate(root.findall(
+                    "./calculation/dos/total/array/set/set[@comment='spin 1']/r")):
+                data[n_step] = elem.text.split()
 
-    Ef = float(root.find("./calculation/dos/i[@name='efermi']").text)
+        elif ISPIN == 2:
+            data1 = np.zeros((NEDOS, 3))
+            for n_step, elem in enumerate(root.findall(
+                    "./calculation/dos/total/array/set/set[@comment='spin 1']/r")):
+                data1[n_step] = elem.text.split()
+            data2 = np.zeros((NEDOS, 3))
+            for n_step, elem in enumerate(root.findall(
+                    "./calculation/dos/total/array/set/set[@comment='spin 2']/r")):
+                data2[n_step] = elem.text.split()
 
+    elif re.match(r".*DOSCAR.*", input_file):
+        with open(input_file, 'r') as f:
+            DOSCAR = f.readlines()
+        for i in range(len(DOSCAR)):
+            DOSCAR[i] = DOSCAR[i].split()
 
-    with open(DOSCAR, 'r') as f:
-        DOSCAR = f.readlines()
-    for i in range(len(DOSCAR)):
-        DOSCAR[i] = DOSCAR[i].split()
+        NEDOS = int(DOSCAR[5][2])
+        Ef = float(DOSCAR[5][3])
+        if ISPIN:
+            print "Using user specified ISPIN."
+        else:
+            ISPIN = determine_tag_value('ISPIN')
 
-    NEDOS = int(DOSCAR[5][2])
-    Ef = float(DOSCAR[5][3])
-
-    if ISPIN:
-        print "Using user specified ISPIN."
-    else:
-        ISPIN = determine_tag_value('ISPIN')
+        data = np.array(DOSCAR[6:6 + NEDOS], dtype=float)
+        if ISPIN == 2:
+            data1 = data[:, [0, 1, 3]]
+            data2 = data[:, [0, 2, 4]]
 
     plot_helper_figs_assert(on_figs, ISPIN, 'tdos')
 
-    if ISPIN == 2:
-        col_names = ['E', 'total_up', 'total_down', 'integrated_up', 'integrated_down']
-        DOS_data = np.array(DOSCAR[6:6+NEDOS], dtype=float)
-        DOS_data[:, 0] -= Ef
-
-
-        ############ vasprun.xml ############
-        # from vasprun.xml
-        DOS_data = np.zeros((NEDOS, 5))
-        for n_step, elem in enumerate(root.findall(
-            "./calculation/dos/total/array/set/set[@comment='spin 1']/r")):
-            DOS_data[n_step] = elem.text.split()[0]
-
-
-        # Plot the separated TDOS
+    if ISPIN == 1:
+        col_names = ['E', 'total', 'integrated']
+        data[:, 0] -= Ef
         plot_helper_figs(on_figs)
-        plt.plot(DOS_data[:, 0], DOS_data[:, 1], label='spin up')
-        plt.plot(DOS_data[:, 0], DOS_data[:, 2], label='spin down')
-        plot_helper_settings(axis_range, 'tdos')
-        if axis_range:
-            plt.axis([axis_range[0], axis_range[1], axis_range[2], axis_range[3] / 2.])
-        if save_figs:
-            plt.savefig(output_prefix + '-spin-separated.pdf')
-        plot_helper_post(display)
+        plt.plot(data[:, 0], data[:, 1])
+        ax = plt.gca()
+        plot_helper_settings(axis_range, 'tdos', save_figs, output=output_prefix + '.pdf')
+        axes = {'ax': ax}
 
+        if return_states_at_Ef:
+            half_window = 0.2
+            TDOS_at_Ef = (data[abs(data[:, 0] - 0.2).argmin(), 2] -
+                          data[abs(data[:, 0] + 0.2).argmin(), 2]) / half_window / 2.
+
+        return_dict = {'data': {'columns': col_names, 'data': data}}
+        if save_data:
+            np.savetxt(output_prefix + '.txt', data, '%15.6E', header=' '.join(col_names))
+
+    elif ISPIN == 2:
+        col_names1 = ['E', 'total_up', 'integrated_up']
+        col_names2 = ['E', 'total_down', 'integrated_down']
+        data1[:, 0] -= Ef
+        data2[:, 0] -= Ef
         # Plot the combined TDOS
         plot_helper_figs(on_figs)
-        plt.plot(DOS_data[:, 0], DOS_data[:, 1] + DOS_data[:, 2], label='spin up + down')
-        plot_helper_settings(axis_range, 'tdos')
-        if save_figs:
-            plt.savefig(output_prefix + '-spin-combined.pdf')
-        plot_helper_post(display)
-
-        if return_states_at_Ef:
-            half_window = 0.2
-            TDOS_at_Ef = (DOS_data[abs(DOS_data[:, 0] - half_window).argmin(), 3] - \
-                    DOS_data[abs(DOS_data[:, 0] + half_window).argmin(), 3] + \
-                    DOS_data[abs(DOS_data[:, 0] - half_window).argmin(), 4] - \
-                    DOS_data[abs(DOS_data[:, 0] + half_window).argmin(), 4]) / half_window / 2.
-
-
-    elif ISPIN == 1:
-        col_names = ['E', 'total', 'integrated']
-        DOS_data = np.array(DOSCAR[6:6+NEDOS], dtype=float)
-        DOS_data[:, 0] -= Ef
-
+        plt.plot(data1[:, 0], data1[:, 1] + data2[:, 1], label='spin up + down')
+        ax1 = plt.gca()
+        plot_helper_settings(axis_range, 'tdos', save_figs, output=output_prefix + '-spin-combined.pdf')
+        # Plot the overlapped TDOS
         plot_helper_figs(on_figs)
-        plt.plot(DOS_data[:, 0], DOS_data[:, 1])
-        plot_helper_settings(axis_range, 'tdos')
-        if save_figs:
-            plt.savefig(output_prefix + '.pdf')
-        plot_helper_post(display)
+        plt.plot(data1[:, 0], data1[:, 1], label='spin up')
+        plt.plot(data2[:, 0], data2[:, 1], label='spin down')
+        ax2 = plt.gca()
+        axis_range_copy = None
+        if axis_range:
+            axis_range_copy = axis_range[:]
+            axis_range_copy[3] /= 2.
+        plot_helper_settings(axis_range_copy, 'tdos', save_figs, output=output_prefix + '-spin-overlapped.pdf')
+        axes = {'ax_spin_combined': ax1, 'ax_spin_overlapped': ax2}
 
         if return_states_at_Ef:
             half_window = 0.2
-            TDOS_at_Ef = (DOS_data[abs(DOS_data[:, 0] - 0.2).argmin(), 2] - \
-                       DOS_data[abs(DOS_data[:, 0] + 0.2).argmin(), 2]) / half_window / 2.
+            TDOS_at_Ef = (data1[abs(data1[:, 0] - half_window).argmin(), 2] -
+                          data1[abs(data1[:, 0] + half_window).argmin(), 2] +
+                          data2[abs(data2[:, 0] - half_window).argmin(), 2] -
+                          data2[abs(data2[:, 0] + half_window).argmin(), 2]) / half_window / 2.
 
-    if save_data:
-        np.savetxt(output_prefix + '.txt', DOS_data, '%15.6E', header=' '.join(col_names))
+        return_dict = {'data_spin_up': {'columns': col_names1, 'data': data1},
+                       'data_spin_down': {'columns': col_names2, 'data': data2}}
+        if save_data:
+            np.savetxt(output_prefix + '_spin_up.txt', data1, '%15.6E', header=' '.join(col_names1))
+            np.savetxt(output_prefix + '_spin_down.txt', data2, '%15.6E', header=' '.join(col_names2))
 
-    if return_states_at_Ef:
-        return {'dos_data': {'columns': col_names, 'data': DOS_data}, 'TDOS_at_Ef': TDOS_at_Ef}
+    if display:
+        plt.show()
+    if close_figs:
+        plt.close('all')
     else:
-        return {'dos_data':{'columns': col_names, 'data': DOS_data}}
+        return_dict['axes'] = axes
+    if return_states_at_Ef:
+        return_dict['TDOS_at_Ef'] = TDOS_at_Ef
+    return return_dict
 
 
-def plot_ldos(atom, axis_range=None, ISPIN=None, LORBIT=None, DOSCAR='DOSCAR', display=True,
-    on_figs=None, save_figs=False, save_data=False, output_prefix='LDOS'):
+def plot_ldos(atom, axis_range=None, ISPIN=None, LORBIT=None, input_file='DOSCAR', display=True,
+              on_figs=None, close_figs=False, save_figs=False, save_data=False, output_prefix='LDOS'):
     """
     Plot the local projected density of states, with consideration of spin-polarization.
+    Accepts input file 'DOSCAR', or 'vasprun.xml'.
 
     Parameters
     ----------
@@ -167,15 +197,20 @@ def plot_ldos(atom, axis_range=None, ISPIN=None, LORBIT=None, DOSCAR='DOSCAR', d
     axis_range: list
         the range of axes x and y, 4 values in a list
     ISPIN: int
-        user specified ISPIN. If not given, infer from OUTCAR, or INCAR
+        user specified ISPIN. If not given, infer from 'OUTCAR'/'INCAR'
+        for 'vasprun.xml' input, infer from 'vasprun.xml'
     LORBIT: int
-        user specified LORBIT. If not given, infer from OUTCAR, or INCAR
-    DOSCAR: string
-        DOSCAR file name, default to 'DOSCAR'
+        user specified LORBIT. If not given, infer from 'OUTCAR'/'INCAR'
+        for 'vasprun.xml' input, infer from 'vasprun.xml'
+    input_file: string
+        input file name, default to 'DOSCAR'. Can also be 'vasprun.xml'
     display: bool
         display figures or not
     on_figs: list
         the current figure numbers to plot to, default to new figures
+    close_figs: bool
+        close figs after drawing. Figures leave axes handlers in memory when the function is called.
+        If you care about memory usage, this might be useful.
     save_figs: bool
         save figures or not
     save_data: bool
@@ -185,163 +220,176 @@ def plot_ldos(atom, axis_range=None, ISPIN=None, LORBIT=None, DOSCAR='DOSCAR', d
 
     Returns
     -------
-    a dict, containing 'data', a 2D numpy array of data from DOSCAR,
-        and 'columns', a list of column labels
+    a dict, containing
+        'data': a dict that has 2D array of data,
+            easily to Pandas DataFrame by pd.DataFrame(**returned_dict['data'])
+        'axes': a dict that contains axes handlers of current figures
     """
+    if re.match(r".*\.xml", input_file):
+        root = parse(input_file)
 
-    with open(DOSCAR, 'r') as f:
-        DOSCAR = f.readlines()
-    for i in range(len(DOSCAR)):
-        DOSCAR[i] = DOSCAR[i].split()
+        NEDOS = int(root.find("./parameters/separator[@name='dos']/i[@name='NEDOS']").text)
+        Ef = float(root.find("./calculation/dos/i[@name='efermi']").text)
+        if ISPIN:
+            print "Using user specified ISPIN."
+        else:
+            ISPIN = int(root.find(
+                "./parameters/separator[@name='electronic']/separator[@name='electronic spin']/i[@name='ISPIN']").text)
+        # vasprun.xml's LORBIT is not correct
+        if LORBIT:
+            print "Using user specified LORBIT."
+        else:
+            LORBIT = determine_tag_value('LORBIT')
 
-    NEDOS = int(DOSCAR[5][2])
-    Ef = float(DOSCAR[5][3])
+        if ISPIN == 1:
+            if LORBIT == 10 or LORBIT == 0:
+                data = np.zeros((NEDOS, 4))
+            elif LORBIT == 11 or LORBIT == 1:
+                data = np.zeros((NEDOS, 10))
+            for n_step, elem in enumerate(root.findall(
+                                    "./calculation/dos/partial/array/set/set[@comment='ion " + str(
+                                    atom) + "']/set[@comment='spin 1']/r")):
+                data[n_step] = elem.text.split()
 
-    if ISPIN:
-        print "Using user specified ISPIN."
-    else:
-        ISPIN = determine_tag_value('ISPIN')
+        elif ISPIN == 2:
+            if LORBIT == 10 or LORBIT == 0:
+                data1 = np.zeros((NEDOS, 4))
+                data2 = np.zeros((NEDOS, 4))
+            elif LORBIT == 11 or LORBIT == 1:
+                data1 = np.zeros((NEDOS, 10))
+                data2 = np.zeros((NEDOS, 10))
 
-    if LORBIT:
-        print "Using user specified LORBIT."
-    else:
-        LORBIT = determine_tag_value('LORBIT')
+            for n_step, elem in enumerate(root.findall(
+                                    "./calculation/dos/partial/array/set/set[@comment='ion " + str(
+                                    atom) + "']/set[@comment='spin 1']/r")):
+                data1[n_step] = elem.text.split()
+            for n_step, elem in enumerate(root.findall(
+                                    "./calculation/dos/partial/array/set/set[@comment='ion " + str(
+                                    atom) + "']/set[@comment='spin 2']/r")):
+                data2[n_step] = elem.text.split()
+
+    elif re.match(r".*DOSCAR.*", input_file):
+        with open(input_file, 'r') as f:
+            DOSCAR = f.readlines()
+        for i in range(len(DOSCAR)):
+            DOSCAR[i] = DOSCAR[i].split()
+
+        NEDOS = int(DOSCAR[5][2])
+        Ef = float(DOSCAR[5][3])
+        if ISPIN:
+            print "Using user specified ISPIN."
+        else:
+            ISPIN = determine_tag_value('ISPIN')
+        if LORBIT:
+            print "Using user specified LORBIT."
+        else:
+            LORBIT = determine_tag_value('LORBIT')
+
+        data = np.array(DOSCAR[(6 + (NEDOS + 1) * atom):(6 + (NEDOS + 1) * atom + NEDOS)], dtype=float)
+        if ISPIN == 2:
+            if LORBIT == 10 or LORBIT == 0:
+                data1 = data[:, [0, 1, 3, 5]]
+                data2 = data[:, [0, 2, 4, 6]]
+            elif LORBIT == 11 or LORBIT == 1:
+                data1 = data[:, [0, 1, 3, 5, 7, 9, 11, 13, 15, 17]]
+                data2 = data[:, [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]]
 
     plot_helper_figs_assert(on_figs, ISPIN, 'ldos')
 
-    if ISPIN == 2 and (LORBIT == 11 or LORBIT == 1):
-        col_names = ['E', 's_up', 's_down', 'p_y_up', 'p_y_down', 'p_z_up', 'p_z_down', 'p_x_up', 'p_x_down',
-                     'd_xy_up', 'd_xy_down', 'd_yz_up', 'd_yz_down', 'd_z2_up', 'd_z2_down',
-                     'd_xz_up', 'd_xz_down', 'd_x2y2_up', 'd_x2y2_down']
-        DOS_data = np.array(DOSCAR[(6 + (NEDOS + 1) * atom):(6 + (NEDOS + 1) * atom + NEDOS)], dtype=float)
-        DOS_data[:, 0] -= Ef
-
-        # Spin up
+    if ISPIN == 1:
+        data[:, 0] -= Ef
         plot_helper_figs(on_figs)
-        for i in range(1, 18, 2):
-            plt.plot(DOS_data[:, 0], DOS_data[:, i], label=col_names[i])
+        if LORBIT == 10 or LORBIT == 0:
+            col_names = ['E', 's', 'p', 'd']
+            for i in range(1, 4):
+                plt.plot(data[:, 0], data[:, i], label=col_names[i])
+        elif LORBIT == 11 or LORBIT == 1:
+            col_names = ['E', 's', 'p_y', 'p_z', 'p_x', 'd_xy', 'd_yz', 'd_z2', 'd_xz', 'd_x2y2']
+            for i in range(1, 10):
+                plt.plot(data[:, 0], data[:, i], label=col_names[i])
+        ax = plt.gca()
+        plot_helper_settings(axis_range, 'ldos', save_figs, output=output_prefix + '.pdf')
+        axes = {'ax': ax}
+        return_dict = {'data': {'columns': col_names, 'data': data}}
+        if save_data:
+            np.savetxt(output_prefix + '.txt', data, '%15.6E', header=' '.join(col_names))
 
-        plot_helper_settings(axis_range, 'ldos')
+    elif ISPIN == 2:
+        data1[:, 0] -= Ef
+        data2[:, 0] -= Ef
+        # plot spin combined
+        plot_helper_figs(on_figs)
+        if LORBIT == 10 or LORBIT == 0:
+            col_names1 = ['E', 's_up', 'p_up', 'd_up']
+            col_names2 = ['E', 's_down', 'p_down', 'd_down']
+            for i in range(1, 4):
+                plt.plot(data1[:, 0], data1[:, i] + data2[:, i], label=col_names1[i] + ' + ' + col_names2[i])
+        elif LORBIT == 11 or LORBIT == 1:
+            col_names1 = ['E', 's_up', 'p_y_up', 'p_z_up', 'p_x_up', 'd_xy_up', 'd_yz_up', 'd_z2_up', 'd_xz_up',
+                          'd_x2y2_up']
+            col_names2 = ['E', 's_down', 'p_y_down', 'p_z_down', 'p_x_down', 'd_xy_down', 'd_yz_down', 'd_z2_down',
+                          'd_xz_down', 'd_x2y2_down']
+            for i in range(1, 10):
+                plt.plot(data1[:, 0], data1[:, i] + data2[:, i], label=col_names1[i] + ' + ' + col_names2[i])
+        ax1 = plt.gca()
+        plot_helper_settings(axis_range, 'ldos', save_figs, output=output_prefix + '-spin-combined.pdf')
+        # plot spin overlapped
+        plot_helper_figs(on_figs)
+        if LORBIT == 10 or LORBIT == 0:
+
+            for i in range(1, 4):
+                plt.plot(data1[:, 0], data1[:, i], label=col_names1[i])
+                plt.plot(data2[:, 0], -data2[:, i], label=col_names2[i])
+        elif LORBIT == 11 or LORBIT == 1:
+            for i in range(1, 10):
+                plt.plot(data1[:, 0], data1[:, i], label=col_names1[i])
+                plt.plot(data2[:, 0], -data2[:, i], label=col_names2[i])
+        ax2 = plt.gca()
+        axis_range_copy = None
         if axis_range:
-            plt.axis([axis_range[0], axis_range[1], axis_range[2]/2., axis_range[3]/2.])
-        if save_figs:
-            plt.savefig(output_prefix + '-spin-up.pdf')
-        plot_helper_post(display)
+            axis_range_copy = axis_range[:]
+            axis_range_copy[3] /= 2.
+            axis_range_copy[2] /= -axis_range_copy[3]
+        plot_helper_settings(axis_range_copy, 'ldos', save_figs, output=output_prefix + '-spin-overlapped.pdf')
 
-        # Spin down
-        plot_helper_figs(on_figs)
-        for i in range(1, 18, 2):
-            plt.plot(DOS_data[:, 0], DOS_data[:, i + 1], label=col_names[i + 1])
+        axes = {'ax_spin_combined': ax1, 'ax_spin_overlapped': ax2}
+        return_dict = {'data_spin_up': {'columns': col_names1, 'data': data1},
+                       'data_spin_down': {'columns': col_names2, 'data': data2}}
+        if save_data:
+            np.savetxt(output_prefix + '_spin_up.txt', data1, '%15.6E', header=' '.join(col_names1))
+            np.savetxt(output_prefix + '_spin_down.txt', data2, '%15.6E', header=' '.join(col_names2))
 
-        plot_helper_settings(axis_range, 'ldos')
-        if axis_range:
-            plt.axis([axis_range[0], axis_range[1], axis_range[2]/2., axis_range[3]/2.])
-        if save_figs:
-            plt.savefig(output_prefix + '-spin-down.pdf')
-        plot_helper_post(display)
-
-        # Spin up + down
-        plot_helper_figs(on_figs)
-        for i in range(1, 18, 2):
-            plt.plot(DOS_data[:, 0], DOS_data[:, i] + DOS_data[:, i + 1], label=col_names[i] + '+' + col_names[i + 1])
-
-        plot_helper_settings(axis_range, 'ldos')
-        if save_figs:
-            plt.savefig(output_prefix + '-spin-combined.pdf')
-        plot_helper_post(display)
-
-    elif ISPIN == 2 and (LORBIT == 10 or LORBIT == 0):
-        col_names = ['E', 's_up', 's_down', 'p_up', 'p_down', 'd_up', 'd_down']
-        DOS_data = np.array(DOSCAR[(6 + (NEDOS + 1) * atom):(6 + (NEDOS + 1) * atom + NEDOS)], dtype=float)
-        DOS_data[:, 0] -= Ef
-
-        # Spin up
-        plot_helper_figs(on_figs)
-        for i in range(1, 6, 2):
-            plt.plot(DOS_data[:, 0], DOS_data[:, i], label=col_names[i])
-
-        plot_helper_settings(axis_range, 'ldos')
-        if axis_range:
-            plt.axis([axis_range[0], axis_range[1], axis_range[2]/2., axis_range[3]/2.])
-        if save_figs:
-            plt.savefig(output_prefix + '-spin-up.pdf')
-        plot_helper_post(display)
-
-        # Spin down
-        plot_helper_figs(on_figs)
-        for i in range(1, 6, 2):
-            plt.plot(DOS_data[:, 0], DOS_data[:, i + 1], label=col_names[i + 1])
-
-        plot_helper_settings(axis_range, 'ldos')
-        if axis_range:
-            plt.axis([axis_range[0], axis_range[1], axis_range[2]/2., axis_range[3]/2.])
-        if save_figs:
-            plt.savefig(output_prefix + '-spin-down.pdf')
-        plot_helper_post(display)
-
-        # Spin up + down
-        plot_helper_figs(on_figs)
-        for i in range(1, 6, 2):
-            plt.plot(DOS_data[:, 0], DOS_data[:, i] + DOS_data[:, i + 1], label=col_names[i] + '+' + col_names[i + 1])
-
-        plot_helper_settings(axis_range, 'ldos')
-        if save_figs:
-            plt.savefig(output_prefix + '-spin-combined.pdf')
-        plot_helper_post(display)
-
-    elif ISPIN == 1 and (LORBIT == 11 or LORBIT == 1):
-        col_names = ['E', 's', 'p_y', 'p_z', 'p_x', 'd_xy', 'd_yz', 'd_z2', 'd_xz', 'd_x2y2']
-        DOS_data = np.array(DOSCAR[(6 + (NEDOS + 1) * atom):(6 + (NEDOS + 1) * atom + NEDOS)], dtype=float)
-        DOS_data[:, 0] -= Ef
-
-        plot_helper_figs(on_figs)
-        for i in range(1, 10):
-            plt.plot(DOS_data[:, 0], DOS_data[:, i], label=col_names[i])
-
-        plot_helper_settings(axis_range, 'ldos')
-        if save_figs:
-            plt.savefig(output_prefix + '.pdf')
-        plot_helper_post(display)
-
-    elif ISPIN == 1 and (LORBIT == 10 or LORBIT == 0):
-        col_names = ['E', 's', 'p', 'd']
-        DOS_data = np.array(DOSCAR[(6 + (NEDOS + 1) * atom):(6 + (NEDOS + 1) * atom + NEDOS)], dtype=float)
-        DOS_data[:, 0] -= Ef
-
-        plot_helper_figs(on_figs)
-        for i in range(1, 4):
-            plt.plot(DOS_data[:, 0], DOS_data[:, i], label=col_names[i])
-
-        plot_helper_settings(axis_range, 'ldos')
-        if save_figs:
-            plt.savefig(output_prefix + '.pdf')
-        plot_helper_post(display)
-
-    if save_data:
-        np.savetxt(output_prefix + '.txt', DOS_data, '%15.6E', header=' '.join(col_names))
-
-    return {'dos_data': {'columns': col_names, 'data': DOS_data}}
+    if display:
+        plt.show()
+    if close_figs:
+        plt.close('all')
+    else:
+        return_dict['axes'] = axes
+    return return_dict
 
 
-def plot_cohp(bond_to_plot, axis_range=None, ISPIN=None, COHPCAR='COHPCAR.lobster', display=True,
-    on_figs=None, save_figs=False, save_data=False, output_prefix='COHP'):
+def plot_cohp(bond, axis_range=None, ISPIN=None, input_file='COHPCAR.lobster', display=True,
+              on_figs=None, close_figs=False, save_figs=False, save_data=False, output_prefix='COHP'):
     """
     Plot the -COHP, with consideration of spin-polarization.
 
     Parameters
     ----------
-    bond_to_plot: int
+    bond: int
         the bond number in COHPCAR.lobster interested, counting from 1
     axis_range: list
         the range of axes x and y, 4 values in a list
     ISPIN: int
-        user specified ISPIN. If not given, infer from OUTCAR, or INCAR
-    COHPCAR: string
-        COHPCAR file name, default to 'COHPCAR.lobster'
+        user specified ISPIN. If not given, infer from 'OUTCAR'/'INCAR'
+    input_file: string
+        input file name, default to 'COHPCAR.lobster'.
     display: bool
         display figures or not
     on_figs: list
         the current figure numbers to plot to, default to new figures
+    close_figs: bool
+        close figs after drawing. Figures leave axes handlers in memory when the function is called.
+        If you care about memory usage, this might be useful.
     save_figs: bool
         save figures or not
     save_data: bool
@@ -351,18 +399,12 @@ def plot_cohp(bond_to_plot, axis_range=None, ISPIN=None, COHPCAR='COHPCAR.lobste
 
     Returns
     -------
-    a dict, containing 'data', a 2D numpy array of data from DOSCAR,
-        and 'columns', a list of column labels
+    a dict, containing
+        'data': a dict that has 2D array of data,
+            easily to Pandas DataFrame by pd.DataFrame(**returned_dict['data'])
+        'axes': a dict that contains axes handlers of current figures
     """
-
-    if ISPIN:
-        print "Using user specified ISPIN."
-    else:
-        ISPIN = determine_tag_value('ISPIN')
-
-    plot_helper_figs_assert(on_figs, ISPIN, 'cohp')
-
-    with open(COHPCAR, 'r') as f:
+    with open(input_file, 'r') as f:
         COHPCAR = f.readlines()
 
     for line_num, line in enumerate(COHPCAR):
@@ -370,7 +412,7 @@ def plot_cohp(bond_to_plot, axis_range=None, ISPIN=None, COHPCAR='COHPCAR.lobste
             break
     N_headerlines = line_num
 
-    for line_num, line in enumerate(COHPCAR[line_num:]):
+    for line_num, line in enumerate(COHPCAR[N_headerlines:]):
         if not re.match(r'No\.\d*:.*\(.*\)', line):
             break
     N_bonds = line_num
@@ -381,53 +423,70 @@ def plot_cohp(bond_to_plot, axis_range=None, ISPIN=None, COHPCAR='COHPCAR.lobste
         COHPCAR[i] = COHPCAR[i].split()
 
     NEDOS = int(COHPCAR[1][2])
+    if ISPIN:
+        print "Using user specified ISPIN."
+    else:
+        ISPIN = determine_tag_value('ISPIN')
 
-    if ISPIN == 2:
-        col_names = ['E', 'avg_up', 'avg_integrated_up']
-        for n_bond in range(1, N_bonds + 1):
-            col_names.extend(['{0}_up'.format(n_bond), '{0}_integrated_up'.format(n_bond)])
-        col_names.extend(['avg_down', 'avg_integrated_down'])
-        for n_bond in range(1, N_bonds + 1):
-            col_names.extend(['{0}_down'.format(n_bond), '{0}_integrated_down'.format(n_bond)])
-        COHP_data = np.array(COHPCAR[data_start_line:data_start_line + NEDOS], dtype=float)
+    data = np.array(COHPCAR[data_start_line:data_start_line + NEDOS], dtype=float)
 
-        col_up_to_plot = bond_to_plot * 2 + 1
-        col_down_to_plot = (bond_to_plot + N_bonds + 1) * 2 + 1
-        # Plot the separated COHP
-        plot_helper_figs(on_figs)
-        plt.plot(COHP_data[:, 0], -COHP_data[:, col_up_to_plot], label=col_names[col_up_to_plot])
-        plt.plot(COHP_data[:, 0], -COHP_data[:, col_down_to_plot], label=col_names[col_down_to_plot])
-        plot_helper_settings(axis_range, 'cohp')
-        if axis_range:
-            plt.axis([axis_range[0], axis_range[1], axis_range[2]/2., axis_range[3]/2.])
-        if save_figs:
-            plt.savefig(output_prefix + '-spin-separated.pdf')
-        plot_helper_post(display)
+    plot_helper_figs_assert(on_figs, ISPIN, 'cohp')
 
-        # Plot the combined COHP
-        plot_helper_figs(on_figs)
-        plt.plot(COHP_data[:, 0], -COHP_data[:, col_up_to_plot] - COHP_data[:, col_down_to_plot])
-        plot_helper_settings(axis_range, 'cohp')
-        if save_figs:
-            plt.savefig(output_prefix + '-spin-combined.pdf')
-        plot_helper_post(display)
-
-    elif ISPIN == 1:
+    if ISPIN == 1:
         col_names = ['E', 'avg', 'avg_integrated']
         for n_bond in range(1, N_bonds + 1):
             col_names.extend(['{0}'.format(n_bond), '{0}_integrated'.format(n_bond)])
 
-        COHP_data = np.array(COHPCAR[data_start_line:data_start_line + NEDOS], dtype=float)
 
-        col_to_plot = bond_to_plot * 2 + 1
+        col_num = bond * 2 + 1
         plot_helper_figs(on_figs)
-        plt.plot(COHP_data[:, 0], -COHP_data[:, col_to_plot], label=col_names[col_to_plot])
-        plot_helper_settings(axis_range, 'cohp')
-        if save_figs:
-            plt.savefig(output_prefix + '.pdf')
-        plot_helper_post(display)
+        plt.plot(data[:, 0], -data[:, col_num], label=col_names[col_num])
+        ax = plt.gca()
+        plot_helper_settings(axis_range, 'cohp', save_figs, output=output_prefix + '.pdf')
+        axes = {'ax': ax}
+        return_dict = {'data': {'columns': col_names, 'data': data}}
+        if save_data:
+            np.savetxt(output_prefix + '.txt', data, '%15.6E', header=' '.join(col_names))
 
-    if save_data:
-        np.savetxt(output_prefix + '.txt', COHP_data, '%15.6E', header=' '.join(col_names))
+    elif ISPIN == 2:
+        col_names1 = ['E', 'avg_up', 'avg_integrated_up']
+        col_names2= ['E', 'avg_down', 'avg_integrated_down']
+        for n_bond in range(1, N_bonds + 1):
+            col_names1.extend(['{0}_up'.format(n_bond), '{0}_integrated_up'.format(n_bond)])
+            col_names2.extend(['{0}_down'.format(n_bond), '{0}_integrated_down'.format(n_bond)])
+        data1 = data[:, :(3+2*N_bonds)]
+        data2 = data[:, (3+2*N_bonds):(5+4*N_bonds)]
+        data2 = np.column_stack((data[:, 0], data2))
 
-    return {'coph_data': {'columns': col_names, 'data': COHP_data}}
+        col_bond = bond * 2 + 1
+        # col_bond2 = (bond + N_bonds + 1) * 2 + 1
+        # Plot the combined COHP
+        plot_helper_figs(on_figs)
+        plt.plot(data1[:, 0], -data1[:, col_bond] - data2[:, col_bond])
+        ax1 = plt.gca()
+        plot_helper_settings(axis_range, 'cohp', save_figs, output=output_prefix + '-spin-combined.pdf')
+        # Plot the overlapped COHP
+        plot_helper_figs(on_figs)
+        plt.plot(data1[:, 0], -data1[:, col_bond], label=col_names1[col_bond])
+        plt.plot(data2[:, 0], -data2[:, col_bond], label=col_names2[col_bond])
+        ax2 = plt.gca()
+        axis_range_copy = None
+        if axis_range:
+            axis_range_copy = axis_range[:]
+            axis_range_copy[3] /= 2.
+        plot_helper_settings(axis_range_copy, 'cohp', save_figs, output=output_prefix + '-spin-overlapped.pdf')
+        axes = {'ax_spin_combined': ax1, 'ax_spin_overlapped': ax2}
+
+        return_dict = {'data_spin_up': {'columns': col_names1, 'data': data1},
+                       'data_spin_down': {'columns': col_names2, 'data': data2}}
+        if save_data:
+            np.savetxt(output_prefix + '_spin_up.txt', data, '%15.6E', header=' '.join(col_names1))
+            np.savetxt(output_prefix + '_spin_down.txt', data, '%15.6E', header=' '.join(col_names2))
+
+    if display:
+        plt.show()
+    if close_figs:
+        plt.close('all')
+    else:
+        return_dict['axes'] = axes
+    return return_dict
