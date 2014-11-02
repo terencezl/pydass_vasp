@@ -29,6 +29,6 @@ try:
 except AttributeError:
     print "If you upgrade to matplotlib 1.4 and I will change the style to ggplot, just prettier."
 
-from pyass_vasp.plotting import plot_tdos
+from pydass_vasp.plotting import plot_tdos
 plot_tdos(axis_range=args.axis_range, ISPIN=args.ISPIN, input_file=args.input, display=display, close_figs=close_figs,
     save_figs=save_figs, save_data=args.save_data, output_prefix=args.output_prefix)

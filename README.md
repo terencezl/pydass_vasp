@@ -1,4 +1,4 @@
-pyass_vasp
-==========
+pydass_vasp
+===========
 
-Convenient Python modules and derivative executable scripts.
+pydass_vasp (or, badass wasp). Convenient Python modules and derivative executable scripts.
