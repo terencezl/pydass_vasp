@@ -1,5 +1,4 @@
 import re
-import warnings
 import numpy as np
 import matplotlib.pyplot as plt
 from helpers import determine_tag_value, plot_helper_figs_assert, plot_helper_figs
@@ -19,12 +18,6 @@ def plot_helper_settings(axis_range, data_type, save_figs, output):
         plt.ylabel('LDOS (States / Unit Cell / eV)')
     elif data_type == 'cohp':
         plt.ylabel('-pCOHP (Arbituary Unit / Unit Cell / eV)')
-    # with warnings.catch_warnings():
-    #     warnings.simplefilter("ignore")
-    #     if data_type == 'tdos' or data_type == 'cohp':
-    #         plt.legend(loc=0, fontsize='small')
-        # elif data_type == 'ldos':
-        #     plt.legend(loc=0, fontsize='x-small')
     plt.legend(fontsize='small')
     try:
         plt.tight_layout()
@@ -173,12 +166,13 @@ def plot_tdos(axis_range=None, ISPIN=None, input_file='DOSCAR', display=True,
             np.savetxt(output_prefix + '_spin_up.txt', data1, '%15.6E', header=' '.join(col_names1))
             np.savetxt(output_prefix + '_spin_down.txt', data2, '%15.6E', header=' '.join(col_names2))
 
-    if display:
+    if display and (not plt.isinteractive()):
         plt.show()
-    if close_figs:
-        plt.close('all')
     else:
-        return_dict['axes'] = axes
+        if close_figs:
+            plt.close('all')
+        else:
+            return_dict['axes'] = axes
     if return_states_at_Ef:
         return_dict['TDOS_at_Ef'] = TDOS_at_Ef
     return return_dict
@@ -359,12 +353,13 @@ def plot_ldos(atom, axis_range=None, ISPIN=None, LORBIT=None, input_file='DOSCAR
             np.savetxt(output_prefix + '_spin_up.txt', data1, '%15.6E', header=' '.join(col_names1))
             np.savetxt(output_prefix + '_spin_down.txt', data2, '%15.6E', header=' '.join(col_names2))
 
-    if display:
+    if display and (not plt.isinteractive()):
         plt.show()
-    if close_figs:
-        plt.close('all')
     else:
-        return_dict['axes'] = axes
+        if close_figs:
+            plt.close('all')
+        else:
+            return_dict['axes'] = axes
     return return_dict
 
 
@@ -459,7 +454,6 @@ def plot_cohp(bond, axis_range=None, ISPIN=None, input_file='COHPCAR.lobster', d
         data2 = np.column_stack((data[:, 0], data2))
 
         col_bond = bond * 2 + 1
-        # col_bond2 = (bond + N_bonds + 1) * 2 + 1
         # Plot the combined COHP
         plot_helper_figs(on_figs)
         plt.plot(data1[:, 0], -data1[:, col_bond] - data2[:, col_bond])
@@ -483,10 +477,11 @@ def plot_cohp(bond, axis_range=None, ISPIN=None, input_file='COHPCAR.lobster', d
             np.savetxt(output_prefix + '_spin_up.txt', data, '%15.6E', header=' '.join(col_names1))
             np.savetxt(output_prefix + '_spin_down.txt', data, '%15.6E', header=' '.join(col_names2))
 
-    if display:
+    if display and (not plt.isinteractive()):
         plt.show()
-    if close_figs:
-        plt.close('all')
     else:
-        return_dict['axes'] = axes
+        if close_figs:
+            plt.close('all')
+        else:
+            return_dict['axes'] = axes
     return return_dict

@@ -2,7 +2,7 @@
 import argparse
 import matplotlib
 
-parser = argparse.ArgumentParser(description='''Plot the -COHP, with consideration of spin-polarization.''')
+parser = argparse.ArgumentParser(description="""Plot the -COHP, with consideration of spin-polarization.""")
 parser.add_argument('bond_to_plot', type=int, help='bond number to plot')
 parser.add_argument('-a', '--axis-range', type=eval, help='''the x and y range of axis in the form of
             '[Xmin,Xmax,Ymin,Ymax]'. If ISPIN=2, this option specifies the combined spin.''')
@@ -14,9 +14,11 @@ parser.add_argument('-o', '--output-prefix', default='COHP', help="the output fi
 args = parser.parse_args()
 if args.display:
     display = True
+    close_figs = False
     save_figs = False
 else:
     display = False
+    close_figs = True
     save_figs = True
 
 if not args.display:
@@ -28,5 +30,5 @@ except AttributeError:
     print "If you upgrade to matplotlib 1.4 and I will change the style to ggplot, just prettier."
 
 from pyass_vasp.plotting import plot_cohp
-plot_cohp(bond_to_plot=args.bond_to_plot, axis_range=args.axis_range, ISPIN=args.ISPIN, COHPCAR=args.input, display=display,
+plot_cohp(bond_to_plot=args.bond_to_plot, axis_range=args.axis_range, ISPIN=args.ISPIN, COHPCAR=args.input, display=display, close_figs=close_figs,
     save_figs=save_figs, save_data=args.save_data, output_prefix=args.output_prefix)

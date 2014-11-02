@@ -1,5 +1,4 @@
 import re
-import warnings
 import numpy as np
 import matplotlib.pyplot as plt
 from helpers import determine_tag_value, plot_helper_figs_assert, plot_helper_figs
@@ -29,7 +28,7 @@ def find_band_edges(kp_edge, prec_range, E):
         np.where(np.logical_and(E[kp_edge] < prec_range, E[kp_edge] > 0))[1]
 
 
-def get_reduced_effective_mass(band, kp_start, kp_end, kps_linearized, E):
+def get_effective_mass(band, kp_start, kp_end, kps_linearized, E):
     """
     Given the band index number, k-point start and end indices, fit the included curve
     to a 2nd-order polynomial, and obtain the effective mass of the carrier electron or hole.
@@ -49,7 +48,7 @@ def get_reduced_effective_mass(band, kp_start, kp_end, kps_linearized, E):
 
     Returns
     -------
-    the reduced effective mass
+    the effective mass
     """
     h_bar = 1.054571726e-34
     e = 1.6021176462e-19
@@ -67,8 +66,8 @@ def get_reduced_effective_mass(band, kp_start, kp_end, kps_linearized, E):
     plt.plot(k_fit, p(k_fit), lw=2)
 
     d2E_dk2 = e * p[2] / (2 * np.pi / scaling_const) ** 2
-    effective_mass_reduced = h_bar ** 2 / d2E_dk2 / m_e
-    return effective_mass_reduced
+    effective_mass = h_bar ** 2 / d2E_dk2 / m_e
+    return effective_mass
 
 
 # internal
@@ -82,8 +81,6 @@ def plot_helper_settings(ax, axis_range, reciprocal_point_locations, reciprocal_
     for kp_end_point in range(len(reciprocal_point_locations)):
         plt.axvline(reciprocal_point_locations[kp_end_point], ls='--', c='k', alpha=0.5)
     plt.ylabel('Energy (eV)')
-    # with warnings.catch_warnings():
-    #     plt.legend(loc=0, fontsize='small')
     plt.legend(fontsize='small')
     try:
         plt.tight_layout()
@@ -350,10 +347,11 @@ def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_poin
                 'data': np.column_stack((kps_linearized, E_spin2))
             }
 
-    if display:
+    if display and (not plt.isinteractive()):
         plt.show()
-    if close_figs:
-        plt.close('all')
     else:
-        return_dict['axes'] = axes
+        if close_figs:
+            plt.close('all')
+        else:
+            return_dict['axes'] = axes
     return return_dict

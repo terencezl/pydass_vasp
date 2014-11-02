@@ -2,8 +2,8 @@
 import argparse
 import matplotlib
 
-parser = argparse.ArgumentParser(description='''Plot the band structure, with
-            consideration of spin-polarization.''')
+parser = argparse.ArgumentParser(description="""Plot the band structure, with
+            consideration of spin-polarization. Accepts input file 'EIGENVAL', or 'vasprun.xml'.""")
 parser.add_argument('-a', '--axis-range', type=eval, help='''the x and y range of axis in the form of
             '[Xmin,Xmax,Ymin,Ymax]'. If ISPIN=2, this option specifies the combined spin.''')
 parser.add_argument('--ISPIN', type=int, help="manually override ISPIN detection")
@@ -15,9 +15,11 @@ parser.add_argument('-o', '--output-prefix', default='BS', help="the output file
 args = parser.parse_args()
 if args.display:
     display = True
+    close_figs = False
     save_figs = False
 else:
     display = False
+    close_figs = True
     save_figs = True
 
 if not args.display:
@@ -29,5 +31,5 @@ except AttributeError:
     print "If you upgrade to matplotlib 1.4 and I will change the style to ggplot, just prettier."
 
 from pyass_vasp.plotting import plot_bs
-plot_bs(axis_range=args.axis_range, ISPIN=args.ISPIN, Ef=args.Ef, EIGENVAL=args.input, display=display,
+plot_bs(axis_range=args.axis_range, ISPIN=args.ISPIN, Ef=args.Ef, EIGENVAL=args.input, display=display, close_figs=close_figs,
     save_figs=save_figs, save_data=args.save_data, output_prefix=args.output_prefix)
