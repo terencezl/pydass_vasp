@@ -1,4 +1,5 @@
 import re
+import warnings
 import numpy as np
 import matplotlib.pyplot as plt
 from helpers import determine_tag_value, plot_helper_figs_assert, plot_helper_figs
@@ -81,11 +82,12 @@ def plot_helper_settings(ax, axis_range, reciprocal_point_locations, reciprocal_
     for kp_end_point in range(len(reciprocal_point_locations)):
         plt.axvline(reciprocal_point_locations[kp_end_point], ls='--', c='k', alpha=0.5)
     plt.ylabel('Energy (eV)')
-    plt.legend(fontsize='small')
-    try:
-        plt.tight_layout()
-    except RuntimeError:
-        print "Tight layout failed... Not a big deal though."
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        plt.legend(fontsize='small')
+    ax = plt.gca()
+    ax.figure.set_tight_layout(True)
+    plt.draw()
     if save_figs:
         plt.savefig(output)
 

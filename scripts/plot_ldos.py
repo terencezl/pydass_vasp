@@ -25,12 +25,20 @@ else:
 
 if not args.display:
     matplotlib.use('Agg')
+else:
+    if matplotlib.get_backend() == 'MacOSX':
+        try:
+            matplotlib.use('TkAgg')
+            print "Switched from MacOSX backend to TkAgg."
+        except ValueError:
+            print "Can't switched to TkAgg. Keep using MacOSX backend."
 import matplotlib.pyplot as plt
 try:
     plt.style.use('ggplot')
+    print "Changed style to ggplot, just prettier."
 except AttributeError:
     print "If you upgrade to matplotlib 1.4 and I will change the style to ggplot, just prettier."
 
 from pydass_vasp.plotting import plot_ldos
-plot_ldos(atom=args.atom, axis_range=args.axis_range, ISPIN=args.ISPIN, LORBIT=args.LORBIT, DOSCAR=args.input, display=display, close_figs=close_figs,
+plot_ldos(atom=args.atom, axis_range=args.axis_range, ISPIN=args.ISPIN, LORBIT=args.LORBIT, input_file=args.input, display=display, close_figs=close_figs,
     save_figs=save_figs, save_data=args.save_data, output_prefix=args.output_prefix)

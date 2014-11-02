@@ -23,9 +23,17 @@ else:
 
 if not args.display:
     matplotlib.use('Agg')
+else:
+    if matplotlib.get_backend() == 'MacOSX':
+        try:
+            matplotlib.use('TkAgg')
+            print "Switched from MacOSX backend to TkAgg."
+        except ValueError:
+            print "Can't switched to TkAgg. Keep using MacOSX backend."
 import matplotlib.pyplot as plt
 try:
     plt.style.use('ggplot')
+    print "Changed style to ggplot, just prettier."
 except AttributeError:
     print "If you upgrade to matplotlib 1.4 and I will change the style to ggplot, just prettier."
 

@@ -1,4 +1,5 @@
 import re
+import warnings
 import numpy as np
 import matplotlib.pyplot as plt
 from helpers import determine_tag_value, plot_helper_figs_assert, plot_helper_figs
@@ -17,12 +18,13 @@ def plot_helper_settings(axis_range, data_type, save_figs, output):
     elif data_type == 'ldos':
         plt.ylabel('LDOS (States / Unit Cell / eV)')
     elif data_type == 'cohp':
-        plt.ylabel('-pCOHP (Arbituary Unit / Unit Cell / eV)')
-    plt.legend(fontsize='small')
-    try:
-        plt.tight_layout()
-    except RuntimeError:
-        print "Tight layout failed... Not a big deal though."
+        plt.ylabel('-pCOHP (Arbitrary Unit / Unit Cell / eV)')
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        plt.legend(fontsize='small')
+    ax = plt.gca()
+    ax.figure.set_tight_layout(True)
+    plt.draw()
     if save_figs:
         plt.savefig(output)
 
@@ -330,7 +332,6 @@ def plot_ldos(atom, axis_range=None, ISPIN=None, LORBIT=None, input_file='DOSCAR
         # plot spin overlapped
         plot_helper_figs(on_figs)
         if LORBIT == 10 or LORBIT == 0:
-
             for i in range(1, 4):
                 plt.plot(data1[:, 0], data1[:, i], label=col_names1[i])
                 plt.plot(data2[:, 0], -data2[:, i], label=col_names2[i])
@@ -432,10 +433,9 @@ def plot_cohp(bond, axis_range=None, ISPIN=None, input_file='COHPCAR.lobster', d
         for n_bond in range(1, N_bonds + 1):
             col_names.extend(['{0}'.format(n_bond), '{0}_integrated'.format(n_bond)])
 
-
         col_num = bond * 2 + 1
         plot_helper_figs(on_figs)
-        plt.plot(data[:, 0], -data[:, col_num], label=col_names[col_num])
+        plt.plot(data[:, 0], -data[:, col_num])
         ax = plt.gca()
         plot_helper_settings(axis_range, 'cohp', save_figs, output=output_prefix + '.pdf')
         axes = {'ax': ax}
@@ -456,13 +456,13 @@ def plot_cohp(bond, axis_range=None, ISPIN=None, input_file='COHPCAR.lobster', d
         col_bond = bond * 2 + 1
         # Plot the combined COHP
         plot_helper_figs(on_figs)
-        plt.plot(data1[:, 0], -data1[:, col_bond] - data2[:, col_bond])
+        plt.plot(data1[:, 0], -data1[:, col_bond] - data2[:, col_bond], label='spin up + down')
         ax1 = plt.gca()
         plot_helper_settings(axis_range, 'cohp', save_figs, output=output_prefix + '-spin-combined.pdf')
         # Plot the overlapped COHP
         plot_helper_figs(on_figs)
-        plt.plot(data1[:, 0], -data1[:, col_bond], label=col_names1[col_bond])
-        plt.plot(data2[:, 0], -data2[:, col_bond], label=col_names2[col_bond])
+        plt.plot(data1[:, 0], -data1[:, col_bond], label='spin up')
+        plt.plot(data2[:, 0], -data2[:, col_bond], label='spin down')
         ax2 = plt.gca()
         axis_range_copy = None
         if axis_range:
