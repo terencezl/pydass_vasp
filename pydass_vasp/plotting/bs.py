@@ -331,14 +331,14 @@ def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_poin
     elif ISPIN == 2:
         E_spin1 -= Ef
         E_spin2 -= Ef
-        # plot the bands of up and down overlapped
+        # plot the bands of up and down overlapping
         plot_helper_figs(on_figs)
         ax = plt.subplot(111)
         for band in range(N_bands):
             plt.plot(kps_linearized, E_spin1[:, band], 'k', label='spin up')
             plt.plot(kps_linearized, E_spin2[:, band], 'b', label='spin down')
         plot_helper_settings(ax, axis_range, reciprocal_point_locations, reciprocal_points,
-                             save_figs, output_prefix+'-overlapped.pdf')
+                             save_figs, output_prefix+'-overlapping.pdf')
         axes = {'ax': ax}
         return_dict['spin_up_data'] = {
                 'columns': col_names1,

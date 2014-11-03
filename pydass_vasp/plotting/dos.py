@@ -143,7 +143,7 @@ def plot_tdos(axis_range=None, ISPIN=None, input_file='DOSCAR', display=True,
         plt.plot(data1[:, 0], data1[:, 1] + data2[:, 1], label='spin up + down')
         ax1 = plt.gca()
         plot_helper_settings(axis_range, 'tdos', save_figs, output=output_prefix + '-spin-combined.pdf')
-        # Plot the overlapped TDOS
+        # Plot the overlapping TDOS
         plot_helper_figs(on_figs)
         plt.plot(data1[:, 0], data1[:, 1], label='spin up')
         plt.plot(data2[:, 0], data2[:, 1], label='spin down')
@@ -152,8 +152,8 @@ def plot_tdos(axis_range=None, ISPIN=None, input_file='DOSCAR', display=True,
         if axis_range:
             axis_range_copy = axis_range[:]
             axis_range_copy[3] /= 2.
-        plot_helper_settings(axis_range_copy, 'tdos', save_figs, output=output_prefix + '-spin-overlapped.pdf')
-        axes = {'ax_spin_combined': ax1, 'ax_spin_overlapped': ax2}
+        plot_helper_settings(axis_range_copy, 'tdos', save_figs, output=output_prefix + '-spin-overlapping.pdf')
+        axes = {'ax_spin_combined': ax1, 'ax_spin_overlapping': ax2}
 
         if return_states_at_Ef:
             half_window = 0.2
@@ -329,7 +329,7 @@ def plot_ldos(atom, axis_range=None, ISPIN=None, LORBIT=None, input_file='DOSCAR
                 plt.plot(data1[:, 0], data1[:, i] + data2[:, i], label=col_names1[i] + ' + ' + col_names2[i])
         ax1 = plt.gca()
         plot_helper_settings(axis_range, 'ldos', save_figs, output=output_prefix + '-spin-combined.pdf')
-        # plot spin overlapped
+        # plot spin overlapping
         plot_helper_figs(on_figs)
         if LORBIT == 10 or LORBIT == 0:
             for i in range(1, 4):
@@ -345,9 +345,9 @@ def plot_ldos(atom, axis_range=None, ISPIN=None, LORBIT=None, input_file='DOSCAR
             axis_range_copy = axis_range[:]
             axis_range_copy[3] /= 2.
             axis_range_copy[2] /= -axis_range_copy[3]
-        plot_helper_settings(axis_range_copy, 'ldos', save_figs, output=output_prefix + '-spin-overlapped.pdf')
+        plot_helper_settings(axis_range_copy, 'ldos', save_figs, output=output_prefix + '-spin-overlapping.pdf')
 
-        axes = {'ax_spin_combined': ax1, 'ax_spin_overlapped': ax2}
+        axes = {'ax_spin_combined': ax1, 'ax_spin_overlapping': ax2}
         return_dict = {'data_spin_up': {'columns': col_names1, 'data': data1},
                        'data_spin_down': {'columns': col_names2, 'data': data2}}
         if save_data:
@@ -459,7 +459,7 @@ def plot_cohp(bond, axis_range=None, ISPIN=None, input_file='COHPCAR.lobster', d
         plt.plot(data1[:, 0], -data1[:, col_bond] - data2[:, col_bond], label='spin up + down')
         ax1 = plt.gca()
         plot_helper_settings(axis_range, 'cohp', save_figs, output=output_prefix + '-spin-combined.pdf')
-        # Plot the overlapped COHP
+        # Plot the overlapping COHP
         plot_helper_figs(on_figs)
         plt.plot(data1[:, 0], -data1[:, col_bond], label='spin up')
         plt.plot(data2[:, 0], -data2[:, col_bond], label='spin down')
@@ -468,8 +468,8 @@ def plot_cohp(bond, axis_range=None, ISPIN=None, input_file='COHPCAR.lobster', d
         if axis_range:
             axis_range_copy = axis_range[:]
             axis_range_copy[3] /= 2.
-        plot_helper_settings(axis_range_copy, 'cohp', save_figs, output=output_prefix + '-spin-overlapped.pdf')
-        axes = {'ax_spin_combined': ax1, 'ax_spin_overlapped': ax2}
+        plot_helper_settings(axis_range_copy, 'cohp', save_figs, output=output_prefix + '-spin-overlapping.pdf')
+        axes = {'ax_spin_combined': ax1, 'ax_spin_overlapping': ax2}
 
         return_dict = {'data_spin_up': {'columns': col_names1, 'data': data1},
                        'data_spin_down': {'columns': col_names2, 'data': data2}}

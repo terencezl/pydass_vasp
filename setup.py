@@ -9,7 +9,7 @@ except (IOError, ImportError):
 
 setup(name='pydass_vasp',
       version='0.1',
-      description='Convenient Python modules and wrapping script executables.',
+      description='Convenient Python modules and wrapping script executables',
       long_description=long_description,
       classifiers=[
           'Development Status :: 4 - Beta',
@@ -31,4 +31,5 @@ setup(name='pydass_vasp',
           'matplotlib >= 1.3'
       ],
       include_package_data=True,
-      zip_safe=False)
+      # zip_safe=False
+)
