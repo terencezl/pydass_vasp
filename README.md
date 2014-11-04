@@ -2,6 +2,56 @@ pydass_vasp (or, badass wasp)
 =============================
 Convenient Python modules and wrapping script executables.
 
+```python
+pydass_vasp.plotting.plot_bs(axis_range=[-4,6])
+```
+
+![band structure](http://terencezl.github.io/pydass_vasp/images/band_structure.png)
+
+Returned dictionary:
+
+```python
+{'axes': {'ax': <matplotlib.axes._subplots.AxesSubplot at 0x10a33df50>},
+ 'data': {'columns': ['k_points', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32'],
+          'data': array(
+        [[  0.        , -20.342219  , -16.616756  , ...,   5.849101  ,
+            5.855091  ,   6.074841  ],
+         [  0.04558028, -20.342181  , -16.616823  , ...,   5.811826  ,
+            5.815311  ,   6.060851  ],
+         [  0.09116057, -20.34223   , -16.617067  , ...,   5.730248  ,
+            5.734556  ,   5.80481   ],
+         ..., 
+         [  2.49869989, -20.343194  , -16.628521  , ...,   5.172637  ,
+            5.204402  ,   5.711173  ],
+         [  2.53591604, -20.343228  , -16.6286    , ...,   5.219897  ,
+            5.226956  ,   5.730676  ],
+         [  2.57313218, -20.34319   , -16.628622  , ...,   5.234177  ,
+            5.234205  ,   5.726715  ]])},
+ 'reciprocal_point_locations': array([ 0.        ,  0.8660254 ,  1.3660254 ,  1.8660254 ,  2.57313218]),
+ 'reciprocal_points': ['R', 'G', 'X', 'M', 'G']}
+ ```
+
+```python
+pydass_vasp.plotting.plot_tdos()
+```
+
+![density of states](http://terencezl.github.io/pydass_vasp/images/dos.png)
+
+Returned dictionary:
+
+```python
+{'axes': {'ax': <matplotlib.axes._subplots.AxesSubplot at 0x10acb27d0>},
+ 'data': {'columns': ['E', 'total', 'integrated'],
+          'data': array(
+        [[-27.51051771,   0.        ,   0.        ],
+         [-27.45851771,   0.        ,   0.        ],
+         [-27.40551771,   0.        ,   0.        ],
+         ..., 
+         [ 14.41548229,   0.        ,  16.        ],
+         [ 14.46748229,   0.        ,  16.        ],
+         [ 14.52048229,   0.        ,  16.        ]])}}
+```
+
 This Python package is the result of frustration of searching for an organized, straightforward and flexible approach of plotting, fitting and manipulation of [VASP](https://www.vasp.at/) files (typically `POSCAR`) in a few key strokes as long as you have a terminal, and preferably a (S)FTP client. It has the following features:
 
 * It is a Python package with a straightforward structure. When you `import pydass_vasp`, you have sub-packages `pydass_vasp.plotting`, `pydass_vasp.fitting`, `pydass_vasp.manipulation`, `pydass_vasp.xml_utils`, each containing a few functions to carry out your tasks, with a careful selection of options to choose from. Return values are Python dictionaries, informative enough to be flexible for post-processing. When there is no need for an object, don't bother creating one.
@@ -22,10 +72,12 @@ This Python package is the result of frustration of searching for an organized, 
 
 * The returned dictionary also leave room for adjustments. Call it
 
-		returned_dict = {		
-			'data': {'columns': col_names, 'data': data}
-			'axes': {'ax': ax}
-		}
+    ```
+	returned_dict = {		
+		'data': {'columns': col_names, 'data': data}
+		'axes': {'ax': ax}
+	}
+	```
 		
 	`returned_dict['data']` has a 2D numpy array of data, and their column names. This construction is prefered because if you have [pandas](http://pandas.pydata.org/), you can just convert it to a DataFrame by `pd.DataFrame(**returned_dict['data'])`.
 
@@ -43,6 +95,7 @@ Dependencies
 * NumPy
 * SciPy
 * matplotlib
+* IPython (Optional, but better to have)
 
 I highly recommendend every scientist/researcher who is new to Python to install the scientific superpack [Anaconda](https://store.continuum.io/cshop/anaconda/), if you are using Windows or Mac OS X. Even if you are on Linux, it is still highly recommended if you don't have superuser control over the machine to install packages freely. It is often the case when you have ssh access to a supercomputer. In all these cases, just download the package and do a simple local installation, and you already have everything to start with, not only for pydass_vasp, but also for the whole adventure of scientific computing.
 

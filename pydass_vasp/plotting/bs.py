@@ -328,6 +328,7 @@ def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_poin
                 'columns': col_names,
                 'data': np.column_stack((kps_linearized, E))
         }
+
     elif ISPIN == 2:
         E_spin1 -= Ef
         E_spin2 -= Ef
