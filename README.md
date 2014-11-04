@@ -2,6 +2,8 @@ pydass_vasp (or, badass wasp)
 =============================
 Convenient Python modules and wrapping script executables.
 
+Example: plotting band structure
+
 ```python
 pydass_vasp.plotting.plot_bs(axis_range=[-4,6])
 ```
@@ -30,6 +32,8 @@ Returned dictionary:
  'reciprocal_point_locations': array([ 0.        ,  0.8660254 ,  1.3660254 ,  1.8660254 ,  2.57313218]),
  'reciprocal_points': ['R', 'G', 'X', 'M', 'G']}
  ```
+
+Example: plotting total density of states
 
 ```python
 pydass_vasp.plotting.plot_tdos()
@@ -72,12 +76,12 @@ This Python package is the result of frustration of searching for an organized, 
 
 * The returned dictionary also leave room for adjustments. Call it
 
-    ```
+    ```python
 	returned_dict = {		
 		'data': {'columns': col_names, 'data': data}
 		'axes': {'ax': ax}
 	}
-	```
+    ```
 		
 	`returned_dict['data']` has a 2D numpy array of data, and their column names. This construction is prefered because if you have [pandas](http://pandas.pydata.org/), you can just convert it to a DataFrame by `pd.DataFrame(**returned_dict['data'])`.
 
