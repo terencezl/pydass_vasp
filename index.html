@@ -4,11 +4,11 @@
   <head>
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="description" content="Pydass_vasp : Convenient Python modules and wrapping executable scripts.">
+    <meta name="description" content="pydass_vasp : Convenient Python modules and wrapping executable scripts.">
 
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
-    <title>Pydass_vasp</title>
+    <title>pydass_vasp</title>
   </head>
 
   <body>
@@ -18,7 +18,7 @@
         <header class="inner">
           <a id="forkme_banner" href="https://github.com/terencezl/pydass_vasp">View on GitHub</a>
 
-          <h1 id="project_title">Pydass_vasp</h1>
+          <h1 id="project_title">pydass_vasp</h1>
           <h2 id="project_tagline">Convenient Python modules and wrapping executable scripts.</h2>
 
             <section id="downloads">
@@ -35,6 +35,61 @@
 <a id="pydass_vasp-or-badass-wasp" class="anchor" href="#pydass_vasp-or-badass-wasp" aria-hidden="true"><span class="octicon octicon-link"></span></a>pydass_vasp (or, badass wasp)</h1>
 
 <p>Convenient Python modules and wrapping script executables.</p>
+
+<h5>
+<a id="example-plotting-band-structure" class="anchor" href="#example-plotting-band-structure" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example: plotting band structure</h5>
+
+<div class="highlight highlight-python"><pre><span class="n">pydass_vasp</span><span class="o">.</span><span class="n">plotting</span><span class="o">.</span><span class="n">plot_bs</span><span class="p">(</span><span class="n">axis_range</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span><span class="mi">6</span><span class="p">])</span>
+</pre></div>
+
+<p><img src="http://terencezl.github.io/pydass_vasp/images/band_structure.png" alt="band structure"></p>
+
+<p>Returned dictionary:</p>
+
+<div class="highlight highlight-python"><pre><span class="p">{</span><span class="s">'axes'</span><span class="p">:</span> <span class="p">{</span><span class="s">'ax'</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">matplotlib</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">_subplots</span><span class="o">.</span><span class="n">AxesSubplot</span> <span class="n">at</span> <span class="mh">0x10a33df50</span><span class="o">&gt;</span><span class="p">},</span>
+ <span class="s">'data'</span><span class="p">:</span> <span class="p">{</span><span class="s">'columns'</span><span class="p">:</span> <span class="p">[</span><span class="s">'k_points'</span><span class="p">,</span> <span class="s">'1'</span><span class="p">,</span> <span class="s">'2'</span><span class="p">,</span> <span class="s">'3'</span><span class="p">,</span> <span class="s">'4'</span><span class="p">,</span> <span class="s">'5'</span><span class="p">,</span> <span class="s">'6'</span><span class="p">,</span> <span class="s">'7'</span><span class="p">,</span> <span class="s">'8'</span><span class="p">,</span> <span class="s">'9'</span><span class="p">,</span> <span class="s">'10'</span><span class="p">,</span> <span class="s">'11'</span><span class="p">,</span> <span class="s">'12'</span><span class="p">,</span> <span class="s">'13'</span><span class="p">,</span> <span class="s">'14'</span><span class="p">,</span> <span class="s">'15'</span><span class="p">,</span> <span class="s">'16'</span><span class="p">,</span> <span class="s">'17'</span><span class="p">,</span> <span class="s">'18'</span><span class="p">,</span> <span class="s">'19'</span><span class="p">,</span> <span class="s">'20'</span><span class="p">,</span> <span class="s">'21'</span><span class="p">,</span> <span class="s">'22'</span><span class="p">,</span> <span class="s">'23'</span><span class="p">,</span> <span class="s">'24'</span><span class="p">,</span> <span class="s">'25'</span><span class="p">,</span> <span class="s">'26'</span><span class="p">,</span> <span class="s">'27'</span><span class="p">,</span> <span class="s">'28'</span><span class="p">,</span> <span class="s">'29'</span><span class="p">,</span> <span class="s">'30'</span><span class="p">,</span> <span class="s">'31'</span><span class="p">,</span> <span class="s">'32'</span><span class="p">],</span>
+          <span class="s">'data'</span><span class="p">:</span> <span class="n">array</span><span class="p">(</span>
+        <span class="p">[[</span>  <span class="mf">0.</span>        <span class="p">,</span> <span class="o">-</span><span class="mf">20.342219</span>  <span class="p">,</span> <span class="o">-</span><span class="mf">16.616756</span>  <span class="p">,</span> <span class="o">...</span><span class="p">,</span>   <span class="mf">5.849101</span>  <span class="p">,</span>
+            <span class="mf">5.855091</span>  <span class="p">,</span>   <span class="mf">6.074841</span>  <span class="p">],</span>
+         <span class="p">[</span>  <span class="mf">0.04558028</span><span class="p">,</span> <span class="o">-</span><span class="mf">20.342181</span>  <span class="p">,</span> <span class="o">-</span><span class="mf">16.616823</span>  <span class="p">,</span> <span class="o">...</span><span class="p">,</span>   <span class="mf">5.811826</span>  <span class="p">,</span>
+            <span class="mf">5.815311</span>  <span class="p">,</span>   <span class="mf">6.060851</span>  <span class="p">],</span>
+         <span class="p">[</span>  <span class="mf">0.09116057</span><span class="p">,</span> <span class="o">-</span><span class="mf">20.34223</span>   <span class="p">,</span> <span class="o">-</span><span class="mf">16.617067</span>  <span class="p">,</span> <span class="o">...</span><span class="p">,</span>   <span class="mf">5.730248</span>  <span class="p">,</span>
+            <span class="mf">5.734556</span>  <span class="p">,</span>   <span class="mf">5.80481</span>   <span class="p">],</span>
+         <span class="o">...</span><span class="p">,</span> 
+         <span class="p">[</span>  <span class="mf">2.49869989</span><span class="p">,</span> <span class="o">-</span><span class="mf">20.343194</span>  <span class="p">,</span> <span class="o">-</span><span class="mf">16.628521</span>  <span class="p">,</span> <span class="o">...</span><span class="p">,</span>   <span class="mf">5.172637</span>  <span class="p">,</span>
+            <span class="mf">5.204402</span>  <span class="p">,</span>   <span class="mf">5.711173</span>  <span class="p">],</span>
+         <span class="p">[</span>  <span class="mf">2.53591604</span><span class="p">,</span> <span class="o">-</span><span class="mf">20.343228</span>  <span class="p">,</span> <span class="o">-</span><span class="mf">16.6286</span>    <span class="p">,</span> <span class="o">...</span><span class="p">,</span>   <span class="mf">5.219897</span>  <span class="p">,</span>
+            <span class="mf">5.226956</span>  <span class="p">,</span>   <span class="mf">5.730676</span>  <span class="p">],</span>
+         <span class="p">[</span>  <span class="mf">2.57313218</span><span class="p">,</span> <span class="o">-</span><span class="mf">20.34319</span>   <span class="p">,</span> <span class="o">-</span><span class="mf">16.628622</span>  <span class="p">,</span> <span class="o">...</span><span class="p">,</span>   <span class="mf">5.234177</span>  <span class="p">,</span>
+            <span class="mf">5.234205</span>  <span class="p">,</span>   <span class="mf">5.726715</span>  <span class="p">]])},</span>
+ <span class="s">'reciprocal_point_locations'</span><span class="p">:</span> <span class="n">array</span><span class="p">([</span> <span class="mf">0.</span>        <span class="p">,</span>  <span class="mf">0.8660254</span> <span class="p">,</span>  <span class="mf">1.3660254</span> <span class="p">,</span>  <span class="mf">1.8660254</span> <span class="p">,</span>  <span class="mf">2.57313218</span><span class="p">]),</span>
+ <span class="s">'reciprocal_points'</span><span class="p">:</span> <span class="p">[</span><span class="s">'R'</span><span class="p">,</span> <span class="s">'G'</span><span class="p">,</span> <span class="s">'X'</span><span class="p">,</span> <span class="s">'M'</span><span class="p">,</span> <span class="s">'G'</span><span class="p">]}</span>
+</pre></div>
+
+<h5>
+<a id="example-plotting-total-density-of-states" class="anchor" href="#example-plotting-total-density-of-states" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example: plotting total density of states</h5>
+
+<div class="highlight highlight-python"><pre><span class="n">pydass_vasp</span><span class="o">.</span><span class="n">plotting</span><span class="o">.</span><span class="n">plot_tdos</span><span class="p">()</span>
+</pre></div>
+
+<p><img src="http://terencezl.github.io/pydass_vasp/images/dos.png" alt="density of states"></p>
+
+<p>Returned dictionary:</p>
+
+<div class="highlight highlight-python"><pre><span class="p">{</span><span class="s">'axes'</span><span class="p">:</span> <span class="p">{</span><span class="s">'ax'</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">matplotlib</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">_subplots</span><span class="o">.</span><span class="n">AxesSubplot</span> <span class="n">at</span> <span class="mh">0x10acb27d0</span><span class="o">&gt;</span><span class="p">},</span>
+ <span class="s">'data'</span><span class="p">:</span> <span class="p">{</span><span class="s">'columns'</span><span class="p">:</span> <span class="p">[</span><span class="s">'E'</span><span class="p">,</span> <span class="s">'total'</span><span class="p">,</span> <span class="s">'integrated'</span><span class="p">],</span>
+          <span class="s">'data'</span><span class="p">:</span> <span class="n">array</span><span class="p">(</span>
+        <span class="p">[[</span><span class="o">-</span><span class="mf">27.51051771</span><span class="p">,</span>   <span class="mf">0.</span>        <span class="p">,</span>   <span class="mf">0.</span>        <span class="p">],</span>
+         <span class="p">[</span><span class="o">-</span><span class="mf">27.45851771</span><span class="p">,</span>   <span class="mf">0.</span>        <span class="p">,</span>   <span class="mf">0.</span>        <span class="p">],</span>
+         <span class="p">[</span><span class="o">-</span><span class="mf">27.40551771</span><span class="p">,</span>   <span class="mf">0.</span>        <span class="p">,</span>   <span class="mf">0.</span>        <span class="p">],</span>
+         <span class="o">...</span><span class="p">,</span> 
+         <span class="p">[</span> <span class="mf">14.41548229</span><span class="p">,</span>   <span class="mf">0.</span>        <span class="p">,</span>  <span class="mf">16.</span>        <span class="p">],</span>
+         <span class="p">[</span> <span class="mf">14.46748229</span><span class="p">,</span>   <span class="mf">0.</span>        <span class="p">,</span>  <span class="mf">16.</span>        <span class="p">],</span>
+         <span class="p">[</span> <span class="mf">14.52048229</span><span class="p">,</span>   <span class="mf">0.</span>        <span class="p">,</span>  <span class="mf">16.</span>        <span class="p">]])}}</span>
+</pre></div>
+
+<h1>
+<a id="what-is-it" class="anchor" href="#what-is-it" aria-hidden="true"><span class="octicon octicon-link"></span></a>What is it?</h1>
 
 <p>This Python package is the result of frustration of searching for an organized, straightforward and flexible approach of plotting, fitting and manipulation of <a href="https://www.vasp.at/">VASP</a> files (typically <code>POSCAR</code>) in a few key strokes as long as you have a terminal, and preferably a (S)FTP client. It has the following features:</p>
 
@@ -65,11 +120,11 @@
 <li>
 <p>The returned dictionary also leave room for adjustments. Call it</p>
 
-<pre><code>returned_dict = {       
-    'data': {'columns': col_names, 'data': data}
-    'axes': {'ax': ax}
-}
-</code></pre>
+<div class="highlight highlight-python"><pre><span class="n">returned_dict</span> <span class="o">=</span> <span class="p">{</span>       
+    <span class="s">'data'</span><span class="p">:</span> <span class="p">{</span><span class="s">'columns'</span><span class="p">:</span> <span class="n">col_names</span><span class="p">,</span> <span class="s">'data'</span><span class="p">:</span> <span class="n">data</span><span class="p">}</span>
+    <span class="s">'axes'</span><span class="p">:</span> <span class="p">{</span><span class="s">'ax'</span><span class="p">:</span> <span class="n">ax</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
 
 <p><code>returned_dict['data']</code> has a 2D numpy array of data, and their column names. This construction is prefered because if you have <a href="http://pandas.pydata.org/">pandas</a>, you can just convert it to a DataFrame by <code>pd.DataFrame(**returned_dict['data'])</code>.</p>
 
@@ -89,6 +144,7 @@
 <li>NumPy</li>
 <li>SciPy</li>
 <li>matplotlib</li>
+<li>IPython (Optional, but better to have)</li>
 </ul>
 
 <p>I highly recommendend every scientist/researcher who is new to Python to install the scientific superpack <a href="https://store.continuum.io/cshop/anaconda/">Anaconda</a>, if you are using Windows or Mac OS X. Even if you are on Linux, it is still highly recommended if you don't have superuser control over the machine to install packages freely. It is often the case when you have ssh access to a supercomputer. In all these cases, just download the package and do a simple local installation, and you already have everything to start with, not only for pydass_vasp, but also for the whole adventure of scientific computing.</p>
@@ -142,7 +198,7 @@ $ ipython
     <!-- FOOTER  -->
     <div id="footer_wrap" class="outer">
       <footer class="inner">
-        <p class="copyright">Pydass_vasp maintained by <a href="https://github.com/terencezl">terencezl</a></p>
+        <p class="copyright">pydass_vasp maintained by <a href="https://github.com/terencezl">terencezl</a></p>
         <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
       </footer>
     </div>
