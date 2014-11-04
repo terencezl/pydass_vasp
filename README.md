@@ -2,7 +2,7 @@ pydass_vasp (or, badass wasp)
 =============================
 Convenient Python modules and wrapping script executables.
 
-Example: plotting band structure
+##### Example: plotting band structure
 
 ```python
 pydass_vasp.plotting.plot_bs(axis_range=[-4,6])
@@ -33,7 +33,7 @@ Returned dictionary:
  'reciprocal_points': ['R', 'G', 'X', 'M', 'G']}
  ```
 
-Example: plotting total density of states
+##### Example: plotting total density of states
 
 ```python
 pydass_vasp.plotting.plot_tdos()
@@ -55,6 +55,9 @@ Returned dictionary:
          [ 14.46748229,   0.        ,  16.        ],
          [ 14.52048229,   0.        ,  16.        ]])}}
 ```
+
+What is it?
+===========
 
 This Python package is the result of frustration of searching for an organized, straightforward and flexible approach of plotting, fitting and manipulation of [VASP](https://www.vasp.at/) files (typically `POSCAR`) in a few key strokes as long as you have a terminal, and preferably a (S)FTP client. It has the following features:
 
