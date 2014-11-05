@@ -1,34 +1,33 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
-    <meta charset='utf-8'>
+    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+    <title>pydass_vasp by terencezl</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-
-    <title>pydass_vasp by terencezl</title>
   </head>
-
   <body>
-    <header>
-      <div class="inner">
+    <div class="wrapper">
+      <header>
         <h1>pydass_vasp</h1>
-        <h2>Convenient Python modules and wrapping executable scripts.</h2>
-        <a href="https://github.com/terencezl/pydass_vasp" class="button"><small>View project on</small> GitHub</a>
-      </div>
-    </header>
-
-    <div id="content-wrapper">
-      <div class="inner clearfix">
-        <section id="main-content">
-          <h1>
+        <p>Convenient Python modules and wrapping executable scripts.</p>
+        <p class="view"><a href="https://github.com/terencezl/pydass_vasp">View the Project on GitHub <small>terencezl/pydass_vasp</small></a></p>
+        <ul>
+          <li><a href="https://github.com/terencezl/pydass_vasp/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/terencezl/pydass_vasp/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/terencezl/pydass_vasp">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
 <a id="pydass_vasp-or-badass-wasp" class="anchor" href="#pydass_vasp-or-badass-wasp" aria-hidden="true"><span class="octicon octicon-link"></span></a>pydass_vasp (or, badass wasp)</h1>
 
 <p>Convenient Python modules and wrapping script executables.</p>
@@ -36,54 +35,51 @@
 <h5>
 <a id="example-plotting-band-structure" class="anchor" href="#example-plotting-band-structure" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example: plotting band structure</h5>
 
-<div class="highlight highlight-python"><pre><span class="n">pydass_vasp</span><span class="o">.</span><span class="n">plotting</span><span class="o">.</span><span class="n">plot_bs</span><span class="p">(</span><span class="n">axis_range</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span><span class="mi">6</span><span class="p">])</span>
-</pre></div>
+<div class="highlight highlight-python"><pre>pydass_vasp.plotting.plot_bs(<span class="nv">axis_range</span><span class="o">=</span>[<span class="o">-</span><span class="m">4</span>,<span class="m">6</span>])</pre></div>
 
-<p><img src="http://terencezl.github.io/pydass_vasp/images/band_structure.png" alt="band structure"></p>
+<p><img src="http://terencezl.github.io/pydass_vasp/images/band_structure.png" alt="band_structure"></p>
 
 <p>Returned dictionary:</p>
 
-<div class="highlight highlight-python"><pre><span class="p">{</span><span class="s">'axes'</span><span class="p">:</span> <span class="p">{</span><span class="s">'ax'</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">matplotlib</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">_subplots</span><span class="o">.</span><span class="n">AxesSubplot</span> <span class="n">at</span> <span class="mh">0x10a33df50</span><span class="o">&gt;</span><span class="p">},</span>
- <span class="s">'data'</span><span class="p">:</span> <span class="p">{</span><span class="s">'columns'</span><span class="p">:</span> <span class="p">[</span><span class="s">'k_points'</span><span class="p">,</span> <span class="s">'1'</span><span class="p">,</span> <span class="s">'2'</span><span class="p">,</span> <span class="s">'3'</span><span class="p">,</span> <span class="s">'4'</span><span class="p">,</span> <span class="s">'5'</span><span class="p">,</span> <span class="s">'6'</span><span class="p">,</span> <span class="s">'7'</span><span class="p">,</span> <span class="s">'8'</span><span class="p">,</span> <span class="s">'9'</span><span class="p">,</span> <span class="s">'10'</span><span class="p">,</span> <span class="s">'11'</span><span class="p">,</span> <span class="s">'12'</span><span class="p">,</span> <span class="s">'13'</span><span class="p">,</span> <span class="s">'14'</span><span class="p">,</span> <span class="s">'15'</span><span class="p">,</span> <span class="s">'16'</span><span class="p">,</span> <span class="s">'17'</span><span class="p">,</span> <span class="s">'18'</span><span class="p">,</span> <span class="s">'19'</span><span class="p">,</span> <span class="s">'20'</span><span class="p">,</span> <span class="s">'21'</span><span class="p">,</span> <span class="s">'22'</span><span class="p">,</span> <span class="s">'23'</span><span class="p">,</span> <span class="s">'24'</span><span class="p">,</span> <span class="s">'25'</span><span class="p">,</span> <span class="s">'26'</span><span class="p">,</span> <span class="s">'27'</span><span class="p">,</span> <span class="s">'28'</span><span class="p">,</span> <span class="s">'29'</span><span class="p">,</span> <span class="s">'30'</span><span class="p">,</span> <span class="s">'31'</span><span class="p">,</span> <span class="s">'32'</span><span class="p">],</span>
-          <span class="s">'data'</span><span class="p">:</span> <span class="n">array</span><span class="p">(</span>
-        <span class="p">[[</span>  <span class="mf">0.</span>        <span class="p">,</span> <span class="o">-</span><span class="mf">20.342219</span>  <span class="p">,</span> <span class="o">-</span><span class="mf">16.616756</span>  <span class="p">,</span> <span class="o">...</span><span class="p">,</span>   <span class="mf">5.849101</span>  <span class="p">,</span>
-            <span class="mf">5.855091</span>  <span class="p">,</span>   <span class="mf">6.074841</span>  <span class="p">],</span>
-         <span class="p">[</span>  <span class="mf">0.04558028</span><span class="p">,</span> <span class="o">-</span><span class="mf">20.342181</span>  <span class="p">,</span> <span class="o">-</span><span class="mf">16.616823</span>  <span class="p">,</span> <span class="o">...</span><span class="p">,</span>   <span class="mf">5.811826</span>  <span class="p">,</span>
-            <span class="mf">5.815311</span>  <span class="p">,</span>   <span class="mf">6.060851</span>  <span class="p">],</span>
-         <span class="p">[</span>  <span class="mf">0.09116057</span><span class="p">,</span> <span class="o">-</span><span class="mf">20.34223</span>   <span class="p">,</span> <span class="o">-</span><span class="mf">16.617067</span>  <span class="p">,</span> <span class="o">...</span><span class="p">,</span>   <span class="mf">5.730248</span>  <span class="p">,</span>
-            <span class="mf">5.734556</span>  <span class="p">,</span>   <span class="mf">5.80481</span>   <span class="p">],</span>
-         <span class="o">...</span><span class="p">,</span> 
-         <span class="p">[</span>  <span class="mf">2.49869989</span><span class="p">,</span> <span class="o">-</span><span class="mf">20.343194</span>  <span class="p">,</span> <span class="o">-</span><span class="mf">16.628521</span>  <span class="p">,</span> <span class="o">...</span><span class="p">,</span>   <span class="mf">5.172637</span>  <span class="p">,</span>
-            <span class="mf">5.204402</span>  <span class="p">,</span>   <span class="mf">5.711173</span>  <span class="p">],</span>
-         <span class="p">[</span>  <span class="mf">2.53591604</span><span class="p">,</span> <span class="o">-</span><span class="mf">20.343228</span>  <span class="p">,</span> <span class="o">-</span><span class="mf">16.6286</span>    <span class="p">,</span> <span class="o">...</span><span class="p">,</span>   <span class="mf">5.219897</span>  <span class="p">,</span>
-            <span class="mf">5.226956</span>  <span class="p">,</span>   <span class="mf">5.730676</span>  <span class="p">],</span>
-         <span class="p">[</span>  <span class="mf">2.57313218</span><span class="p">,</span> <span class="o">-</span><span class="mf">20.34319</span>   <span class="p">,</span> <span class="o">-</span><span class="mf">16.628622</span>  <span class="p">,</span> <span class="o">...</span><span class="p">,</span>   <span class="mf">5.234177</span>  <span class="p">,</span>
-            <span class="mf">5.234205</span>  <span class="p">,</span>   <span class="mf">5.726715</span>  <span class="p">]])},</span>
- <span class="s">'reciprocal_point_locations'</span><span class="p">:</span> <span class="n">array</span><span class="p">([</span> <span class="mf">0.</span>        <span class="p">,</span>  <span class="mf">0.8660254</span> <span class="p">,</span>  <span class="mf">1.3660254</span> <span class="p">,</span>  <span class="mf">1.8660254</span> <span class="p">,</span>  <span class="mf">2.57313218</span><span class="p">]),</span>
- <span class="s">'reciprocal_points'</span><span class="p">:</span> <span class="p">[</span><span class="s">'R'</span><span class="p">,</span> <span class="s">'G'</span><span class="p">,</span> <span class="s">'X'</span><span class="p">,</span> <span class="s">'M'</span><span class="p">,</span> <span class="s">'G'</span><span class="p">]}</span>
-</pre></div>
+<div class="highlight highlight-python"><pre>{<span class="s1">'ax'</span>: <span class="o">&lt;</span>matplotlib.axes._subplots.AxesSubplot at <span class="m">0x</span>10a33df50<span class="o">&gt;</span>,
+ <span class="s1">'data'</span>: {<span class="s1">'columns'</span>: [<span class="s1">'k_points'</span>, <span class="s1">'1'</span>, <span class="s1">'2'</span>, <span class="s1">'3'</span>, <span class="s1">'4'</span>, <span class="s1">'5'</span>, <span class="s1">'6'</span>, <span class="s1">'7'</span>, <span class="s1">'8'</span>, <span class="s1">'9'</span>, <span class="s1">'10'</span>, <span class="s1">'11'</span>, <span class="s1">'12'</span>, <span class="s1">'13'</span>, <span class="s1">'14'</span>, <span class="s1">'15'</span>, <span class="s1">'16'</span>, 
+                        <span class="s1">'17'</span>, <span class="s1">'18'</span>, <span class="s1">'19'</span>, <span class="s1">'20'</span>, <span class="s1">'21'</span>, <span class="s1">'22'</span>, <span class="s1">'23'</span>, <span class="s1">'24'</span>, <span class="s1">'25'</span>, <span class="s1">'26'</span>, <span class="s1">'27'</span>, <span class="s1">'28'</span>, <span class="s1">'29'</span>, <span class="s1">'30'</span>, <span class="s1">'31'</span>, <span class="s1">'32'</span>],
+          <span class="s1">'data'</span>: array(
+            [[  <span class="m">0.</span>        , <span class="o">-</span><span class="m">20.342219</span>  , <span class="o">-</span><span class="m">16.616756</span>  , ...,   <span class="m">5.849101</span>  ,
+                <span class="m">5.855091</span>  ,   <span class="m">6.074841</span>  ],
+             [  <span class="m">0.04558028</span>, <span class="o">-</span><span class="m">20.342181</span>  , <span class="o">-</span><span class="m">16.616823</span>  , ...,   <span class="m">5.811826</span>  ,
+                <span class="m">5.815311</span>  ,   <span class="m">6.060851</span>  ],
+             [  <span class="m">0.09116057</span>, <span class="o">-</span><span class="m">20.34223</span>   , <span class="o">-</span><span class="m">16.617067</span>  , ...,   <span class="m">5.730248</span>  ,
+                <span class="m">5.734556</span>  ,   <span class="m">5.80481</span>   ],
+             ..., 
+             [  <span class="m">2.49869989</span>, <span class="o">-</span><span class="m">20.343194</span>  , <span class="o">-</span><span class="m">16.628521</span>  , ...,   <span class="m">5.172637</span>  ,
+                <span class="m">5.204402</span>  ,   <span class="m">5.711173</span>  ],
+             [  <span class="m">2.53591604</span>, <span class="o">-</span><span class="m">20.343228</span>  , <span class="o">-</span><span class="m">16.6286</span>    , ...,   <span class="m">5.219897</span>  ,
+                <span class="m">5.226956</span>  ,   <span class="m">5.730676</span>  ],
+             [  <span class="m">2.57313218</span>, <span class="o">-</span><span class="m">20.34319</span>   , <span class="o">-</span><span class="m">16.628622</span>  , ...,   <span class="m">5.234177</span>  ,
+                <span class="m">5.234205</span>  ,   <span class="m">5.726715</span>  ]])},
+ <span class="s1">'reciprocal_point_locations'</span>: array([ <span class="m">0.</span>        ,  <span class="m">0.8660254</span> ,  <span class="m">1.3660254</span> ,  <span class="m">1.8660254</span> ,  <span class="m">2.57313218</span>]),
+ <span class="s1">'reciprocal_points'</span>: [<span class="s1">'R'</span>, <span class="s1">'G'</span>, <span class="s1">'X'</span>, <span class="s1">'M'</span>, <span class="s1">'G'</span>]}</pre></div>
 
 <h5>
 <a id="example-plotting-total-density-of-states" class="anchor" href="#example-plotting-total-density-of-states" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example: plotting total density of states</h5>
 
-<div class="highlight highlight-python"><pre><span class="n">pydass_vasp</span><span class="o">.</span><span class="n">plotting</span><span class="o">.</span><span class="n">plot_tdos</span><span class="p">()</span>
-</pre></div>
+<div class="highlight highlight-python"><pre>pydass_vasp.plotting.plot_tdos()</pre></div>
 
-<p><img src="http://terencezl.github.io/pydass_vasp/images/dos.png" alt="density of states"></p>
+<p><img src="http://terencezl.github.io/pydass_vasp/images/dos.png" alt="density_of_states"></p>
 
 <p>Returned dictionary:</p>
 
-<div class="highlight highlight-python"><pre><span class="p">{</span><span class="s">'axes'</span><span class="p">:</span> <span class="p">{</span><span class="s">'ax'</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">matplotlib</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">_subplots</span><span class="o">.</span><span class="n">AxesSubplot</span> <span class="n">at</span> <span class="mh">0x10acb27d0</span><span class="o">&gt;</span><span class="p">},</span>
- <span class="s">'data'</span><span class="p">:</span> <span class="p">{</span><span class="s">'columns'</span><span class="p">:</span> <span class="p">[</span><span class="s">'E'</span><span class="p">,</span> <span class="s">'total'</span><span class="p">,</span> <span class="s">'integrated'</span><span class="p">],</span>
-          <span class="s">'data'</span><span class="p">:</span> <span class="n">array</span><span class="p">(</span>
-        <span class="p">[[</span><span class="o">-</span><span class="mf">27.51051771</span><span class="p">,</span>   <span class="mf">0.</span>        <span class="p">,</span>   <span class="mf">0.</span>        <span class="p">],</span>
-         <span class="p">[</span><span class="o">-</span><span class="mf">27.45851771</span><span class="p">,</span>   <span class="mf">0.</span>        <span class="p">,</span>   <span class="mf">0.</span>        <span class="p">],</span>
-         <span class="p">[</span><span class="o">-</span><span class="mf">27.40551771</span><span class="p">,</span>   <span class="mf">0.</span>        <span class="p">,</span>   <span class="mf">0.</span>        <span class="p">],</span>
-         <span class="o">...</span><span class="p">,</span> 
-         <span class="p">[</span> <span class="mf">14.41548229</span><span class="p">,</span>   <span class="mf">0.</span>        <span class="p">,</span>  <span class="mf">16.</span>        <span class="p">],</span>
-         <span class="p">[</span> <span class="mf">14.46748229</span><span class="p">,</span>   <span class="mf">0.</span>        <span class="p">,</span>  <span class="mf">16.</span>        <span class="p">],</span>
-         <span class="p">[</span> <span class="mf">14.52048229</span><span class="p">,</span>   <span class="mf">0.</span>        <span class="p">,</span>  <span class="mf">16.</span>        <span class="p">]])}}</span>
-</pre></div>
+<div class="highlight highlight-python"><pre>{<span class="s1">'ax'</span>: <span class="o">&lt;</span>matplotlib.axes._subplots.AxesSubplot at <span class="m">0x</span>10acb27d0<span class="o">&gt;</span>,
+ <span class="s1">'data'</span>: {<span class="s1">'columns'</span>: [<span class="s1">'E'</span>, <span class="s1">'total'</span>, <span class="s1">'integrated'</span>],
+          <span class="s1">'data'</span>: array(
+            [[<span class="o">-</span><span class="m">27.51051771</span>,   <span class="m">0.</span>        ,   <span class="m">0.</span>        ],
+             [<span class="o">-</span><span class="m">27.45851771</span>,   <span class="m">0.</span>        ,   <span class="m">0.</span>        ],
+             [<span class="o">-</span><span class="m">27.40551771</span>,   <span class="m">0.</span>        ,   <span class="m">0.</span>        ],
+             ..., 
+             [ <span class="m">14.41548229</span>,   <span class="m">0.</span>        ,  <span class="m">16.</span>        ],
+             [ <span class="m">14.46748229</span>,   <span class="m">0.</span>        ,  <span class="m">16.</span>        ],
+             [ <span class="m">14.52048229</span>,   <span class="m">0.</span>        ,  <span class="m">16.</span>        ]])}}</pre></div>
 
 <h1>
 <a id="what-is-it" class="anchor" href="#what-is-it" aria-hidden="true"><span class="octicon octicon-link"></span></a>What is it?</h1>
@@ -93,7 +89,7 @@
 <ul>
 <li><p>It is a Python package with a straightforward structure. When you <code>import pydass_vasp</code>, you have sub-packages <code>pydass_vasp.plotting</code>, <code>pydass_vasp.fitting</code>, <code>pydass_vasp.manipulation</code>, <code>pydass_vasp.xml_utils</code>, each containing a few functions to carry out your tasks, with a careful selection of options to choose from. Return values are Python dictionaries, informative enough to be flexible for post-processing. When there is no need for an object, don't bother creating one.</p></li>
 <li><p>It also has scripts that utilize the main package. They are simply 'wrappers' to the functions that are used the most frequently, typically <code>plotting</code> and <code>fitting</code> functions. Instead of <code>cd</code>ing into a directory and launching the Python interpreter <code>python</code>, making the imports and calling the functions, you just need to stay in your terminal shell and type <code>plot_tdos.py</code> to plot the total density of states (DOS), <code>plot_ldos.py 1</code> to plot the local projected DOS of the first atom, and <code>plot_bs.py</code> to plot the band structure. These scripts accept arguments and options as flexible as their function counterparts.</p></li>
-<li><p>The defaults of the functions and wrapping scripts are sane and cater to the most use cases. For example, If you are in a Python interpreter, simply typing in <code>pydass_vasp.plotting.plot_tdos()</code> will collect data to plot from <code>DOSCAR</code> and parameters necessary under the current VASP job directory, generate and <strong>display</strong> a figure (or more) but <strong>not save</strong> it/them on disk, and at the same time return a dictionary with the extracted data and the <a href="http://matplotlib.org/">matplotlib</a> axes handler references. It'll automatically obtain critical parameters such as <code>ISPIN</code>, <code>Efermi</code> first from VASP <strong>output</strong> files (e.g. <code>OUTCAR</code>), then <strong>input</strong> files (e.g. <code>INCAR</code>) if the first attempt fails, and decide the number of figures to generate. If you are just in a terminal shell, typing in the script <code>plot_tdos.py</code> will do the same, but <strong>rather than display</strong> the figure(s), instead, <strong>save</strong> it/them quietly and use matplotlib's <code>Agg</code> backend. This would be particularly helpful for terminal users who don't have X Window forwarding (<a href="http://www.straightrunning.com/XmingNotes/">Xming</a> for Windows, <a href="http://xquartz.macosforge.org/landing/">XQuartz</a> for Mac OS X) set up on their own local machine, or the forwarding connection is slow to hold the live generated figures.</p></li>
+<li><p>The defaults of the functions and wrapping scripts are sane and cater to the most use cases. For example, If you are in a Python interpreter, simply typing in <code>pydass_vasp.plotting.plot_tdos()</code> will collect data to plot from <code>DOSCAR</code> and parameters necessary under the current VASP job directory, generate and <strong>display</strong> a figure (or more) but <strong>not save</strong> it/them on disk, and at the same time return a dictionary with the extracted data. It'll automatically obtain critical parameters such as <code>ISPIN</code>, <code>E-fermi</code> first from VASP <strong>output</strong> files (e.g. <code>OUTCAR</code>), then <strong>input</strong> files (e.g. <code>INCAR</code>) if the first attempt fails, and decide the number of figures to generate. If you are just in a terminal shell, typing in the script <code>plot_tdos.py</code> will do the same, but <strong>rather than display</strong> the figure(s), instead, <strong>save</strong> it/them quietly and use matplotlib's <code>Agg</code> backend. This would be particularly helpful for terminal users who don't have X Window forwarding (<a href="http://www.straightrunning.com/XmingNotes/">Xming</a> for Windows, <a href="http://xquartz.macosforge.org/landing/">XQuartz</a> for Mac OS X) set up on their own local machine, or the forwarding connection is slow to hold the live generated figures.</p></li>
 <li>
 <p>The options to the functions and wrapping scripts provide you with room of customization from the beginning. As an example, we consider <code>pydass_vasp.plotting.plot_tdos()</code>, shorted as <code>plot_tdos()</code>.</p>
 
@@ -103,12 +99,14 @@
 <li>
 <code>plot_tdos(axis_range=[-15,5,0,10])</code> sets the custom axis range.</li>
 <li>
-<code>plot_tdos(ISPIN=2)</code> lets you manually override the auto-detection of <code>ISPIN</code> from files other than <code>DOSCAR</code>. The program will skip the corresponding part of work. This is helpful when you only have the major data file <code>DOSCAR</code> transferred to you local machine, and do not have the other files necessary to extract the parameters to proceed plotting. To leave no confusion, when <code>ISPIN</code> is 2, two figures are generated, one with spin up and down combined, the other with two overlapping curves, denoting spin up and spin down separatedly.</li>
+<code>plot_tdos(ISPIN=2)</code> lets you manually override the auto-detection of <code>ISPIN</code> from files other than <code>DOSCAR</code>. The program will skip the corresponding part of work. This is helpful when you only have the major data file <code>DOSCAR</code> transferred to you local machine, and do not have the other files necessary to extract the parameters to proceed plotting. To leave no confusion, when <code>ISPIN</code> is 2, two figures are generated, one with spin up and down combined, the other with two overlapping curves, denoting spin up and spin down separately.</li>
 <li>
 <code>plot_tdos(on_figs=1)</code> creates the plot on top of an existing matplotlib figure labeled as <code>Figure 1</code>, instead of generating a whole new one.</li>
 <li>When <code>ISPIN</code> is 2, <code>plot_tdos(on_figs=[1,2])</code> puts the two plots mentioned before onto <code>Figure 1</code> and <code>Figure 2</code>. <code>plot_tdos(on_figs=[1,None])</code> is also valid, meaning putting the combined curve to <code>Figure 1</code>, and the two overlapping curves to a new figure, which you can of course delete on its own.</li>
 <li>
-<code>plot_tdos(display=False, close_figs=True, save_figs=True)</code> replicates the behavior of the corresponding wrapping script <code>plot_tdos.py</code>. There is something more to say about the interactions between the arguments <code>display</code> and <code>close_figs</code>[^1].</li>
+<code>plot_tdos(display=False, save_figs=True)</code> replicates the behavior of the corresponding wrapping script <code>plot_tdos.py</code>.</li>
+<li>
+<code>plot_tdos(return_refs=True)</code> adds the matplotlib axes reference(s) to the returned dictionary, and keeps the figure(s) open to let you make further changes. </li>
 <li>
 <code>plot_tdos(save_data=True, output_prefix='TDOS')</code> saves the extracted data to disk, with the prefix <code>'TDOS'</code>. The argument <code>output_prefix</code> also specifies the filenames for saved figures.</li>
 <li>The wrapping script <code>plot_tdos.py</code> accepts the relevant options in the form of <code>-i vasprun.xml</code>, or <code>--input vasprun.xml</code>, <code>-p</code> or <code>--display</code>. For more readily available information, type in <code>plot_tdos.py -h</code> to get help direclty from the terminal shell.</li>
@@ -117,21 +115,18 @@
 <li>
 <p>The returned dictionary also leave room for adjustments. Call it</p>
 
-<div class="highlight highlight-python"><pre><span class="n">returned_dict</span> <span class="o">=</span> <span class="p">{</span>       
-    <span class="s">'data'</span><span class="p">:</span> <span class="p">{</span><span class="s">'columns'</span><span class="p">:</span> <span class="n">col_names</span><span class="p">,</span> <span class="s">'data'</span><span class="p">:</span> <span class="n">data</span><span class="p">}</span>
-    <span class="s">'axes'</span><span class="p">:</span> <span class="p">{</span><span class="s">'ax'</span><span class="p">:</span> <span class="n">ax</span><span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
+<div class="highlight highlight-python"><pre>returned_dict <span class="o">=</span> {       
+    <span class="s1">'data'</span>: {<span class="s1">'columns'</span>: col_names, <span class="s1">'data'</span>: data}
+    <span class="s1">'ax'</span>: ax
+}</pre></div>
 
 <p><code>returned_dict['data']</code> has a 2D numpy array of data, and their column names. This construction is prefered because if you have <a href="http://pandas.pydata.org/">pandas</a>, you can just convert it to a DataFrame by <code>pd.DataFrame(**returned_dict['data'])</code>.</p>
 
-<p><code>returned_dict['axes']</code> contains the matplotlib axes handlers. When <code>ISPIN</code> is 2, it has two elements: <code>'ax_spin_up'</code> and <code>'ax_spin_down'</code>.</p>
+<p><code>returned_dict['ax']</code> is the matplotlib axes reference. When <code>ISPIN</code> is 2, they are two elements: <code>'ax_spin_up'</code> and <code>'ax_spin_down'</code>.</p>
 </li>
 <li><p>It has a uniform plotting support for the Crystal Orbital Hamilton Populations (COHP) analysis tool <a href="http://cohp.de/">LOBSTER</a>, function <code>plot_cohp()</code> and script <code>plot_cohp.py</code>.</p></li>
-<li><p>If you use matplotlib&gt;=1.4, and you plot with the wrapping scripts, you can automatically enjoy the aesthetics of <a href="http://tonysyu.github.io/mpltools/auto_examples/style/plot_ggplot.html">ggplot</a> by the newly added sub-package <a href="http://matplotlib.org/1.4.2/users/whats_new.html#style-package-added">style</a>.</p></li>
+<li><p>If you use matplotlib&gt;=1.4, and you plot with the wrapping scripts, you can automatically enjoy the aesthetics of <a href="http://tonysyu.github.io/mpltools/auto_examples/style/plot_ggplot.html">ggplot</a> by its newly added sub-package <a href="http://matplotlib.org/1.4.2/users/whats_new.html#style-package-added">style</a>.</p></li>
 </ul>
-
-<p>[^1]: Note, if you are in a python interpreter and matplotlib <strong>interactive</strong> mode (<code>matplotlib.is_interactive() == True</code>), the plots will show up anyway regardless of the <code>display</code> argument. You can of course close them later. But if you really do not need the plots, and just want to have the convenient access to the extracted data in the returned dictionary, type in <code>plot_tdos(close_figs=True)</code> instead, which closes the figures and returns no axes handlers either. The argument <code>close_figs</code> specifies the closing behavior when the figures don't show up (<code>display=False</code>), or <strong>after</strong> they show up (<code>display=True</code>) in <strong>interactive</strong> mode. In <strong>non-interactive</strong> mode, this argument has no effect because the figure blocks/freezes the process, and when you click to close the figure, it is closed anyways. The logical arrangement should be reasonable and easy to comprehend.</p>
 
 <h1>
 <a id="dependencies" class="anchor" href="#dependencies" aria-hidden="true"><span class="octicon octicon-link"></span></a>Dependencies</h1>
@@ -141,20 +136,20 @@
 <li>NumPy</li>
 <li>SciPy</li>
 <li>matplotlib</li>
-<li>IPython (Optional, but better to have)</li>
+<li>IPython (optional, but better to have)</li>
 </ul>
 
-<p>I highly recommendend every scientist/researcher who is new to Python to install the scientific superpack <a href="https://store.continuum.io/cshop/anaconda/">Anaconda</a>, if you are using Windows or Mac OS X. Even if you are on Linux, it is still highly recommended if you don't have superuser control over the machine to install packages freely. It is often the case when you have ssh access to a supercomputer. In all these cases, just download the package and do a simple local installation, and you already have everything to start with, not only for pydass_vasp, but also for the whole adventure of scientific computing.</p>
+<p>I highly recommend every scientist/researcher who is new to Python to install the scientific superpack <a href="https://store.continuum.io/cshop/anaconda/">Anaconda</a>, if you are using Windows or Mac OS X. Even if you are on Linux, it is still highly recommended if you don't have superuser control over the machine to install packages freely. It is often the case when you have ssh access to a supercomputer. In all these cases, just download the package and do a simple local installation, and you already have everything to start with, not only for <code>pydass_vasp</code>, but also for the whole adventure of scientific computing.</p>
 
 <h1>
 <a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h1>
 
-<p>This package has already been registered on PyPI. So if you have <a href="https://pip.readthedocs.org/en/latest/">pip</a>, which is a must have, and should already have been included in Anaconda,</p>
+<p><del>This package has already been registered on PyPI.</del>
+So if you have <a href="https://pip.readthedocs.org/en/latest/">pip</a>, which is a must have, and should already have been included in Anaconda,</p>
 
-<pre><code>pip install pydass_vasp
-</code></pre>
+<p><del>pip install pydass_vasp</del></p>
 
-<p>Or if you wish to follow the more updated releases, which should serve you better because small projects can fully enjoy the freedom of updates on GitHub before commiting to PyPI,</p>
+<p>Or if you wish to follow the more updated releases, which should serve you better because small projects can fully enjoy the freedom of updates on GitHub before committing to PyPI,</p>
 
 <pre><code>pip install git+https://github.com/terencezl/pydass_vasp
 </code></pre>
@@ -176,38 +171,26 @@ rm -r pydass_vasp
 <h1>
 <a id="getting-help" class="anchor" href="#getting-help" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting Help</h1>
 
-<p>An organized tutorial/documentation has not been ready yet, but the docstrings of functions are fairly complete. If you use <a href="http://ipython.org/">ipython</a>, which is also a must have, and should already have been included in Anaconda,</p>
+<p>An organized tutorial/documentation has not been ready yet, but the docstrings of functions are fairly complete. If you use <a href="http://ipython.org/">IPython</a>, which is also a must have, and should already have been included in Anaconda,</p>
 
 <pre><code># in terminal shell (e.g. Bash)
 $ ipython
 
 # in ipython
 &gt;&gt;&gt; import pydass_vasp
-&gt;&gt;&gt; pydass_vasp.plotting.plot_dos?
+&gt;&gt;&gt; pydass_vasp.plotting.plot_tdos?
 </code></pre>
 
 <p>You will get help. Experiment on a few options and you'll be quickly on your way.</p>
 
 <p>In addition, the help texts of scripts (option <code>-h</code> when you call them in the terminal shell) are available as well.</p>
-        </section>
-
-        <aside id="sidebar">
-          <a href="https://github.com/terencezl/pydass_vasp/zipball/master" class="button">
-            <small>Download</small>
-            .zip file
-          </a>
-          <a href="https://github.com/terencezl/pydass_vasp/tarball/master" class="button">
-            <small>Download</small>
-            .tar.gz file
-          </a>
-
-          <p class="repo-owner"><a href="https://github.com/terencezl/pydass_vasp"></a> is maintained by <a href="https://github.com/terencezl">terencezl</a>.</p>
-
-          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
-        </aside>
-      </div>
+      </section>
     </div>
-
-  
+    <footer>
+      <p>Project maintained by <a href="https://github.com/terencezl">terencezl</a></p>
+      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
+    </footer>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
   </body>
 </html>
