@@ -2,12 +2,12 @@ import re
 import warnings
 import numpy as np
 import matplotlib.pyplot as plt
-from helpers import determine_tag_value, plot_helper_figs_assert, plot_helper_figs
+from helpers import determine_tag_value, figs_assert, initiate_figs, display_or_close_figs
 from ..xml_utils import parse
 
 
 # Effective mass calculation funcitons.
-def find_band_edges(kp_edge, prec_range, E):
+def find_band_edges(kp_edge, prec_range, eigenvalues):
     """
     Given the k-point index number on the x-axis, search for the indices of bands
     right below or above Ef.
@@ -18,18 +18,18 @@ def find_band_edges(kp_edge, prec_range, E):
         The k-point index number that corresponds to the band edges (VBM and CBM).
     prec_range : float
         The searching range in eV.
-    E : 2D numpy array
+    eigenvalues : 2D numpy array
         The 2D array that contains eigenvalues. Each row denotes a k-point, and each column a band.
     """
     # Examine valence band edge.
     print 'The possible valence bands are', \
-        np.where(np.logical_and(E[kp_edge] > -prec_range, E[kp_edge] < 0))[1]
+        np.where(np.logical_and(eigenvalues[kp_edge] > -prec_range, eigenvalues[kp_edge] < 0))[1]
     # Examine conduction band edge.
     print 'The possible conduction bands are', \
-        np.where(np.logical_and(E[kp_edge] < prec_range, E[kp_edge] > 0))[1]
+        np.where(np.logical_and(eigenvalues[kp_edge] < prec_range, eigenvalues[kp_edge] > 0))[1]
 
 
-def get_effective_mass(band, kp_start, kp_end, kps_linearized, E):
+def get_effective_mass(band, kp_start, kp_end, kps_linearized, eigenvalues):
     """
     Given the band index number, k-point start and end indices, fit the included curve
     to a 2nd-order polynomial, and obtain the effective mass of the carrier electron or hole.
@@ -44,7 +44,7 @@ def get_effective_mass(band, kp_start, kp_end, kps_linearized, E):
         The index number of the ending k-point.
     kps_linearized : 1D numpy array
         The full x-axis of k-points.
-    E : 2D numpy array
+    eigenvalues : 2D numpy array
         The 2D array that contains eigenvalues. Each row denotes a k-point, and each column a band.
 
     Returns
@@ -58,7 +58,7 @@ def get_effective_mass(band, kp_start, kp_end, kps_linearized, E):
 
     # Decide on the fitting range, characterized by indices.
     selected_kp_array = kps_linearized[kp_start:kp_end + 1]
-    selected_energy_array = E[kp_start:kp_end + 1, band]
+    selected_energy_array = eigenvalues[kp_start:kp_end + 1, band]
     p = np.poly1d(np.polyfit(selected_kp_array, selected_energy_array, 2))
     axis_fitted = -p[1]/2/p[2]
     axis_actual = selected_kp_array[selected_energy_array.argmin() if p[2] > 0 else selected_energy_array.argmax()]
@@ -92,8 +92,8 @@ def plot_helper_settings(ax, axis_range, reciprocal_point_locations, reciprocal_
         plt.savefig(output)
 
 
-def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_points=None, Ef=None, input_file='EIGENVAL', display=True,
-    on_figs=None, close_figs=False, save_figs=False, save_data=False, output_prefix='BS'):
+def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_points=None, Ef=None, input_file='EIGENVAL', 
+            display=True, on_figs=None, return_refs=False, save_figs=False, save_data=False, output_prefix='BS'):
     """
     Plot the band structure, with consideration of spin-polarization.
     Accepts input file 'EIGENVAL', or 'vasprun.xml'.
@@ -103,28 +103,32 @@ def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_poin
     axis_range: list
         the range of axes x and y, 4 values in a list
     ISPIN: int
-        user specified ISPIN. If not given, for 'EIGENVAL' input, infer from 'OUTCAR'/'INCAR'
-        for 'vasprun.xml' input, infer from 'vasprun.xml'
+        user specified ISPIN
+        If not given, for EIGENVAL-type input, infer from OUTCAR/INCAR.
+        For vasprun.xml-type input, infer from 'vasprun.xml'.
     N_kps_per_section: int
-        ser specified number of k-points per line section
+        user specified number of k-points per line section
     reciprocal_points: list
         list of reciprocal point string symbols, like ['G','X','A']
+        Its length has to be the number of line sections + 1
     Ef: float
-        user specified Ef. If not given, for 'EIGENVAL' input, infer from 'OUTCAR'/'DOSCAR'
-        for 'vasprun.xml' input, infer from 'vasprun.xml'
+        user specified Ef
+        If not given, for EIGENVAL-type input, infer from OUTCAR/DOSCAR
+        For vasprun.xml-type input, infer from 'vasprun.xml'.
     input_file: string
-        input file name, default to 'EIGENVAL'. Can also be 'vasprun.xml'
+        input file name, default to 'EIGENVAL'
+        For EIGENVAL-type, can be any string containing 'EIGENVAL'.
+        For vasprun.xml-type input, can be any string ending with '.xml'.
     display: bool
-        display figures or not
-    on_figs: list
+        Display figures or not. Default to True.
+    on_figs: list/int
         the current figure numbers to plot to, default to new figures
-    close_figs: bool
-        close figs after drawing. Figures leave axes handlers in memory when the function is called.
-        If you care about memory usage, this might be useful.
+    return_refs: bool
+        Return the axes reference(s) drawing or not. Default to False.
     save_figs: bool
-        save figures or not
+        Save figures or not. Default to False. 
     save_data: bool
-        save data or not
+        Save data or not. Default to False.
     output_prefix: string
         prefix string before the output files, default to 'BS'
 
@@ -177,8 +181,8 @@ def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_poin
                     print ("Can't determine reciprocal point symbols! Either manually specify it, or provide OUTCAR/KPOINTS.")
 
         kps = np.zeros((N_kps, 3))
-        for n_kp, elem in enumerate(root.findall("./kpoints/varray[@name='kpointlist']/v")):
-                kps[n_kp] = elem.text.split()[0]
+        for kp, elem in enumerate(root.findall("./kpoints/varray[@name='kpointlist']/v")):
+            kps[kp] = elem.text.split()[:3]
 
     elif re.match(r".*EIGENVAL.*", input_file):
         # get ISPIN
@@ -261,12 +265,12 @@ def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_poin
     kps_linearized = kps_linearized_sectioned.flatten()
 
     if ISPIN == 1:
-        col_names = [str(i) for i in range(N_bands + 1)]
+        col_names = ['band_' + str(i) for i in range(N_bands + 1)]
         col_names[0] = 'k_points'
     elif ISPIN == 2:
-        col_names1 = [str(i) + '_up' for i in range(N_bands + 1)]
+        col_names1 = ['band_' + str(i) + '_up' for i in range(N_bands + 1)]
         col_names1[0] = 'k_points'
-        col_names2 = [str(i) + '_down' for i in range(N_bands + 1)]
+        col_names2 = ['band_' + str(i) + '_down' for i in range(N_bands + 1)]
         col_names2[0] = 'k_points'
 
     return_dict = {
@@ -277,84 +281,86 @@ def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_poin
     # diverging again
     if re.match(r".*\.xml", input_file):
         if ISPIN == 1:
-            E = np.zeros((N_kps, N_bands))
-            for n_kp in range(N_kps):
-                for n_band, elem in enumerate(root.findall(
+            data = np.zeros((N_kps, N_bands))
+            for kp in range(N_kps):
+                for band, elem in enumerate(root.findall(
                     "./calculation/eigenvalues/array/set/set[@comment='spin 1']/set[@comment='kpoint "
-                    + str(n_kp) + "']/r")):
-                    E[n_kp, n_band] = elem.text.split()[0]
+                    + str(kp + 1) + "']/r")):
+                    data[kp, band] = elem.text.split()[0]
 
         if ISPIN == 2:
-            E_spin1 = np.zeros((N_kps, N_bands))
-            for n_kp in range(N_kps):
-                for n_band, elem in enumerate(root.findall(
+            data1 = np.zeros((N_kps, N_bands))
+            for kp in range(N_kps):
+                for band, elem in enumerate(root.findall(
                     "./calculation/eigenvalues/array/set/set[@comment='spin 1']/set[@comment='kpoint "
-                    + str(n_kp) + "']/r")):
-                    E_spin1[n_kp, n_band] = elem.text.split()[0]
-            E_spin2 = np.zeros((N_kps, N_bands))
-            for n_kp in range(N_kps):
-                for n_band, elem in enumerate(root.findall(
+                    + str(kp + 1) + "']/r")):
+                    data1[kp, band] = elem.text.split()[0]
+            data2 = np.zeros((N_kps, N_bands))
+            for kp in range(N_kps):
+                for band, elem in enumerate(root.findall(
                     "./calculation/eigenvalues/array/set/set[@comment='spin 2']/set[@comment='kpoint "
-                    + str(n_kp) + "']/r")):
-                    E_spin2[n_kp, n_band] = elem.text.split()[0]
+                    + str(kp + 1) + "']/r")):
+                    data2[kp, band] = elem.text.split()[0]
 
     elif re.match(r".*EIGENVAL.*", input_file):
         if ISPIN == 1:
-            E = np.zeros((N_kps, N_bands))
+            data = np.zeros((N_kps, N_bands))
             for kp in range(0, N_kps):
                 for band in range(0, N_bands):
-                    E[kp, band] = float(EIGENVAL[8 + band + (N_bands + 2) * kp][1])
+                    data[kp, band] = float(EIGENVAL[8 + band + (N_bands + 2) * kp][1])
 
         if ISPIN == 2:
-            E_spin1 = np.zeros((N_kps, N_bands))
-            E_spin2 = np.zeros((N_kps, N_bands))
+            data1 = np.zeros((N_kps, N_bands))
+            data2 = np.zeros((N_kps, N_bands))
             for kp in range(0, N_kps):
                 for band in range(0, N_bands):
-                    E_spin1[kp, band] = float(EIGENVAL[8 + band + (N_bands + 2) * kp][1])
-                    E_spin2[kp, band] = float(EIGENVAL[8 + band + (N_bands + 2) * kp][2])
+                    data1[kp, band] = float(EIGENVAL[8 + band + (N_bands + 2) * kp][1])
+                    data2[kp, band] = float(EIGENVAL[8 + band + (N_bands + 2) * kp][2])
 
     # partial confluence
     if ISPIN == 1:
-        E -= Ef
+        data -= Ef
         # Plot the bands.
-        plot_helper_figs(on_figs)
+        initiate_figs(on_figs)
         ax = plt.subplot(111)
         for band in range(N_bands):
-            plt.plot(kps_linearized, E[:, band])
+            plt.plot(kps_linearized, data[:, band])
         plot_helper_settings(ax, axis_range, reciprocal_point_locations, reciprocal_points,
                              save_figs, output_prefix+'.pdf')
         axes = {'ax': ax}
+        data = np.column_stack((kps_linearized, data))
         return_dict['data'] = {
                 'columns': col_names,
-                'data': np.column_stack((kps_linearized, E))
+                'data': data
         }
+        if save_data:
+            np.savetxt(output_prefix + '.txt', data, '%15.6E', header=' '.join(col_names))
 
     elif ISPIN == 2:
-        E_spin1 -= Ef
-        E_spin2 -= Ef
+        data1 -= Ef
+        data2 -= Ef
         # plot the bands of up and down overlapping
-        plot_helper_figs(on_figs)
+        initiate_figs(on_figs)
         ax = plt.subplot(111)
         for band in range(N_bands):
-            plt.plot(kps_linearized, E_spin1[:, band], 'k', label='spin up')
-            plt.plot(kps_linearized, E_spin2[:, band], 'b', label='spin down')
+            plt.plot(kps_linearized, data1[:, band], 'k', label='spin up')
+            plt.plot(kps_linearized, data2[:, band], 'b', label='spin down')
         plot_helper_settings(ax, axis_range, reciprocal_point_locations, reciprocal_points,
                              save_figs, output_prefix+'-overlapping.pdf')
         axes = {'ax': ax}
-        return_dict['spin_up_data'] = {
+        data1 = np.column_stack((kps_linearized, data1))
+        data2 = np.column_stack((kps_linearized, data2))
+        return_dict['data_spin_up'] = {
                 'columns': col_names1,
-                'data': np.column_stack((kps_linearized, E_spin1))
+                'data': data1
             }
-        return_dict['spin_down_data'] = {
+        return_dict['data_spin_down'] = {
                 'columns': col_names2,
-                'data': np.column_stack((kps_linearized, E_spin2))
+                'data': data2
             }
+        if save_data:
+            np.savetxt(output_prefix + '_spin_up.txt', data1, '%15.6E', header=' '.join(col_names1))
+            np.savetxt(output_prefix + '_spin_down.txt', data2, '%15.6E', header=' '.join(col_names2))
 
-    if display and (not plt.isinteractive()):
-        plt.show()
-    else:
-        if close_figs:
-            plt.close('all')
-        else:
-            return_dict['axes'] = axes
+    return_dict = display_or_close_figs(display, return_refs, return_dict, axes)
     return return_dict

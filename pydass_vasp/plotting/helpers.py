@@ -23,7 +23,7 @@ def determine_tag_value(tag):
 
 
 # internal
-def plot_helper_figs_assert(on_figs, ISPIN, data_type):
+def figs_assert(on_figs, ISPIN, data_type):
     if ISPIN == 2:
         if data_type == 'tdos' or data_type == 'ldos' or data_type == 'cohp':
             assert on_figs is None or (isinstance(on_figs, list) and len(on_figs) == 2), \
@@ -37,8 +37,24 @@ def plot_helper_figs_assert(on_figs, ISPIN, data_type):
 
 
 # internal
-def plot_helper_figs(on_figs):
+def initiate_figs(on_figs):
     if on_figs is None:
         plt.figure()
     else:
         plt.figure(on_figs.pop(0))
+
+
+# internal
+def display_or_close_figs(display, return_refs, return_dict, axes):
+    if display:
+        if plt.isinteractive():
+            return_dict.update(axes)
+        else:
+            plt.show()
+    else:
+        if return_refs:
+            return_dict.update(axes)
+        else:
+            plt.close('all')
+
+    return return_dict

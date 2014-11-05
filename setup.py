@@ -1,11 +1,31 @@
+import re
 from setuptools import setup
+
+
+def remove_extra_line(text):
+    text = text.split('\n')
+    i = 0
+    while i < len(text):
+        m = re.match(r'\s*:alt:\s*(\w*).*', text[i])
+        if m:
+            alt_text = m.group(1)
+            i += 1
+            while i < len(text):
+                if alt_text in text[i]:
+                    print("Deleted " + alt_text + " line.")
+                    text.pop(i)
+                    break
+                i += 1
+        i += 1
+    return '\n'.join(text)
+
 long_description = ''
 try:
    import pypandoc
    long_description = pypandoc.convert('README.md', 'rst')
+   long_description = remove_extra_line(long_description)
 except (IOError, ImportError):
    long_description = open('README.md').read()
-
 
 setup(name='pydass_vasp',
       version='0.1',
