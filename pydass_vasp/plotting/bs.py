@@ -139,7 +139,7 @@ def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_poin
         'reciprocal_point_locations', their locations on the x-axis
         'data', a dict that has 2D array of data,
             easily to Pandas DataFrame by pd.DataFrame(**returned_dict['data'])
-        'axes': a dict that contains axes handlers of current figures
+        'ax': the axes reference, if return_refs == True
     """
     if re.match(r".*\.xml", input_file):
         root = parse(input_file)
