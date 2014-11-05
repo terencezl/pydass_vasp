@@ -109,7 +109,7 @@ I highly recommend every scientist/researcher who is new to Python to install th
 
 Installation
 ============
-~~This package has already been registered on PyPI. ~~
+~~This package has already been registered on PyPI.~~
 So if you have [pip](https://pip.readthedocs.org/en/latest/), which is a must have, and should already have been included in Anaconda,
 
 ~~pip install pydass_vasp~~
