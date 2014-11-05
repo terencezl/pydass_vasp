@@ -14,11 +14,9 @@ parser.add_argument('-o', '--output-prefix', default='COHP', help="the output fi
 args = parser.parse_args()
 if args.display:
     display = True
-    close_figs = False
     save_figs = False
 else:
     display = False
-    close_figs = True
     save_figs = True
 
 if not args.display:
@@ -38,5 +36,5 @@ except AttributeError:
     print "If you upgrade to matplotlib 1.4 and I will change the style to ggplot, just prettier."
 
 from pydass_vasp.plotting import plot_cohp
-plot_cohp(bond=args.bond, axis_range=args.axis_range, ISPIN=args.ISPIN, input_file=args.input, display=display, close_figs=close_figs,
+plot_cohp(bond=args.bond, axis_range=args.axis_range, ISPIN=args.ISPIN, input_file=args.input, display=display, return_refs=False,
     save_figs=save_figs, save_data=args.save_data, output_prefix=args.output_prefix)
