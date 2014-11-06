@@ -1,0 +1,23 @@
+# Dependencies
+markdown:         redcarpet
+highlighter:      pygments
+
+# Permalinks
+permalink:        pretty
+relative_permalinks: true
+
+# Setup
+title:            pydass_vasp
+description:      'Convenient Python modules and wrapping executable scripts.'
+url:              http://terencezl.github.io/pydass_vasp
+baseurl:          http://terencezl.github.io/pydass_vasp/
+#baseurl:          /
+
+author:
+  name:           'Terence Zhi Liu'
+  url:            http://terencezl.github.io
+
+# Custom vars
+
+github:
+  repo:           https://github.com/terencezl/pydass_vasp
