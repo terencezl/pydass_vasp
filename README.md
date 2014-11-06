@@ -14,8 +14,10 @@ Returned dictionary:
 
 ```python
 {'ax': <matplotlib.axes._subplots.AxesSubplot at 0x10a33df50>,
- 'data': {'columns': ['k_points', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', 
-                        '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32'],
+ 'data': {'columns': ['k_points', 'band_1', 'band_2', 'band_3', 'band_4', 'band_5', 'band_6', 'band_7', 'band_8', 
+                      'band_9', 'band_10', 'band_11', 'band_12', 'band_13', 'band_14', 'band_15', 'band_16', 
+                      'band_17', 'band_18', 'band_19', 'band_20', 'band_21', 'band_22', 'band_23', 'band_24', 
+                      'band_25', 'band_26', 'band_27', 'band_28', 'band_29', 'band_30', 'band_31', 'band_32'],
           'data': array(
             [[  0.        , -20.342219  , -16.616756  , ...,   5.849101  ,
                 5.855091  ,   6.074841  ],
@@ -37,24 +39,33 @@ Returned dictionary:
 ##### Example: plotting total density of states
 
 ```python
-pydass_vasp.plotting.plot_tdos()
+pydass_vasp.plotting.plot_tdos(axis_range=[-15, 15, 0, 40])
 ```
 
-![density_of_states](http://terencezl.github.io/pydass_vasp/images/dos.png)
+![dos_combined](http://terencezl.github.io/pydass_vasp/images/dos_combined.png)
+![dos_overlapping](http://terencezl.github.io/pydass_vasp/images/dos_overlapping.png)
 
 Returned dictionary:
 
 ```python
-{'ax': <matplotlib.axes._subplots.AxesSubplot at 0x10acb27d0>,
- 'data': {'columns': ['E', 'total', 'integrated'],
-          'data': array(
-            [[-27.51051771,   0.        ,   0.        ],
-             [-27.45851771,   0.        ,   0.        ],
-             [-27.40551771,   0.        ,   0.        ],
-             ..., 
-             [ 14.41548229,   0.        ,  16.        ],
-             [ 14.46748229,   0.        ,  16.        ],
-             [ 14.52048229,   0.        ,  16.        ]])}}
+{'ax_spin_combined': <matplotlib.axes._subplots.AxesSubplot at 0x108b95110>,
+ 'ax_spin_overlapping': <matplotlib.axes._subplots.AxesSubplot at 0x10b0f5fd0>,
+ 'data_spin_down': {'columns': ['E', 'total_down', 'integrated_down'],
+  'data': array([[-22.63140452,   0.        ,   0.        ],
+                 [-22.60640452,   0.        ,   0.        ],
+                 [-22.58040452,   0.        ,   0.        ],
+                 ..., 
+                 [ 15.05159548,   0.        ,  56.        ],
+                 [ 15.07659548,   0.        ,  56.        ],
+                 [ 15.10159548,   0.        ,  56.        ]])},
+ 'data_spin_up': {'columns': ['E', 'total_up', 'integrated_up'],
+  'data': array([[-22.63140452,   0.        ,   0.        ],
+                 [-22.60640452,   0.        ,   0.        ],
+                 [-22.58040452,   0.        ,   0.        ],
+                 ..., 
+                 [ 15.05159548,   0.        ,  56.        ],
+                 [ 15.07659548,   0.        ,  56.        ],
+                 [ 15.10159548,   0.        ,  56.        ]])}}
 ```
 
 What is it?
