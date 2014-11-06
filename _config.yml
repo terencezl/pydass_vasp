@@ -9,9 +9,8 @@ permalink:        pretty
 # Setup
 title:            pydass_vasp
 description:      'Convenient Python modules and wrapping executable scripts.'
-url:              http://terencezl.github.io
+#url:              http://terencezl.github.io
 baseurl:          /pydass_vasp
-#baseurl:          /
 
 author:
   name:           'Terence Zhi Liu'
