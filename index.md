@@ -18,8 +18,7 @@ pydass_vasp.plotting.plot_bs(axis_range=[-4,6])
 Returned dictionary:
 
 ```python
-{'ax': <matplotlib.axes._subplots.AxesSubplot at 0x10a33df50>,
- 'data': {'columns': ['k_points', 
+{'data': {'columns': ['k_points', 
               'band_1', 'band_2', 'band_3', 'band_4', 'band_5', 'band_6', 'band_7', 'band_8', 
               'band_9', 'band_10', 'band_11', 'band_12', 'band_13', 'band_14', 'band_15', 'band_16', 
               'band_17', 'band_18', 'band_19', 'band_20', 'band_21', 'band_22', 'band_23', 'band_24', 
@@ -42,10 +41,10 @@ Returned dictionary:
  'reciprocal_points': ['R', 'G', 'X', 'M', 'G']}
 ```
 
-##### Example: plotting total density of states
+##### Example: plotting total density of states with spin polarization
 
 ```python
-pydass_vasp.plotting.plot_tdos(axis_range=[-15, 15, 0, 40])
+pydass_vasp.plotting.plot_tdos(axis_range=[-15, 15, 0, 40], return_refs=True)
 ```
 
 ![dos_combined](http://terencezl.github.io/pydass_vasp/images/dos_combined.png)
@@ -87,15 +86,64 @@ This Python package is the result of frustration of searching for an organized, 
 * The defaults of the functions and wrapping scripts are sane and cater to the most use cases. For example, If you are in a Python interpreter, simply typing in `pydass_vasp.plotting.plot_tdos()` will collect data to plot from `DOSCAR` and parameters necessary under the current VASP job directory, generate and **display** a figure (or more) but **not save** it/them on disk, and at the same time return a dictionary with the extracted data. It'll automatically obtain critical parameters such as `ISPIN`, `E-fermi` first from VASP **output** files (e.g. `OUTCAR`), then **input** files (e.g. `INCAR`) if the first attempt fails, and decide the number of figures to generate. If you are just in a terminal shell, typing in the script `plot_tdos.py` will do the same, but **rather than display** the figure(s), instead, **save** it/them quietly and use matplotlib's `Agg` backend. This would be particularly helpful for terminal users who don't have X Window forwarding ([Xming](http://www.straightrunning.com/XmingNotes/) for Windows, [XQuartz](http://xquartz.macosforge.org/landing/) for Mac OS X) set up on their own local machine, or the forwarding connection is slow to hold the live generated figures.
  
 * The options to the functions and wrapping scripts provide you with room of customization from the beginning. As an example, we consider `pydass_vasp.plotting.plot_tdos()`, shorted as `plot_tdos()`.
-	* `plot_tdos(input_file='vasprun.xml')` switches from taking in `DOSCAR` to `vasprun.xml`. It lets you select what file you prefer to use. Any filename containing `'DOSCAR'` is considered to be of `DOSCAR` type, any filename ending with `'.xml'` is considered to be of `vasprun.xml` type.
-	* `plot_tdos(axis_range=[-15,5,0,10])` sets the custom axis range.
-	* `plot_tdos(ISPIN=2)` lets you manually override the auto-detection of `ISPIN` from files other than `DOSCAR`. The program will skip the corresponding part of work. This is helpful when you only have the major data file `DOSCAR` transferred to you local machine, and do not have the other files necessary to extract the parameters to proceed plotting. To leave no confusion, when `ISPIN` is 2, two figures are generated, one with spin up and down combined, the other with two overlapping curves, denoting spin up and spin down separately.
-	* `plot_tdos(on_figs=1)` creates the plot on top of an existing matplotlib figure labeled as `Figure 1`, instead of generating a whole new one.
-	* When `ISPIN` is 2, `plot_tdos(on_figs=[1,2])` puts the two plots mentioned before onto `Figure 1` and `Figure 2`. `plot_tdos(on_figs=[1,None])` is also valid, meaning putting the combined curve to `Figure 1`, and the two overlapping curves to a new figure, which you can of course delete on its own.
-	* `plot_tdos(display=False, save_figs=True)` replicates the behavior of the corresponding wrapping script `plot_tdos.py`.
-	* `plot_tdos(return_refs=True)` adds the matplotlib axes reference(s) to the returned dictionary, and keeps the figure(s) open to let you make further changes. 
-	* `plot_tdos(save_data=True, output_prefix='TDOS')` saves the extracted data to disk, with the prefix `'TDOS'`. The argument `output_prefix` also specifies the filenames for saved figures.
-	* The wrapping script `plot_tdos.py` accepts the relevant options in the form of `-i vasprun.xml`, or `--input vasprun.xml`, `-p` or `--display`. For more readily available information, type in `plot_tdos.py -h` to get help direclty from the terminal shell.
+    
+    ```python
+    # in IPython, see the docstring
+    plot_tdos?
+    ```
+    
+        Plot the total density of states, with consideration of spin-polarization.
+        Accepts input file 'DOSCAR', or 'vasprun.xml'.
+        
+        Parameters
+        ----------
+        axis_range: list
+            the range of axes x and y, 4 values in a list
+        ISPIN: int
+            user specified ISPIN
+            If not given, for DOSCAR-type input, infer from OUTCAR/INCAR.
+            For vasprun.xml-type input, infer from 'vasprun.xml'.
+        input_file: string
+            input file name, default to 'DOSCAR'
+            For DOSCAR-type, can be any string containing 'DOSCAR'.
+            For vasprun.xml-type input, can be any string ending with '.xml'.
+        display: bool
+            Display figures or not. Default to True.
+        on_figs: list/int
+            the current figure numbers to plot to, default to new figures
+        return_refs: bool
+            Return the axes reference(s) drawing or not. Default to False.
+        save_figs: bool
+            Save figures or not. Default to False. 
+        save_data: bool
+            Save data or not. Default to False.
+        output_prefix: string
+            prefix string before the output files, default to 'TDOS'
+        return_states_at_Ef: bool
+            Calculate the TDOS at Ef with a 0.4 eV window of integration or not. Default to False.
+        
+        Returns
+        -------
+        a dict, containing
+            'data': a dict that has 2D array of data,
+                easily to Pandas DataFrame by pd.DataFrame(**returned_dict['data'])
+            'ax': the axes reference, if return_refs == True
+
+	`plot_tdos(input_file='vasprun.xml')` switches from taking in `DOSCAR` to `vasprun.xml`. It lets you select what file you prefer to use. Any filename containing `'DOSCAR'` is considered to be of `DOSCAR` type, any filename ending with `'.xml'` is considered to be of `vasprun.xml` type.
+	
+	`plot_tdos(ISPIN=2)` lets you manually override the auto-detection of `ISPIN` from files other than `DOSCAR`. The program will skip the corresponding part of work. This is helpful when you only have the major data file `DOSCAR` transferred to you local machine, and do not have the other files necessary to extract the parameters to proceed plotting. To leave no confusion, when `ISPIN` is 2, two figures are generated, one with spin up and down combined, the other with two overlapping curves, denoting spin up and spin down separately.
+	
+	`plot_tdos(on_figs=1)` creates the plot on top of an existing matplotlib figure labeled as `Figure 1`, instead of generating a whole new one.
+	
+	`plot_tdos(on_figs=[1,2])` when `ISPIN` is 2 puts the two plots mentioned before onto `Figure 1` and `Figure 2`. `plot_tdos(on_figs=[1,None])` is also valid, meaning putting the combined curve to `Figure 1`, and the two overlapping curves to a new figure, which you can of course delete on its own.
+	
+	`plot_tdos(display=False, save_figs=True)` replicates the behavior of the corresponding wrapping script `plot_tdos.py`.
+	
+	`plot_tdos(return_refs=True)` adds the matplotlib axes reference(s) to the returned dictionary, and keeps the figure(s) open to let you make further changes. Note: you don't need to switch `display` on to get axes references.
+	
+	`plot_tdos(save_data=True, output_prefix='TDOS')` saves the extracted data to disk, with the prefix `'TDOS'`. The argument `output_prefix` also specifies the filenames for saved figures.
+	
+	The wrapping script `plot_tdos.py` accepts the relevant options in the form of `-i vasprun.xml`, or `--input vasprun.xml`, `-p` or `--display`. For more readily available information, type in `plot_tdos.py -h` to get help direclty from the terminal shell.
 
 * The returned dictionary also leave room for adjustments. Call it
 
@@ -126,11 +174,11 @@ I highly recommend every scientist/researcher who is new to Python to install th
 
 Installation
 ============
-~~This package has already been registered on PyPI. So if you have [pip](https://pip.readthedocs.org/en/latest/), which is a must have, and should already have been included in Anaconda,~~
+~~This package has already been registered on PyPI.~~ So if you have [pip](https://pip.readthedocs.org/en/latest/), which is a must have, and should already have been included in Anaconda,
 
 ~~pip install pydass_vasp~~
 	
-Or if you wish to follow the more updated releases, which should serve you better because small projects can fully enjoy the freedom of updates on GitHub before committing to PyPI,
+~~Or~~ if you wish to follow the more updated releases, which should serve you better because small projects can fully enjoy the freedom of updates on GitHub before committing to PyPI,
 
 	pip install git+https://github.com/terencezl/pydass_vasp
 	
