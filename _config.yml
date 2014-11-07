@@ -1,5 +1,9 @@
 # Dependencies
 markdown:         redcarpet
+
+redcarpet:
+  extensions: ['strikethrough']
+
 highlighter:      pygments
 
 # Permalinks

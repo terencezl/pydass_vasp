@@ -19,10 +19,11 @@ Returned dictionary:
 
 ```python
 {'ax': <matplotlib.axes._subplots.AxesSubplot at 0x10a33df50>,
- 'data': {'columns': ['k_points', 'band_1', 'band_2', 'band_3', 'band_4', 'band_5', 'band_6', 'band_7', 'band_8', 
-                      'band_9', 'band_10', 'band_11', 'band_12', 'band_13', 'band_14', 'band_15', 'band_16', 
-                      'band_17', 'band_18', 'band_19', 'band_20', 'band_21', 'band_22', 'band_23', 'band_24', 
-                      'band_25', 'band_26', 'band_27', 'band_28', 'band_29', 'band_30', 'band_31', 'band_32'],
+ 'data': {'columns': ['k_points', 
+              'band_1', 'band_2', 'band_3', 'band_4', 'band_5', 'band_6', 'band_7', 'band_8', 
+              'band_9', 'band_10', 'band_11', 'band_12', 'band_13', 'band_14', 'band_15', 'band_16', 
+              'band_17', 'band_18', 'band_19', 'band_20', 'band_21', 'band_22', 'band_23', 'band_24', 
+              'band_25', 'band_26', 'band_27', 'band_28', 'band_29', 'band_30', 'band_31', 'band_32'],
           'data': array(
             [[  0.        , -20.342219  , -16.616756  , ...,   5.849101  ,
                 5.855091  ,   6.074841  ],
@@ -124,8 +125,7 @@ I highly recommend every scientist/researcher who is new to Python to install th
 
 Installation
 ============
-~~This package has already been registered on PyPI.~~
-So if you have [pip](https://pip.readthedocs.org/en/latest/), which is a must have, and should already have been included in Anaconda,
+~~This package has already been registered on PyPI. So if you have [pip](https://pip.readthedocs.org/en/latest/), which is a must have, and should already have been included in Anaconda,~~
 
 ~~pip install pydass_vasp~~
 	
@@ -133,7 +133,7 @@ Or if you wish to follow the more updated releases, which should serve you bette
 
 	pip install git+https://github.com/terencezl/pydass_vasp
 	
-Alternatively, if you don't have pip, download the `.tar.gz` file from the PyPI page and decompress it in a local directory of your choice, or `git clone https://github.com/terencezl/pydass_vasp`, get into the outer `pydass_vasp` directory and
+Alternatively, if you don't have pip, ~~download the `.tar.gz` file from the PyPI page and decompress it in a local directory of your choice, or~~ `git clone https://github.com/terencezl/pydass_vasp`, get into the outer `pydass_vasp` directory and
 
 	python setup.py install
 	
