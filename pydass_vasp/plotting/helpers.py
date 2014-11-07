@@ -48,7 +48,8 @@ def initiate_figs(on_figs):
 def display_or_close_figs(display, return_refs, return_dict, axes):
     if display:
         if plt.isinteractive():
-            return_dict.update(axes)
+            if return_refs:
+                return_dict.update(axes)
         else:
             plt.show()
     else:
