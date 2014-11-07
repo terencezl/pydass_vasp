@@ -87,58 +87,54 @@ This Python package is the result of frustration of searching for an organized, 
     plot_tdos?
     ```
     
-    ```
-    Plot the total density of states, with consideration of spin-polarization.
-    Accepts input file 'DOSCAR', or 'vasprun.xml'.
-    
-    Parameters
-    ----------
-    axis_range: list
-        the range of axes x and y, 4 values in a list
-    ISPIN: int
-        user specified ISPIN
-        If not given, for DOSCAR-type input, infer from OUTCAR/INCAR.
-        For vasprun.xml-type input, infer from 'vasprun.xml'.
-    input_file: string
-        input file name, default to 'DOSCAR'
-        For DOSCAR-type, can be any string containing 'DOSCAR'.
-        For vasprun.xml-type input, can be any string ending with '.xml'.
-    display: bool
-        Display figures or not. Default to True.
-    on_figs: list/int
-        the current figure numbers to plot to, default to new figures
-    return_refs: bool
-        Return the axes reference(s) drawing or not. Default to False.
-    save_figs: bool
-        Save figures or not. Default to False. 
-    save_data: bool
-        Save data or not. Default to False.
-    output_prefix: string
-        prefix string before the output files, default to 'TDOS'
-    return_states_at_Ef: bool
-        Calculate the TDOS at Ef with a 0.4 eV window of integration or not. Default to False.
-    
-    Returns
-    -------
-    a dict, containing
-        'data': a dict that has 2D array of data,
-            easily to Pandas DataFrame by pd.DataFrame(**returned_dict['data'])
-        'ax': the axes reference, if return_refs == True
-    ```
+        Plot the total density of states, with consideration of spin-polarization.
+        Accepts input file 'DOSCAR', or 'vasprun.xml'.
+        
+        Parameters
+        ----------
+        axis_range: list
+            the range of axes x and y, 4 values in a list
+        ISPIN: int
+            user specified ISPIN
+            If not given, for DOSCAR-type input, infer from OUTCAR/INCAR.
+            For vasprun.xml-type input, infer from 'vasprun.xml'.
+        input_file: string
+            input file name, default to 'DOSCAR'
+            For DOSCAR-type, can be any string containing 'DOSCAR'.
+            For vasprun.xml-type input, can be any string ending with '.xml'.
+        display: bool
+            Display figures or not. Default to True.
+        on_figs: list/int
+            the current figure numbers to plot to, default to new figures
+        return_refs: bool
+            Return the axes reference(s) drawing or not. Default to False.
+        save_figs: bool
+            Save figures or not. Default to False. 
+        save_data: bool
+            Save data or not. Default to False.
+        output_prefix: string
+            prefix string before the output files, default to 'TDOS'
+        return_states_at_Ef: bool
+            Calculate the TDOS at Ef with a 0.4 eV window of integration or not. Default to False.
+        
+        Returns
+        -------
+        a dict, containing
+            'data': a dict that has 2D array of data,
+                easily to Pandas DataFrame by pd.DataFrame(**returned_dict['data'])
+            'ax': the axes reference, if return_refs == True
 
 	`plot_tdos(input_file='vasprun.xml')` switches from taking in `DOSCAR` to `vasprun.xml`. It lets you select what file you prefer to use. Any filename containing `'DOSCAR'` is considered to be of `DOSCAR` type, any filename ending with `'.xml'` is considered to be of `vasprun.xml` type.
-	
-	`plot_tdos(axis_range=[-15,5,0,10])` sets the custom axis range.
 	
 	`plot_tdos(ISPIN=2)` lets you manually override the auto-detection of `ISPIN` from files other than `DOSCAR`. The program will skip the corresponding part of work. This is helpful when you only have the major data file `DOSCAR` transferred to you local machine, and do not have the other files necessary to extract the parameters to proceed plotting. To leave no confusion, when `ISPIN` is 2, two figures are generated, one with spin up and down combined, the other with two overlapping curves, denoting spin up and spin down separately.
 	
 	`plot_tdos(on_figs=1)` creates the plot on top of an existing matplotlib figure labeled as `Figure 1`, instead of generating a whole new one.
 	
-	When `ISPIN` is 2, `plot_tdos(on_figs=[1,2])` puts the two plots mentioned before onto `Figure 1` and `Figure 2`. `plot_tdos(on_figs=[1,None])` is also valid, meaning putting the combined curve to `Figure 1`, and the two overlapping curves to a new figure, which you can of course delete on its own.
+	`plot_tdos(on_figs=[1,2])` when `ISPIN` is 2 puts the two plots mentioned before onto `Figure 1` and `Figure 2`. `plot_tdos(on_figs=[1,None])` is also valid, meaning putting the combined curve to `Figure 1`, and the two overlapping curves to a new figure, which you can of course delete on its own.
 	
 	`plot_tdos(display=False, save_figs=True)` replicates the behavior of the corresponding wrapping script `plot_tdos.py`.
 	
-	`plot_tdos(return_refs=True)` adds the matplotlib axes reference(s) to the returned dictionary, and keeps the figure(s) open to let you make further changes.
+	`plot_tdos(return_refs=True)` adds the matplotlib axes reference(s) to the returned dictionary, and keeps the figure(s) open to let you make further changes. Note: you don't need to switch `display` on to get axes references.
 	
 	`plot_tdos(save_data=True, output_prefix='TDOS')` saves the extracted data to disk, with the prefix `'TDOS'`. The argument `output_prefix` also specifies the filenames for saved figures.
 	
