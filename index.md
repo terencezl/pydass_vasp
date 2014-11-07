@@ -49,6 +49,7 @@ pydass_vasp.plotting.plot_tdos(axis_range=[-15, 15, 0, 40])
 ```
 
 ![dos_combined](http://terencezl.github.io/pydass_vasp/images/dos_combined.png)
+
 ![dos_overlapping](http://terencezl.github.io/pydass_vasp/images/dos_overlapping.png)
 
 Returned dictionary:
