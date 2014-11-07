@@ -179,6 +179,7 @@ pre code {
   font-size: 100%;
   color: inherit;
   background-color: transparent;
+  word-wrap: normal;
 }
 
 /* Pygments via Jekyll */
