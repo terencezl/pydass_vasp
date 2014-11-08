@@ -147,7 +147,7 @@ This Python package is the result of frustration of searching for an organized, 
 
 	`returned_dict['ax']` is the matplotlib axes reference. When `ISPIN` is 2, they are two elements: `'ax_spin_up'` and `'ax_spin_down'`.
 
-* It has a uniform plotting support for the Crystal Orbital Hamilton Populations (COHP) analysis tool [LOBSTER](http://cohp.de/), function `plot_cohp()` and script `plot_cohp.py`.
+* It has a uniform plotting support for the Crystal Orbital Hamilton Populations (COHP) analysis tool [LOBSTER](http://cohp.de/), function `pydass_vasp.plotting.plot_cohp()` and script `plot_cohp.py`.
 
 * If you use matplotlib>=1.4, and you plot with the wrapping scripts, you can automatically enjoy the aesthetics of [ggplot](http://tonysyu.github.io/mpltools/auto_examples/style/plot_ggplot.html) by its newly added sub-package [style](http://matplotlib.org/1.4.2/users/whats_new.html#style-package-added).
 
