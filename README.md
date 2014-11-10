@@ -8,7 +8,7 @@ Convenient Python modules and wrapping script executables.
 pydass_vasp.plotting.plot_bs(axis_range=[-4,6])
 ```
 
-![band_structure](http://terencezl.github.io/pydass_vasp/images/band_structure.png)
+![band_structure](http://terencezl.github.io/pydass_vasp/public/imgs/band_structure.png)
 
 Returned dictionary:
 
@@ -42,9 +42,9 @@ Returned dictionary:
 pydass_vasp.plotting.plot_tdos(axis_range=[-15, 15, 0, 40], return_refs=True)
 ```
 
-![dos_combined](http://terencezl.github.io/pydass_vasp/images/dos_combined.png)
+![dos_combined](http://terencezl.github.io/pydass_vasp/public/imgs/dos_combined.png)
 
-![dos_overlapping](http://terencezl.github.io/pydass_vasp/images/dos_overlapping.png)
+![dos_overlapping](http://terencezl.github.io/pydass_vasp/public/imgs/dos_overlapping.png)
 
 Returned dictionary:
 
