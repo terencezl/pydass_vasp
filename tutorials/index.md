@@ -16,13 +16,8 @@ These sections correspond to the respective sub-packages.
 Before you start, there are some general configurations for the IPython interpreter, including some imports and 
 matplotlib customization. Have a look at my config file `ipython.py`. Just copy it all, or make your own changes, and
 place it under `~/.ipython/profile_default/startup/` for Mac OS X and Linux, and next time you go into the interpreter,
-the lines will be executed. For Windows, get into IPython and
-
-```python
-print get_ipython().ipython_dir
-```
-
-This would be the equivalent part of `~/.ipython` for the location in Mac OS X and Linux.
+the lines will be executed. For Windows, in command line prompt type in `ipython profile locate`.
+This would be the equivalent part of `~/.ipython/profile_default` for the location in Mac OS X and Linux.
 
 Here is my configuration file.
 
