@@ -1,10 +1,11 @@
-def legitimize_vasprun_xml(filename='vasprun.xml'):
+def legitimize(filename='vasprun.xml'):
     """Add closing tags </calculation> and </modeling> to the tree when job is walled.
     Takes a filename.
     """
     with open(filename, 'r+') as f:
         lines = f.readlines()
-        lines.pop(-1)
+        if lines[-1] == '</scstep>':
+            lines.pop(-1)
         lines.append('</calculation>\n')
         lines.append('</modeling>\n')
         f.seek(0)
