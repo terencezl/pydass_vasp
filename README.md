@@ -144,7 +144,7 @@ This Python package is the result of frustration of searching for an organized, 
 
 * It has a uniform plotting support for the Crystal Orbital Hamilton Populations (COHP) analysis tool [LOBSTER](http://cohp.de/), function `pydass_vasp.plotting.plot_cohp()` and script `plot_cohp.py`.
 
-* If you use matplotlib>=1.4, and you plot with the wrapping scripts, you can automatically enjoy the aesthetics of [ggplot](http://tonysyu.github.io/mpltools/auto_examples/style/plot_ggplot.html) by its newly added sub-package [style](http://matplotlib.org/1.4.2/users/whats_new.html#style-package-added).
+* If you use matplotlib >= 1.4, and you plot with the wrapping scripts, you can optionally enjoy the aesthetic enhancement powered by its newly added sub-package [style](http://matplotlib.org/users/style_sheets.html). For example, `plot_tdos.py --style=ggplot` switches on the style of [ggplot](http://ggplot2.org/). Read the stylesheet [guide](http://matplotlib.org/users/style_sheets.html) for more info, including designing and loading your own styles.
 
 More on options
 ---------------

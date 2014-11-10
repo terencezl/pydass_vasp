@@ -10,7 +10,8 @@ parser.add_argument('-a', '--axis-range', type=eval, help='''the x and y range o
 parser.add_argument('--ISPIN', type=int, help="manually override ISPIN detection")
 parser.add_argument('--LORBIT', type=int, help="manually override LORBIT detection")
 parser.add_argument('-p', '--display', action="store_true", help="display figure but not save it.")
-parser.add_argument('--save-data', action="store_true", help="save extracted DOSCAR data or not.")
+parser.add_argument('-s', '--save-data', action="store_true", help="save extracted EIGENVAL data or not.")
+parser.add_argument('-t', '--style', help="use a plotting style for matplotlib >= 1.4")
 parser.add_argument('-i', '--input', metavar='DOSCAR', default='DOSCAR', help="the input DOSCAR file name")
 parser.add_argument('-o', '--output-prefix', default='LDOS', help="the output files' prefix")
 args = parser.parse_args()
@@ -31,11 +32,11 @@ else:
         except ValueError:
             print "Can't switched to TkAgg. Keep using MacOSX backend."
 import matplotlib.pyplot as plt
-try:
-    plt.style.use('ggplot')
-    print "Changed style to ggplot, just prettier."
-except AttributeError:
-    print "If you upgrade to matplotlib 1.4 and I will change the style to ggplot, just prettier."
+if args.style:
+    try:
+        plt.style.use(args.style)
+    except AttributeError:
+        print "Style is only supported for matplotlib >= 1.4."
 
 from pydass_vasp.plotting import plot_ldos
 plot_ldos(atom=args.atom, axis_range=args.axis_range, ISPIN=args.ISPIN, LORBIT=args.LORBIT, input_file=args.input, display=display, return_refs=False,
