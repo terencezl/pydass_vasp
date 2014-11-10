@@ -12,7 +12,6 @@ def remove_extra_line(text):
             i += 1
             while i < len(text):
                 if alt_text in text[i]:
-                    print("Deleted " + alt_text + " line.")
                     text.pop(i)
                     break
                 i += 1
