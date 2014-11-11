@@ -4,7 +4,7 @@ title: Tutorials
 ---
 
 Here let us get familiar with the sub-packages/modules in `pydass_vasp`. Tutorials are written in the form of 
-IPython notebooks, which you can download when you are in the following sections.
+IPython notebooks, which you can download and run by `ipython notebook --matplotlib=inline`.
 
 These sections correspond to the respective sub-packages.
  
@@ -17,7 +17,7 @@ Before you start, there are some general configurations for the IPython interpre
 matplotlib customization. Have a look at my config file `ipython.py`. Just copy it all, or make your own changes, and
 place it under `~/.ipython/profile_default/startup/` for Mac OS X and Linux, and next time you go into the interpreter,
 the lines will be executed. For Windows, in command line prompt type in `ipython profile locate`.
-This would be the equivalent part of `~/.ipython/profile_default` for the location in Mac OS X and Linux.
+What gets returned would be the equivalent part of `~/.ipython/profile_default` for the location in Mac OS X and Linux.
 
 Here is my configuration file.
 
