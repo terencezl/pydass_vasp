@@ -105,7 +105,7 @@ def eos_fit(V, Y, p_v=False, fix_B0_prime=None, display=False, on_figs=None, ret
     else:
         col_names = ['V_fit', 'P_fit']
 
-    parameters = {'V0': coeffs[0], 'B0': coeffs[1]}
+    parameters = {'V0': coeffs[0], 'B0': coeffs[1] * 160.2}
     if not fix_B0_prime:
         parameters['B0_prime'] = coeffs[2]
         if not p_v:
