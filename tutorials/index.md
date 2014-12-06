@@ -11,7 +11,6 @@ These sections correspond to the respective sub-packages.
 1. [plotting](plotting/) ([download]({{ site.baseurl }}/notebooks/plotting.ipynb))
 2. [fitting](fitting/) ([download]({{ site.baseurl }}/notebooks/fitting.ipynb))
 3. [manipulation](manipulation/) ([download]({{ site.baseurl }}/notebooks/manipulation.ipynb))
-4. [xml_utils](xml_utils/) ([download]({{ site.baseurl }}/notebooks/xml_utils.ipynb))
 
 Before you start, there are some general configurations for the IPython interpreter, including some imports and 
 matplotlib customization. Have a look at my config file `ipython.py`. Just copy it all, or make your own changes, and
