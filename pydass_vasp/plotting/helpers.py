@@ -26,20 +26,25 @@ def determine_tag_value(tag):
 def figs_assert(on_figs, ISPIN, data_type):
     if ISPIN == 2:
         if data_type == 'tdos' or data_type == 'ldos' or data_type == 'cohp':
-            assert on_figs is None or (isinstance(on_figs, list) and len(on_figs) == 2), \
+            assert on_figs is None or \
+                   (isinstance(on_figs, list) and len(on_figs) == 2), \
                 'The number of figures should be 2!'
         # elif data_type == 'bs':
         #     assert on_figs is None or (isinstance(on_figs, list) and len(on_figs) == 3), \
         #         'The number of figures should be 3!'
     elif ISPIN == 1:
-        assert on_figs is None or (isinstance(on_figs, str)) or \
-        (isinstance(on_figs, list) and len(on_figs) == 1), 'The number of figures should be 1!'
+        assert on_figs is None or \
+               isinstance(on_figs, int) or \
+               (isinstance(on_figs, list) and len(on_figs) == 1), \
+            'The number of figures should be 1!'
 
 
 # internal
 def initiate_figs(on_figs):
     if on_figs is None:
         plt.figure()
+    if isinstance(on_figs, int):
+        plt.figure(on_figs)
     else:
         plt.figure(on_figs.pop(0))
 

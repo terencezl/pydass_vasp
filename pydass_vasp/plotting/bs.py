@@ -84,7 +84,7 @@ def plot_helper_settings(ax, axis_range, reciprocal_point_locations, reciprocal_
     plt.ylabel('Energy (eV)')
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        plt.legend(fontsize='small')
+        plt.legend(loc=0, fontsize='small')
     ax = plt.gca()
     ax.figure.set_tight_layout(True)
     plt.draw()

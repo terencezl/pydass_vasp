@@ -21,7 +21,7 @@ def plot_helper_settings(axis_range, data_type, save_figs, output):
         plt.ylabel('-pCOHP (Arbitrary Unit / Unit Cell / eV)')
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        plt.legend(fontsize='small')
+        plt.legend(loc=0, fontsize='small')
     ax = plt.gca()
     ax.figure.set_tight_layout(True)
     plt.draw()
