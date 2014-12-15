@@ -43,7 +43,7 @@ def figs_assert(on_figs, ISPIN, data_type):
 def initiate_figs(on_figs):
     if on_figs is None:
         plt.figure()
-    if isinstance(on_figs, int):
+    elif isinstance(on_figs, int):
         plt.figure(on_figs)
     else:
         plt.figure(on_figs.pop(0))
