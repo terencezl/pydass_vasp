@@ -1,1 +1,1 @@
-from fitting import eos_fit, polyfit
+from fitting import eos_fit, polyfit, curve_fit
