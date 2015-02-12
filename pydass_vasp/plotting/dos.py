@@ -55,7 +55,7 @@ def plot_tdos(axis_range=None, ISPIN=None, input_file='DOSCAR', display=True,
     return_refs: bool
         Return the axes reference(s) drawing or not. Default to False.
     save_figs: bool
-        Save figures or not. Default to False. 
+        Save figures or not. Default to False.
     save_data: bool
         Save data or not. Default to False.
     output_prefix: string
@@ -133,8 +133,8 @@ def plot_tdos(axis_range=None, ISPIN=None, input_file='DOSCAR', display=True,
 
         if return_states_at_Ef:
             half_window = 0.2
-            TDOS_at_Ef = (data[abs(data[:, 0] - 0.2).argmin(), 2] -
-                          data[abs(data[:, 0] + 0.2).argmin(), 2]) / half_window / 2.
+            TDOS_at_Ef = (data[abs(data[:, 0] - half_window).argmin(), 2] -
+                          data[abs(data[:, 0] + half_window).argmin(), 2]) / half_window / 2.
 
     elif ISPIN == 2:
         col_names1 = ['E', 'total_up', 'integrated_up']
@@ -207,7 +207,7 @@ def plot_ldos(atom, axis_range=None, ISPIN=None, LORBIT=None, input_file='DOSCAR
     return_refs: bool
         Return the axes reference(s) drawing or not. Default to False.
     save_figs: bool
-        Save figures or not. Default to False. 
+        Save figures or not. Default to False.
     save_data: bool
         Save data or not. Default to False.
     output_prefix: string
@@ -381,7 +381,7 @@ def plot_cohp(bond, axis_range=None, ISPIN=None, input_file='COHPCAR.lobster', d
     return_refs: bool
         Return the axes reference(s) drawing or not. Default to False.
     save_figs: bool
-        Save figures or not. Default to False. 
+        Save figures or not. Default to False.
     save_data: bool
         Save data or not. Default to False.
     output_prefix: string

@@ -254,7 +254,7 @@ def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_poin
         kp_section_pairs[section] = [kps[N_kps_per_section * section],
                                                     kps[N_kps_per_section * (section + 1) - 1]]
 
-    # Gerenate the linearized kps_linearized as x-axis.
+    # generate the linearized kps_linearized as x-axis.
     reciprocal_point_locations = np.zeros(N_kp_sections + 1)
     kps_linearized_sectioned = np.zeros((N_kp_sections, N_kps_per_section))
     for section, section_pair in enumerate(kp_section_pairs):
