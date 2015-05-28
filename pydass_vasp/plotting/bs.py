@@ -342,9 +342,10 @@ def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_poin
         # plot the bands of up and down overlapping
         initiate_figs(on_figs)
         ax = plt.subplot(111)
+        color_cycle = plt.rcParams['axes.color_cycle']
         for band in range(N_bands):
-            plt.plot(kps_linearized, data1[:, band], 'k', label='spin up')
-            plt.plot(kps_linearized, data2[:, band], 'b', label='spin down')
+            plt.plot(kps_linearized, data1[:, band], color_cycle[0], label='spin up')
+            plt.plot(kps_linearized, data2[:, band], color_cycle[1], label='spin down')
         plot_helper_settings(ax, axis_range, reciprocal_point_locations, reciprocal_points,
                              save_figs, output_prefix+'-overlapping.pdf')
         axes = {'ax': ax}
