@@ -30,8 +30,7 @@ def plot_helper_settings(axis_range, data_type, save_figs, output):
 
 
 def plot_tdos(axis_range=None, ISPIN=None, input_file='DOSCAR', display=True,
-              on_figs=None, return_refs=False, save_figs=False, save_data=False, output_prefix='TDOS',
-              return_states_at_Ef=False):
+              on_figs=None, return_refs=False, save_figs=False, save_data=False, output_prefix='TDOS'):
     """
     Plot the total density of states, with consideration of spin-polarization.
     Accepts input file 'DOSCAR', or 'vasprun.xml'.
@@ -60,8 +59,6 @@ def plot_tdos(axis_range=None, ISPIN=None, input_file='DOSCAR', display=True,
         Save data or not. Default to False.
     output_prefix: string
         prefix string before the output files, default to 'TDOS'
-    return_states_at_Ef: bool
-        Calculate the TDOS at Ef with a 0.4 eV window of integration or not. Default to False.
 
     Returns
     -------
@@ -131,11 +128,6 @@ def plot_tdos(axis_range=None, ISPIN=None, input_file='DOSCAR', display=True,
         if save_data:
             np.savetxt(output_prefix + '.txt', data, '%15.6E', header=' '.join(col_names))
 
-        if return_states_at_Ef:
-            half_window = 0.2
-            TDOS_at_Ef = (data[abs(data[:, 0] - half_window).argmin(), 2] -
-                          data[abs(data[:, 0] + half_window).argmin(), 2]) / half_window / 2.
-
     elif ISPIN == 2:
         col_names1 = ['E', 'total_up', 'integrated_up']
         col_names2 = ['E', 'total_down', 'integrated_down']
@@ -163,16 +155,7 @@ def plot_tdos(axis_range=None, ISPIN=None, input_file='DOSCAR', display=True,
             np.savetxt(output_prefix + '_spin_up.txt', data1, '%15.6E', header=' '.join(col_names1))
             np.savetxt(output_prefix + '_spin_down.txt', data2, '%15.6E', header=' '.join(col_names2))
 
-        if return_states_at_Ef:
-            half_window = 0.2
-            TDOS_at_Ef = (data1[abs(data1[:, 0] - half_window).argmin(), 2] -
-                          data1[abs(data1[:, 0] + half_window).argmin(), 2] +
-                          data2[abs(data2[:, 0] - half_window).argmin(), 2] -
-                          data2[abs(data2[:, 0] + half_window).argmin(), 2]) / half_window / 2.
-
     return_dict = display_or_close_figs(display, return_refs, return_dict, axes)
-    if return_states_at_Ef:
-        return_dict['TDOS_at_Ef'] = TDOS_at_Ef
     return return_dict
 
 
