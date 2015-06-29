@@ -2,7 +2,7 @@ import re
 import warnings
 import numpy as np
 import matplotlib.pyplot as plt
-from helpers import determine_tag_value, figs_assert, initiate_figs, display_or_close_figs
+from .helpers import determine_tag_value, figs_assert, initiate_figs, display_or_close_figs
 from ..xml_utils import parse
 
 
@@ -74,7 +74,7 @@ def plot_tdos(axis_range=None, ISPIN=None, input_file='DOSCAR', display=True,
         NEDOS = int(root.find("./parameters/separator[@name='dos']/i[@name='NEDOS']").text)
         Ef = float(root.find("./calculation/dos/i[@name='efermi']").text)
         if ISPIN:
-            print "Using user specified ISPIN."
+            print("Using user specified ISPIN.")
         else:
             ISPIN = int(root.find(
                 "./parameters/separator[@name='electronic']/separator[@name='electronic spin']/i[@name='ISPIN']").text)
@@ -104,7 +104,7 @@ def plot_tdos(axis_range=None, ISPIN=None, input_file='DOSCAR', display=True,
         NEDOS = int(DOSCAR[5][2])
         Ef = float(DOSCAR[5][3])
         if ISPIN:
-            print "Using user specified ISPIN."
+            print("Using user specified ISPIN.")
         else:
             ISPIN = determine_tag_value('ISPIN')
 
@@ -210,13 +210,13 @@ def plot_ldos(atom, axis_range=None, ISPIN=None, LORBIT=None, input_file='DOSCAR
         NEDOS = int(root.find("./parameters/separator[@name='dos']/i[@name='NEDOS']").text)
         Ef = float(root.find("./calculation/dos/i[@name='efermi']").text)
         if ISPIN:
-            print "Using user specified ISPIN."
+            print("Using user specified ISPIN.")
         else:
             ISPIN = int(root.find(
                 "./parameters/separator[@name='electronic']/separator[@name='electronic spin']/i[@name='ISPIN']").text)
         # vasprun.xml's LORBIT is not correct
         if LORBIT:
-            print "Using user specified LORBIT."
+            print("Using user specified LORBIT.")
         else:
             LORBIT = determine_tag_value('LORBIT')
 
@@ -256,11 +256,11 @@ def plot_ldos(atom, axis_range=None, ISPIN=None, LORBIT=None, input_file='DOSCAR
         NEDOS = int(DOSCAR[5][2])
         Ef = float(DOSCAR[5][3])
         if ISPIN:
-            print "Using user specified ISPIN."
+            print("Using user specified ISPIN.")
         else:
             ISPIN = determine_tag_value('ISPIN')
         if LORBIT:
-            print "Using user specified LORBIT."
+            print("Using user specified LORBIT.")
         else:
             LORBIT = determine_tag_value('LORBIT')
 
@@ -398,7 +398,7 @@ def plot_cohp(bond, axis_range=None, ISPIN=None, input_file='COHPCAR.lobster', d
 
     NEDOS = int(COHPCAR[1][2])
     if ISPIN:
-        print "Using user specified ISPIN."
+        print("Using user specified ISPIN.")
     else:
         ISPIN = determine_tag_value('ISPIN')
 
