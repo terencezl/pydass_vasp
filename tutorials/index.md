@@ -49,11 +49,6 @@ try:
         print("Using ggplot style from matplotlib 1.4.")
     except ValueError:
         print("If matplotlib >= 1.4 is installed, ggplot style will be used for better looks.")
-
-    # figure size and resolution adjustment
-    mpl.rcParams['figure.figsize'] = [5.5,4]
-    mpl.rcParams['figure.dpi'] = 80
-    mpl.rcParams['savefig.dpi'] = 100
 except ImportError:
     print("matplotlib is not imported!")
 ```
