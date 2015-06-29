@@ -169,7 +169,6 @@ The wrapping script `plot_tdos.py` accepts the relevant options in the form of `
 
 Dependencies
 ------------
-* Python 2.7 (Python 3 support is currently not considered)
 * NumPy
 * SciPy
 * matplotlib
