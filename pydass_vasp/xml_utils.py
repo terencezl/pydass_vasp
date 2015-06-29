@@ -28,9 +28,9 @@ def iterprint(elem, xpath='.'):
     Prints element's info in a more straightforward way.
     """
     for e in elem.findall(xpath):
-        print e.tag, e.attrib,
+        print(e.tag, e.attrib),
         if e.text:
             text = e.text.strip()
-            print text
+            print(text)
         else:
-            print
+            print()

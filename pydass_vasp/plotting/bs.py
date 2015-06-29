@@ -2,7 +2,7 @@ import re
 import warnings
 import numpy as np
 import matplotlib.pyplot as plt
-from helpers import determine_tag_value, figs_assert, initiate_figs, display_or_close_figs
+from .helpers import determine_tag_value, figs_assert, initiate_figs, display_or_close_figs
 from ..xml_utils import parse
 
 
@@ -22,11 +22,11 @@ def find_band_edges(kp_edge, prec_range, eigenvalues):
         The 2D array that contains eigenvalues. Each row denotes a k-point, and each column a band.
     """
     # Examine valence band edge.
-    print 'The possible valence bands are', \
-        np.where(np.logical_and(eigenvalues[kp_edge] > -prec_range, eigenvalues[kp_edge] < 0))[1]
+    print('The possible valence bands are', \
+        np.where(np.logical_and(eigenvalues[kp_edge] > -prec_range, eigenvalues[kp_edge] < 0))[1])
     # Examine conduction band edge.
-    print 'The possible conduction bands are', \
-        np.where(np.logical_and(eigenvalues[kp_edge] < prec_range, eigenvalues[kp_edge] > 0))[1]
+    print('The possible conduction bands are', \
+        np.where(np.logical_and(eigenvalues[kp_edge] < prec_range, eigenvalues[kp_edge] > 0))[1])
 
 
 def get_effective_mass(band, kp_start, kp_end, kps_linearized, eigenvalues):
@@ -62,7 +62,7 @@ def get_effective_mass(band, kp_start, kp_end, kps_linearized, eigenvalues):
     p = np.poly1d(np.polyfit(selected_kp_array, selected_energy_array, 2))
     axis_fitted = -p[1]/2/p[2]
     axis_actual = selected_kp_array[selected_energy_array.argmin() if p[2] > 0 else selected_energy_array.argmax()]
-    print "The fitted x coord at energy extrema is {0}, and the actual is {1}.".format(axis_fitted, axis_actual)
+    print("The fitted x coord at energy extrema is {0}, and the actual is {1}.".format(axis_fitted, axis_actual))
     k_fit = np.linspace(kps_linearized[kp_start], kps_linearized[kp_end], 200)
     plt.plot(k_fit, p(k_fit), lw=2)
 
@@ -145,12 +145,12 @@ def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_poin
         root = parse(input_file)
 
         if ISPIN:
-            print "Using user specified ISPIN."
+            print("Using user specified ISPIN.")
         else:
             ISPIN = int(root.find(
             "./parameters/separator[@name='electronic']/separator[@name='electronic spin']/i[@name='ISPIN']").text)
         if Ef:
-            print "Using user specified Ef."
+            print("Using user specified Ef.")
         else:
             Ef = float(root.find("./calculation/dos/i[@name='efermi']").text)
 
@@ -163,7 +163,7 @@ def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_poin
 
         # get reciprocal point symbols
         if reciprocal_points:
-            print "Using user specified reciprocal point symbols."
+            print("Using user specified reciprocal point symbols.")
         else:
             try:
                 with open('OUTCAR', 'r') as f:
@@ -178,7 +178,7 @@ def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_poin
                         KPOINTS = f.readlines()
                     reciprocal_points = KPOINTS[0].strip().split('-')
                 except IOError:
-                    print ("Can't determine reciprocal point symbols! Either manually specify it, or provide OUTCAR/KPOINTS.")
+                    print("Can't determine reciprocal point symbols! Either manually specify it, or provide OUTCAR/KPOINTS.")
 
         kps = np.zeros((N_kps, 3))
         for kp, elem in enumerate(root.findall("./kpoints/varray[@name='kpointlist']/v")):
@@ -187,12 +187,12 @@ def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_poin
     elif re.match(r".*EIGENVAL.*", input_file):
         # get ISPIN
         if ISPIN:
-            print "Using user specified ISPIN."
+            print("Using user specified ISPIN.")
         else:
             ISPIN = determine_tag_value('ISPIN')
         # get Ef
         if Ef:
-            print "Using user specified Ef."
+            print("Using user specified Ef.")
         else:
             try:
                 with open('OUTCAR') as f:
@@ -221,7 +221,7 @@ def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_poin
 
         # get nkp per sections
         if N_kps_per_section:
-            print "Using user specified number of k-points per line section."
+            print("Using user specified number of k-points per line section.")
         else:
             try:
                 with open('KPOINTS', 'r') as f:
@@ -239,7 +239,7 @@ def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_poin
             for line in f:
                 if re.match(r".*k-points in units of 2pi/SCALE and weight:.*", line):
                     if reciprocal_points:
-                        print "Using user specified reciprocal point symbols."
+                        print("Using user specified reciprocal point symbols.")
                     else:
                         reciprocal_points = line.replace(
                             'k-points in units of 2pi/SCALE and weight:', '').strip().split('-')
