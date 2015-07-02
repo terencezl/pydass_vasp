@@ -26,15 +26,15 @@ else:
     if matplotlib.get_backend() == 'MacOSX':
         try:
             matplotlib.use('TkAgg')
-            print "Switched from MacOSX backend to TkAgg."
+            print("Switched from MacOSX backend to TkAgg.")
         except ValueError:
-            print "Can't switched to TkAgg. Keep using MacOSX backend."
+            print("Can't switched to TkAgg. Keep using MacOSX backend.")
 import matplotlib.pyplot as plt
 if args.style:
     try:
         plt.style.use(args.style)
     except AttributeError:
-        print "Style is only supported for matplotlib >= 1.4."
+        print("Style is only supported for matplotlib >= 1.4.")
 
 from pydass_vasp.plotting import plot_cohp
 plot_cohp(bond=args.bond, axis_range=args.axis_range, ISPIN=args.ISPIN, input_file=args.input, display=display, return_refs=False,
