@@ -33,7 +33,7 @@ Returned dictionary:
              [  2.57313218, -20.34319   , -16.628622  , ...,   5.234177  ,
                 5.234205  ,   5.726715  ]])},
  'reciprocal_point_locations': array([ 0.        ,  0.8660254 ,  1.3660254 ,  1.8660254 ,  2.57313218]),
- 'reciprocal_points': ['R', 'G', 'X', 'M', 'G']}
+ 'reciprocal_point_labels': ['R', 'G', 'X', 'M', 'G']}
 ```
 
 ##### Example: plotting total density of states with spin polarization

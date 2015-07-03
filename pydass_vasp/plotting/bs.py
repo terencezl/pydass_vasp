@@ -72,10 +72,10 @@ def get_effective_mass(band, kp_start, kp_end, kps_linearized, eigenvalues):
 
 
 # internal
-def plot_helper_settings(ax, axis_range, reciprocal_point_locations, reciprocal_points, save_figs, output):
+def plot_helper_settings(ax, axis_range, reciprocal_point_locations, reciprocal_point_labels, save_figs, output):
     plt.xlim(reciprocal_point_locations[0], reciprocal_point_locations[-1])
     ax.xaxis.set_ticks(reciprocal_point_locations)
-    ax.xaxis.set_ticklabels(reciprocal_points)
+    ax.xaxis.set_ticklabels(reciprocal_point_labels)
     plt.axhline(0, ls='--', c='k', alpha=0.5)
     if axis_range:
         plt.ylim(axis_range[0], axis_range[1])
@@ -92,7 +92,7 @@ def plot_helper_settings(ax, axis_range, reciprocal_point_locations, reciprocal_
         plt.savefig(output)
 
 
-def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_points=None, Ef=None, input_file='EIGENVAL', 
+def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_point_labels=None, Ef=None, input_file='EIGENVAL', 
             display=True, on_figs=None, return_refs=False, save_figs=False, save_data=False, output_prefix='BS'):
     """
     Plot the band structure, with consideration of spin-polarization.
@@ -108,7 +108,7 @@ def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_poin
         For vasprun.xml-type input, infer from 'vasprun.xml'.
     N_kps_per_section: int
         user specified number of k-points per line section
-    reciprocal_points: list
+    reciprocal_point_labels: list
         list of reciprocal point string symbols, like ['G','X','A']
         Its length has to be the number of line sections + 1
     Ef: float
@@ -135,7 +135,7 @@ def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_poin
     Returns
     -------
     a dict, containing
-        'reciprocal_points', the symbols of those points
+        'reciprocal_point_labels', the symbols of those points
         'reciprocal_point_locations', their locations on the x-axis
         'data', a dict that has 2D array of data,
             easily to Pandas DataFrame by pd.DataFrame(**returned_dict['data'])
@@ -162,21 +162,21 @@ def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_poin
             "The product of N of kpoints per section and N of sections does not match N of total kpoints. Strange."
 
         # get reciprocal point symbols
-        if reciprocal_points:
+        if reciprocal_point_labels:
             print("Using user specified reciprocal point symbols.")
         else:
             try:
                 with open('OUTCAR', 'r') as f:
                     for line in f:
                         if re.match(r".*k-points in units of 2pi/SCALE and weight:.*", line):
-                            reciprocal_points = line.replace(
+                            reciprocal_point_labels = line.replace(
                                 'k-points in units of 2pi/SCALE and weight:', '').strip().split('-')
                             break
             except IOError:
                 try:
                     with open('KPOINTS', 'r') as f:
                         KPOINTS = f.readlines()
-                    reciprocal_points = KPOINTS[0].strip().split('-')
+                    reciprocal_point_labels = KPOINTS[0].strip().split('-')
                 except IOError:
                     print("Can't determine reciprocal point symbols! Either manually specify it, or provide OUTCAR/KPOINTS.")
 
@@ -238,14 +238,14 @@ def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_poin
         with open('OUTCAR', 'r') as f:
             for line in f:
                 if re.match(r".*k-points in units of 2pi/SCALE and weight:.*", line):
-                    if reciprocal_points:
+                    if reciprocal_point_labels:
                         print("Using user specified reciprocal point symbols.")
                     else:
-                        reciprocal_points = line.replace(
+                        reciprocal_point_labels = line.replace(
                             'k-points in units of 2pi/SCALE and weight:', '').strip().split('-')
                     break
             for kp in range(N_kps):
-                kps[kp] = f.next().split()[:3]
+                kps[kp] = next(f).split()[:3]
 
     # confluence of two processing approaches
     # generate the section pairs
@@ -274,7 +274,7 @@ def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_poin
         col_names2[0] = 'k_points'
 
     return_dict = {
-        'reciprocal_points': reciprocal_points,
+        'reciprocal_point_labels': reciprocal_point_labels,
         'reciprocal_point_locations': reciprocal_point_locations
     }
 
@@ -317,6 +317,9 @@ def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_poin
                     data1[kp, band] = float(EIGENVAL[8 + band + (N_bands + 2) * kp][1])
                     data2[kp, band] = float(EIGENVAL[8 + band + (N_bands + 2) * kp][2])
 
+    # make Greek letters real
+    reciprocal_point_labels = ['$' + i + '$' if '\\' in i else i for i in reciprocal_point_labels]
+
     # partial confluence
     if ISPIN == 1:
         data -= Ef
@@ -325,7 +328,7 @@ def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_poin
         ax = plt.subplot(111)
         for band in range(N_bands):
             plt.plot(kps_linearized, data[:, band])
-        plot_helper_settings(ax, axis_range, reciprocal_point_locations, reciprocal_points,
+        plot_helper_settings(ax, axis_range, reciprocal_point_locations, reciprocal_point_labels,
                              save_figs, output_prefix+'.pdf')
         axes = {'ax': ax}
         data = np.column_stack((kps_linearized, data))
@@ -346,7 +349,7 @@ def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_poin
         for band in range(N_bands):
             plt.plot(kps_linearized, data1[:, band], color_cycle[0], label='spin up')
             plt.plot(kps_linearized, data2[:, band], color_cycle[1], label='spin down')
-        plot_helper_settings(ax, axis_range, reciprocal_point_locations, reciprocal_points,
+        plot_helper_settings(ax, axis_range, reciprocal_point_locations, reciprocal_point_labels,
                              save_figs, output_prefix+'-overlapping.pdf')
         axes = {'ax': ax}
         data1 = np.column_stack((kps_linearized, data1))
