@@ -231,7 +231,7 @@ def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_poin
                 raise IOError(
                     "Can't determine number of k-points per line section! Either manually specify it, or provide KPOINTS.")
 
-        N_kp_sections = N_kps / N_kps_per_section
+        N_kp_sections = int(N_kps / N_kps_per_section)
 
         # get the start and end point coordinate of each section. From OUTCAR.
         kps = np.zeros((N_kps, 3))
