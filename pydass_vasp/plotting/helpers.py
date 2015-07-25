@@ -9,6 +9,7 @@ def determine_tag_value(tag):
             for line in f:
                 if tag in line:
                     tag_value = int(line.split()[2])
+                    break
     except IOError:
         try:
             with open('INCAR', 'r') as f:
@@ -16,6 +17,7 @@ def determine_tag_value(tag):
                     m = re.match(r'\s*' + tag + r'\s*=\s*(\d)\s*.*', line)
                     if m:
                         tag_value = int(m.group(1))
+                        break
         except IOError:
             raise IOError("Can't determine " + tag +
                 "! Either manually specify it, or provide OUTCAR or INCAR.")

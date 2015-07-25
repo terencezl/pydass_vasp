@@ -10,8 +10,11 @@ from ..xml_utils import parse
 def plot_helper_settings(axis_range, data_type, save_figs, output):
     plt.axhline(y=0, c='k')
     plt.axvline(x=0, ls='--', c='k', alpha=0.5)
-    if axis_range:
-        plt.axis([axis_range[0], axis_range[1], axis_range[2], axis_range[3]])
+    xlim, ylim = axis_range
+    if xlim and (xlim[0] != None) and (xlim[1] != None):
+        plt.xlim(xlim)
+    if ylim and (ylim[0] != None) and (ylim[1] != None):
+        plt.ylim(ylim)
     plt.xlabel('Energy (eV)')
     if data_type == 'tdos':
         plt.ylabel('TDOS (States / Unit Cell / eV)')
@@ -29,7 +32,7 @@ def plot_helper_settings(axis_range, data_type, save_figs, output):
         plt.savefig(output)
 
 
-def plot_tdos(axis_range=None, ISPIN=None, input_file='DOSCAR', display=True,
+def plot_tdos(input_file='DOSCAR', ISPIN=None, xlim=None, ylim_upper=None, display=True,
               on_figs=None, return_refs=False, save_figs=False, save_data=False, output_prefix='TDOS'):
     """
     Plot the total density of states, with consideration of spin-polarization.
@@ -37,16 +40,18 @@ def plot_tdos(axis_range=None, ISPIN=None, input_file='DOSCAR', display=True,
 
     Parameters
     ----------
-    axis_range: list
-        the range of axes x and y, 4 values in a list
-    ISPIN: int
-        user specified ISPIN
-        If not given, for DOSCAR-type input, infer from OUTCAR/INCAR.
-        For vasprun.xml-type input, infer from 'vasprun.xml'.
     input_file: string
         input file name, default to 'DOSCAR'
         For DOSCAR-type, can be any string containing 'DOSCAR'.
         For vasprun.xml-type input, can be any string ending with '.xml'.
+    ISPIN: int
+        user specified ISPIN
+        If not given, for DOSCAR-type input, infer from 'OUTCAR'/'INCAR'.
+        For vasprun.xml-type input, infer from 'vasprun.xml'.
+    xlim: list
+        the range of x-axis, 2 values in a list
+    ylim_upper: int/float
+        the upper limit of y-axis(, of the spin-combined plot if ISPIN == 2)
     display: bool
         Display figures or not. Default to True.
     on_figs: list/int
@@ -122,7 +127,7 @@ def plot_tdos(axis_range=None, ISPIN=None, input_file='DOSCAR', display=True,
         initiate_figs(on_figs)
         plt.plot(data[:, 0], data[:, 1])
         ax = plt.gca()
-        plot_helper_settings(axis_range, 'tdos', save_figs, output=output_prefix + '.pdf')
+        plot_helper_settings((xlim, [0, ylim_upper]), 'tdos', save_figs, output=output_prefix + '.pdf')
         axes = {'ax': ax}
         return_dict = {'data': {'columns': col_names, 'data': data}}
         if save_data:
@@ -137,18 +142,19 @@ def plot_tdos(axis_range=None, ISPIN=None, input_file='DOSCAR', display=True,
         initiate_figs(on_figs)
         plt.plot(data1[:, 0], data1[:, 1] + data2[:, 1], label='spin up + down')
         ax1 = plt.gca()
-        plot_helper_settings(axis_range, 'tdos', save_figs, output=output_prefix + '-spin-combined.pdf')
-        # Plot the overlapping TDOS
+        plot_helper_settings((xlim, [0, ylim_upper]), 'tdos', save_figs, output=output_prefix + '-spin-combined.pdf')
+        # Plot the separated TDOS
         initiate_figs(on_figs)
         plt.plot(data1[:, 0], data1[:, 1], label='spin up')
-        plt.plot(data2[:, 0], data2[:, 1], label='spin down')
+        plt.plot(data2[:, 0], -data2[:, 1], label='spin down')
         ax2 = plt.gca()
-        axis_range_copy = None
-        if axis_range:
-            axis_range_copy = axis_range[:]
-            axis_range_copy[3] /= 2.
-        plot_helper_settings(axis_range_copy, 'tdos', save_figs, output=output_prefix + '-spin-overlapping.pdf')
-        axes = {'ax_spin_combined': ax1, 'ax_spin_overlapping': ax2}
+        ylim_upper_sp = None
+        ylim_lower_sp = None
+        if ylim_upper:
+            ylim_upper_sp = ylim_upper/2.
+            ylim_lower_sp = -ylim_upper_sp
+        plot_helper_settings((xlim, [ylim_lower_sp, ylim_upper_sp]), 'tdos', save_figs, output=output_prefix + '-spin-separated.pdf')
+        axes = {'ax_spin_combined': ax1, 'ax_spin_separated': ax2}
         return_dict = {'data_spin_up': {'columns': col_names1, 'data': data1},
                        'data_spin_down': {'columns': col_names2, 'data': data2}}
         if save_data:
@@ -159,7 +165,7 @@ def plot_tdos(axis_range=None, ISPIN=None, input_file='DOSCAR', display=True,
     return return_dict
 
 
-def plot_ldos(atom, axis_range=None, ISPIN=None, LORBIT=None, input_file='DOSCAR', display=True,
+def plot_ldos(atom, input_file='DOSCAR', ISPIN=None, LORBIT=None, xlim=None, ylim_upper=None, display=True,
               on_figs=None, return_refs=False, save_figs=False, save_data=False, output_prefix='LDOS'):
     """
     Plot the local projected density of states, with consideration of spin-polarization.
@@ -169,20 +175,22 @@ def plot_ldos(atom, axis_range=None, ISPIN=None, LORBIT=None, input_file='DOSCAR
     ----------
     atom: int
         the atom number in DOSCAR/POSCAR interested, counting from 1
-    axis_range: list
-        the range of axes x and y, 4 values in a list
-    ISPIN: int
-        user specified ISPIN
-        If not given, for DOSCAR-type input, infer from OUTCAR/INCAR.
-        For vasprun.xml-type input, infer from 'vasprun.xml'.
-    LORBIT: int
-        user specified LORBIT
-        If not given, for DOSCAR-type input, infer from OUTCAR/INCAR.
-        For vasprun.xml-type input, infer from 'vasprun.xml'.
     input_file: string
         input file name, default to 'DOSCAR'
         For DOSCAR-type, can be any string containing 'DOSCAR'.
         For vasprun.xml-type input, can be any string ending with '.xml'.
+    ISPIN: int
+        user specified ISPIN
+        If not given, for DOSCAR-type input, infer from 'OUTCAR'/'INCAR'.
+        For vasprun.xml-type input, infer from 'vasprun.xml'.
+    LORBIT: int
+        user specified LORBIT
+        If not given, for DOSCAR-type input, infer from 'OUTCAR'/'INCAR'.
+        For vasprun.xml-type input, infer from 'vasprun.xml'.
+    xlim: list
+        the range of x-axis, 2 values in a list
+    ylim_upper: int/float
+        the upper limit of y-axis(, of the spin-combined plot if ISPIN == 2)
     display: bool
         Display figures or not. Default to True.
     on_figs: list/int
@@ -288,7 +296,7 @@ def plot_ldos(atom, axis_range=None, ISPIN=None, LORBIT=None, input_file='DOSCAR
             for i in range(1, 10):
                 plt.plot(data[:, 0], data[:, i], label=col_names[i])
         ax = plt.gca()
-        plot_helper_settings(axis_range, 'ldos', save_figs, output=output_prefix + '.pdf')
+        plot_helper_settings((xlim, [0, ylim_upper]), 'ldos', save_figs, output=output_prefix + '.pdf')
         axes = {'ax': ax}
         return_dict = {'data': {'columns': col_names, 'data': data}}
         if save_data:
@@ -312,8 +320,8 @@ def plot_ldos(atom, axis_range=None, ISPIN=None, LORBIT=None, input_file='DOSCAR
             for i in range(1, 10):
                 plt.plot(data1[:, 0], data1[:, i] + data2[:, i], label=col_names1[i] + ' + ' + col_names2[i])
         ax1 = plt.gca()
-        plot_helper_settings(axis_range, 'ldos', save_figs, output=output_prefix + '-spin-combined.pdf')
-        # plot spin overlapping
+        plot_helper_settings((xlim, [0, ylim_upper]), 'ldos', save_figs, output=output_prefix + '-spin-combined.pdf')
+        # plot spin separated
         initiate_figs(on_figs)
         if LORBIT == 10 or LORBIT == 0:
             for i in range(1, 4):
@@ -324,13 +332,13 @@ def plot_ldos(atom, axis_range=None, ISPIN=None, LORBIT=None, input_file='DOSCAR
                 plt.plot(data1[:, 0], data1[:, i], label=col_names1[i])
                 plt.plot(data2[:, 0], -data2[:, i], label=col_names2[i])
         ax2 = plt.gca()
-        axis_range_copy = None
-        if axis_range:
-            axis_range_copy = axis_range[:]
-            axis_range_copy[3] /= 2.
-            axis_range_copy[2] /= -axis_range_copy[3]
-        plot_helper_settings(axis_range_copy, 'ldos', save_figs, output=output_prefix + '-spin-overlapping.pdf')
-        axes = {'ax_spin_combined': ax1, 'ax_spin_overlapping': ax2}
+        ylim_upper_sp = None
+        ylim_lower_sp = None
+        if ylim_upper:
+            ylim_upper_sp = ylim_upper/2.
+            ylim_lower_sp = -ylim_upper_sp
+        plot_helper_settings((xlim, [ylim_lower_sp, ylim_upper_sp]), 'ldos', save_figs, output=output_prefix + '-spin-separated.pdf')
+        axes = {'ax_spin_combined': ax1, 'ax_spin_separated': ax2}
         return_dict = {'data_spin_up': {'columns': col_names1, 'data': data1},
                        'data_spin_down': {'columns': col_names2, 'data': data2}}
         if save_data:
@@ -341,7 +349,7 @@ def plot_ldos(atom, axis_range=None, ISPIN=None, LORBIT=None, input_file='DOSCAR
     return return_dict
 
 
-def plot_cohp(bond, axis_range=None, ISPIN=None, input_file='COHPCAR.lobster', display=True,
+def plot_cohp(bond, input_file='COHPCAR.lobster', ISPIN=None, xlim=None, ylim=None, display=True,
               on_figs=None, return_refs=False, save_figs=False, save_data=False, output_prefix='COHP'):
     """
     Plot the -COHP, with consideration of spin-polarization.
@@ -350,13 +358,15 @@ def plot_cohp(bond, axis_range=None, ISPIN=None, input_file='COHPCAR.lobster', d
     ----------
     bond: int
         the bond number in COHPCAR.lobster interested, counting from 1
-    axis_range: list
-        the range of axes x and y, 4 values in a list
+    input_file: string
+        input file name, default to 'COHPCAR.lobster'
     ISPIN: int
         user specified ISPIN
         If not given, infer from OUTCAR/INCAR.
-    input_file: string
-        input file name, default to 'COHPCAR.lobster'
+    xlim: list
+        the range of x-axis, 2 values in a list
+    ylim: list
+        the range of y-axis, 2 values in a list(, of the spin-combined plot if ISPIN == 2)
     display: bool
         Display figures or not. Default to True.
     on_figs: list/int
@@ -416,7 +426,7 @@ def plot_cohp(bond, axis_range=None, ISPIN=None, input_file='COHPCAR.lobster', d
         initiate_figs(on_figs)
         plt.plot(data[:, 0], -data[:, col_num])
         ax = plt.gca()
-        plot_helper_settings(axis_range, 'cohp', save_figs, output=output_prefix + '.pdf')
+        plot_helper_settings((xlim, ylim), 'cohp', save_figs, output=output_prefix + '.pdf')
         axes = {'ax': ax}
         return_dict = {'data': {'columns': col_names, 'data': data}}
         if save_data:
@@ -437,18 +447,19 @@ def plot_cohp(bond, axis_range=None, ISPIN=None, input_file='COHPCAR.lobster', d
         initiate_figs(on_figs)
         plt.plot(data1[:, 0], -data1[:, col_bond] - data2[:, col_bond], label='spin up + down')
         ax1 = plt.gca()
-        plot_helper_settings(axis_range, 'cohp', save_figs, output=output_prefix + '-spin-combined.pdf')
-        # Plot the overlapping COHP
+        plot_helper_settings((xlim, ylim), 'cohp', save_figs, output=output_prefix + '-spin-combined.pdf')
+        # Plot the overlapped COHP
         initiate_figs(on_figs)
         plt.plot(data1[:, 0], -data1[:, col_bond], label='spin up')
         plt.plot(data2[:, 0], -data2[:, col_bond], label='spin down')
         ax2 = plt.gca()
-        axis_range_copy = None
-        if axis_range:
-            axis_range_copy = axis_range[:]
-            axis_range_copy[3] /= 2.
-        plot_helper_settings(axis_range_copy, 'cohp', save_figs, output=output_prefix + '-spin-overlapping.pdf')
-        axes = {'ax_spin_combined': ax1, 'ax_spin_overlapping': ax2}
+        ylim_sp = None
+        if ylim:
+            ylim_sp = ylim[:]
+            ylim_sp[0] /= 2.
+            ylim_sp[1] /= 2.
+        plot_helper_settings((xlim, ylim_sp), 'cohp', save_figs, output=output_prefix + '-spin-overlapped.pdf')
+        axes = {'ax_spin_combined': ax1, 'ax_spin_overlapped': ax2}
         return_dict = {'data_spin_up': {'columns': col_names1, 'data': data1},
                        'data_spin_down': {'columns': col_names2, 'data': data2}}
         if save_data:

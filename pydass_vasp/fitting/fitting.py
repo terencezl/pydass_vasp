@@ -13,32 +13,34 @@ def get_r_squared(Y, Y_fit_eqlen):
     return r_squared
 
 
-# internal use
 def B_M_eqn(V, V0, B0, B0_prime, E0):
+    """
+    3rd order Birch-Murnaghan equation of state, in the energy-volume form
+    """
     return (E0 + 9 * V0 * B0 / 16. * (((V0 / V) ** (2 / 3.) - 1) ** 3 * B0_prime +
         ((V0 / V) ** (2 / 3.) - 1) ** 2 * (6 - 4 * (V0 / V) ** (2 / 3.))))
 
 
-# internal use
-def B_M_eqn_fixB0prime(B0_prime):
-    def B_M_eqn(V, V0, B0, E0):
-        return (E0 + 9 * V0 * B0 / 16. * (((V0 / V) ** (2 / 3.) - 1) ** 3 * B0_prime +
-            ((V0 / V) ** (2 / 3.) - 1) ** 2 * (6 - 4 * (V0 / V) ** (2 / 3.))))
-    return B_M_eqn
-
-
-# internal use
 def B_M_eqn_pv(V, V0, B0, B0_prime):
+    """
+    3rd order Birch-Murnaghan equation of state, in the pressure-volume form
+    The unit of pressure depends on the unit of the input B0.
+    """
     return (3*B0/2. * ((V0/V)**(7/3.) - (V0/V)**(5/3.)) *
         (1 + 3/4. * (B0_prime - 4) * ((V0/V)**(2/3.) - 1)))
 
 
-# internal use
-def B_M_eqn_pv_fixB0prime(B0_prime):
-    def B_M_eqn_pv(V, V0, B0):
-        return (3*B0/2. * ((V0/V)**(7/3.) - (V0/V)**(5/3.)) *
-            (1 + 3/4. * (B0_prime - 4) * ((V0/V)**(2/3.) - 1)))
-    return B_M_eqn_pv
+# a decorator
+def fn_fix_B0_prime(f, B0_prime):
+    if f.func_name == 'B_M_eqn':
+        def g(V, V0, B0, E0):
+            return f(V, V0, B0, B0_prime, E0)
+    elif f.func_name == 'B_M_eqn_pv':
+        def g(V, V0, B0):
+            return f(V, V0, B0, B0_prime)
+    else:
+        raise Exception('Wrong usage!')
+    return g
 
 
 def eos_fit(V, Y, p_v=False, fix_B0_prime=None, display=False, on_figs=None, return_refs=False,
@@ -89,10 +91,10 @@ def eos_fit(V, Y, p_v=False, fix_B0_prime=None, display=False, on_figs=None, ret
     else:
         if not p_v:
             initial_parameters = [V.mean(), 2.5, Y.mean()]
-            fit_eqn = B_M_eqn_fixB0prime(fix_B0_prime)
+            fit_eqn = fn_fix_B0_prime(B_M_eqn, fix_B0_prime)
         else:
             initial_parameters = [V.mean(), 2.5]
-            fit_eqn = B_M_eqn_pv_fixB0prime(fix_B0_prime)
+            fit_eqn = fn_fix_B0_prime(B_M_eqn_pv, fix_B0_prime)
 
     popt, pcov = cf(fit_eqn, V, Y, initial_parameters)
     V_fit = np.linspace(sorted(V)[0], sorted(V)[-1], 1000)

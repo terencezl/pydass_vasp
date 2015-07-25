@@ -72,27 +72,27 @@ def get_effective_mass(band, kp_start, kp_end, kps_linearized, eigenvalues):
 
 
 # internal
-def plot_helper_settings(ax, axis_range, reciprocal_point_locations, reciprocal_point_labels, save_figs, output):
+def plot_helper_settings(ylim, reciprocal_point_locations, reciprocal_point_labels, save_figs, output):
     plt.xlim(reciprocal_point_locations[0], reciprocal_point_locations[-1])
+    ax = plt.gca()
     ax.xaxis.set_ticks(reciprocal_point_locations)
     ax.xaxis.set_ticklabels(reciprocal_point_labels)
     plt.axhline(0, ls='--', c='k', alpha=0.5)
-    if axis_range:
-        plt.ylim(axis_range[0], axis_range[1])
+    if ylim:
+        plt.ylim(ylim)
     for kp_end_point in range(len(reciprocal_point_locations)):
         plt.axvline(reciprocal_point_locations[kp_end_point], ls='--', c='k', alpha=0.5)
     plt.ylabel('Energy (eV)')
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         plt.legend(loc=0, fontsize='small')
-    ax = plt.gca()
     ax.figure.set_tight_layout(True)
     plt.draw()
     if save_figs:
         plt.savefig(output)
 
 
-def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_point_labels=None, Ef=None, input_file='EIGENVAL', 
+def plot_bs(input_file='EIGENVAL', ISPIN=None, N_kps_per_section=None, reciprocal_point_labels=None, Ef=None, ylim=None,
             display=True, on_figs=None, return_refs=False, save_figs=False, save_data=False, output_prefix='BS'):
     """
     Plot the band structure, with consideration of spin-polarization.
@@ -100,11 +100,13 @@ def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_poin
 
     Parameters
     ----------
-    axis_range: list
-        the range of axes x and y, 4 values in a list
+    input_file: string
+        input file name, default to 'EIGENVAL'
+        For EIGENVAL-type, can be any string containing 'EIGENVAL'.
+        For vasprun.xml-type input, can be any string ending with '.xml'.
     ISPIN: int
         user specified ISPIN
-        If not given, for EIGENVAL-type input, infer from OUTCAR/INCAR.
+        If not given, for EIGENVAL-type input, infer from 'OUTCAR'/'INCAR'.
         For vasprun.xml-type input, infer from 'vasprun.xml'.
     N_kps_per_section: int
         user specified number of k-points per line section
@@ -113,12 +115,10 @@ def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_poin
         Its length has to be the number of line sections + 1
     Ef: float
         user specified Ef
-        If not given, for EIGENVAL-type input, infer from OUTCAR/DOSCAR
+        If not given, for EIGENVAL-type input, infer from 'OUTCAR'/'DOSCAR'
         For vasprun.xml-type input, infer from 'vasprun.xml'.
-    input_file: string
-        input file name, default to 'EIGENVAL'
-        For EIGENVAL-type, can be any string containing 'EIGENVAL'.
-        For vasprun.xml-type input, can be any string ending with '.xml'.
+    ylim: list
+        the range of y-axis, 2 values in a list
     display: bool
         Display figures or not. Default to True.
     on_figs: list/int
@@ -325,10 +325,10 @@ def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_poin
         data -= Ef
         # Plot the bands.
         initiate_figs(on_figs)
-        ax = plt.subplot(111)
+        ax = plt.gca()
         for band in range(N_bands):
             plt.plot(kps_linearized, data[:, band])
-        plot_helper_settings(ax, axis_range, reciprocal_point_locations, reciprocal_point_labels,
+        plot_helper_settings(ylim, reciprocal_point_locations, reciprocal_point_labels,
                              save_figs, output_prefix+'.pdf')
         axes = {'ax': ax}
         data = np.column_stack((kps_linearized, data))
@@ -344,12 +344,12 @@ def plot_bs(axis_range=None, ISPIN=None, N_kps_per_section=None, reciprocal_poin
         data2 -= Ef
         # plot the bands of up and down overlapping
         initiate_figs(on_figs)
-        ax = plt.subplot(111)
+        ax = plt.gca()
         color_cycle = plt.rcParams['axes.color_cycle']
         for band in range(N_bands):
             plt.plot(kps_linearized, data1[:, band], color_cycle[0], label='spin up')
             plt.plot(kps_linearized, data2[:, band], color_cycle[1], label='spin down')
-        plot_helper_settings(ax, axis_range, reciprocal_point_locations, reciprocal_point_labels,
+        plot_helper_settings(ylim, reciprocal_point_locations, reciprocal_point_labels,
                              save_figs, output_prefix+'-overlapping.pdf')
         axes = {'ax': ax}
         data1 = np.column_stack((kps_linearized, data1))
