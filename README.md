@@ -5,7 +5,7 @@ Convenient Python modules and wrapping script executables.
 ##### Example: plotting band structure
 
 ```python
-pydass_vasp.plotting.plot_bs(axis_range=[-4,6])
+pydass_vasp.plotting.plot_bs(xlim=[-4,6])
 ```
 
 ![band_structure](http://terencezl.github.io/pydass_vasp/public/imgs/band_structure.png)
@@ -97,16 +97,18 @@ This Python package is the result of frustration of searching for an organized, 
         
         Parameters
         ----------
-        axis_range: list
-            the range of axes x and y, 4 values in a list
-        ISPIN: int
-            user specified ISPIN
-            If not given, for DOSCAR-type input, infer from OUTCAR/INCAR.
-            For vasprun.xml-type input, infer from 'vasprun.xml'.
         input_file: string
             input file name, default to 'DOSCAR'
             For DOSCAR-type, can be any string containing 'DOSCAR'.
             For vasprun.xml-type input, can be any string ending with '.xml'.
+        ISPIN: int
+            user specified ISPIN
+            If not given, for DOSCAR-type input, infer from 'OUTCAR'/'INCAR'.
+            For vasprun.xml-type input, infer from 'vasprun.xml'.
+        xlim: list
+            the range of x-axis, 2 values in a list
+        ylim_upper: int/float
+            the upper limit of y-axis(, of the spin-combined plot if ISPIN == 2)
         display: bool
             Display figures or not. Default to True.
         on_figs: list/int
@@ -114,13 +116,11 @@ This Python package is the result of frustration of searching for an organized, 
         return_refs: bool
             Return the axes reference(s) drawing or not. Default to False.
         save_figs: bool
-            Save figures or not. Default to False. 
+            Save figures or not. Default to False.
         save_data: bool
             Save data or not. Default to False.
         output_prefix: string
             prefix string before the output files, default to 'TDOS'
-        return_states_at_Ef: bool
-            Calculate the TDOS at Ef with a 0.4 eV window of integration or not. Default to False.
         
         Returns
         -------
