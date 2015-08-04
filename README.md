@@ -39,7 +39,7 @@ Returned dictionary:
 ##### Example: plotting total density of states with spin polarization
 
 ```python
-pydass_vasp.plotting.plot_tdos(axis_range=[-15, 15, 0, 40], return_refs=True)
+pydass_vasp.plotting.plot_tdos(xlim=[-15, 15], ylim_upper=40, return_refs=True)
 ```
 
 ![dos_combined](http://terencezl.github.io/pydass_vasp/public/imgs/dos_combined.png)
