@@ -1,4 +1,5 @@
 import re
+import warnings
 import matplotlib.pyplot as plt
 
 
@@ -46,3 +47,29 @@ def initiate_figs(on_figs):
         plt.figure(on_figs)
     else:
         plt.figure(on_figs.pop(0))
+
+
+# internal
+def plot_helper_settings(axis_range, data_type):
+    plt.axhline(y=0, c='k')
+    plt.axvline(x=0, ls='--', c='k', alpha=0.5)
+    xlim, ylim = axis_range
+    if xlim and (xlim[0] != None) and (xlim[1] != None):
+        plt.xlim(xlim)
+    if ylim and (ylim[0] != None) and (ylim[1] != None):
+        plt.ylim(ylim)
+    plt.xlabel('Energy (eV)')
+    if data_type == 'tdos':
+        plt.ylabel('TDOS (States / Unit Cell / eV)')
+    elif data_type == 'ldos':
+        plt.ylabel('LDOS (States / Unit Cell / eV)')
+    elif data_type == 'COHP':
+        plt.ylabel('-pCOHP (Arbitrary Unit / Unit Cell / eV)')
+    elif data_type == 'COOP':
+        plt.ylabel('pCOOP (Arbitrary Unit / Unit Cell / eV)')
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        plt.legend(loc=0, fontsize='small')
+    fig = plt.gcf()
+    fig.set_tight_layout(True)
+    plt.draw()
