@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit as cf
-from ..plotting.helpers import initiate_figs, display_or_close_figs
+from ..plotting.helpers import initiate_figs
 
 
 # internal use
@@ -43,8 +43,7 @@ def fn_fix_B0_prime(f, B0_prime):
     return g
 
 
-def eos_fit(V, Y, p_v=False, fix_B0_prime=None, display=False, on_figs=None, return_refs=False,
-            save_figs=False, save_data=False, output_prefix='eos_fit'):
+def eos_fit(V, Y, p_v=False, fix_B0_prime=None, plot=False, on_figs=None):
     """
     Fit the volume and total energy, or pressure to the Birch-Murnaghan equation of state.
 
@@ -119,7 +118,7 @@ def eos_fit(V, Y, p_v=False, fix_B0_prime=None, display=False, on_figs=None, ret
     return_dict = {'params': params, 'r_squared': r_squared,
                 'fitted_data': {'columns': col_names, 'data': data}}
 
-    if display or save_figs or return_refs:
+    if plot:
         initiate_figs(on_figs)
         plt.plot(V, Y, 'o')
         plt.plot(V_fit, Y_fit, '-')
@@ -130,18 +129,12 @@ def eos_fit(V, Y, p_v=False, fix_B0_prime=None, display=False, on_figs=None, ret
         else:
             plt.ylabel('P (GPa)')
         plt.tight_layout()
-        if save_figs:
-            plt.savefig(output_prefix + '.pdf')
-        return_dict = display_or_close_figs(display, return_refs, return_dict, axes)
-
-    if save_data:
-        np.savetxt(output_prefix + '.txt', data, '%15.6E', header=' '.join(col_names))
+        return_dict.update(axes)
 
     return return_dict
 
 
-def polyfit(X, Y, order, display=False, on_figs=None, return_refs=False,
-            save_figs=False, save_data=False, output_prefix='polyfit'):
+def polyfit(X, Y, order, plot=False, on_figs=None):
     """
     Fit the two equal length arrays to a polynomial with a specified order.
 
@@ -151,18 +144,10 @@ def polyfit(X, Y, order, display=False, on_figs=None, return_refs=False,
     Y: array
     order: int
         the polynomial order
-    display: bool
-        Display figures or not. Default to False.
+    plot: bool
+        plot figures or not. Default to False.
     on_figs: list/int
         the current figure numbers to plot to, default to new figures
-    return_refs: bool
-        Return the axes reference(s) drawing or not. Default to False.
-    save_figs: bool
-        Save figures or not. Default to False.
-    save_data: bool
-        Save data or not. Default to False.
-    output_prefix: string
-        prefix string before the output files, default to 'polyfit'
 
     Returns
     -------
@@ -188,7 +173,7 @@ def polyfit(X, Y, order, display=False, on_figs=None, return_refs=False,
     return_dict = {'coeffs': p, 'r_squared': r_squared,
         'fitted_data': {'columns': col_names, 'data': data}}
 
-    if display or save_figs or return_refs:
+    if plot:
         initiate_figs(on_figs)
         plt.plot(X, Y, 'o')
         plt.plot(X_fit, Y_fit, '-')
@@ -196,18 +181,12 @@ def polyfit(X, Y, order, display=False, on_figs=None, return_refs=False,
         plt.xlabel('X')
         plt.ylabel('Y')
         plt.tight_layout()
-        if save_figs:
-            plt.savefig(output_prefix + '.pdf')
-        return_dict = display_or_close_figs(display, return_refs, return_dict, axes)
-
-    if save_data:
-        np.savetxt(output_prefix + '.txt', data, '%15.6E', header=' '.join(col_names))
+        return_dict.update(axes)
 
     return return_dict
 
 
-def curve_fit(fit_eqn, X, Y, p0=None, sigma=None, absolute_sigma=False, display=False, on_figs=None, return_refs=False,
-            save_figs=False, save_data=False, output_prefix='curve_fit', **kw):
+def curve_fit(fit_eqn, X, Y, p0=None, sigma=None, absolute_sigma=False, plot=False, on_figs=None, **kw):
     """
     Fit the two equal length arrays to a certain function Y = f(X).
 
@@ -215,18 +194,10 @@ def curve_fit(fit_eqn, X, Y, p0=None, sigma=None, absolute_sigma=False, display=
     ----------
     X: array
     Y: array
-    display: bool
-        Display figures or not. Default to False.
+    plot: bool
+        plot figures or not. Default to False.
     on_figs: list/int
         the current figure numbers to plot to, default to new figures
-    return_refs: bool
-        Return the axes reference(s) drawing or not. Default to False.
-    save_figs: bool
-        Save figures or not. Default to False.
-    save_data: bool
-        Save data or not. Default to False.
-    output_prefix: string
-        prefix string before the output files, default to 'curve_fit'
 
     Returns
     -------
@@ -250,7 +221,7 @@ def curve_fit(fit_eqn, X, Y, p0=None, sigma=None, absolute_sigma=False, display=
     return_dict = {'params': popt, 'r_squared': r_squared,
         'fitted_data': {'columns': col_names, 'data': data}}
 
-    if display or save_figs or return_refs:
+    if plot:
         initiate_figs(on_figs)
         plt.plot(X, Y, 'o')
         plt.plot(X_fit, Y_fit, '-')
@@ -258,11 +229,6 @@ def curve_fit(fit_eqn, X, Y, p0=None, sigma=None, absolute_sigma=False, display=
         plt.xlabel('X')
         plt.ylabel('Y')
         plt.tight_layout()
-        if save_figs:
-            plt.savefig(output_prefix + '.pdf')
-        return_dict = display_or_close_figs(display, return_refs, return_dict, axes)
-
-    if save_data:
-        np.savetxt(output_prefix + '.txt', data, '%15.6E', header=' '.join(col_names))
+        return_dict.update(axes)
 
     return return_dict

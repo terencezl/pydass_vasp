@@ -2,7 +2,7 @@ import re
 import warnings
 import numpy as np
 import matplotlib.pyplot as plt
-from .helpers import determine_tag_value, figs_assert, initiate_figs, display_or_close_figs
+from .helpers import determine_tag_value, figs_assert, initiate_figs
 from ..xml_utils import parse
 
 
@@ -72,7 +72,7 @@ def get_effective_mass(band, kp_start, kp_end, kps_linearized, eigenvalues):
 
 
 # internal
-def plot_helper_settings(ylim, reciprocal_point_locations, reciprocal_point_labels, save_figs, output):
+def plot_helper_settings(ylim, reciprocal_point_locations, reciprocal_point_labels):
     plt.xlim(reciprocal_point_locations[0], reciprocal_point_locations[-1])
     ax = plt.gca()
     ax.xaxis.set_ticks(reciprocal_point_locations)
@@ -86,14 +86,13 @@ def plot_helper_settings(ylim, reciprocal_point_locations, reciprocal_point_labe
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         plt.legend(loc=0, fontsize='small')
-    ax.figure.set_tight_layout(True)
+    fig = plt.gcf()
+    fig.set_tight_layout(True)
     plt.draw()
-    if save_figs:
-        plt.savefig(output)
 
 
-def plot_bs(input_file='EIGENVAL', ISPIN=None, N_kps_per_section=None, reciprocal_point_labels=None, Ef=None, ylim=None,
-            display=True, on_figs=None, return_refs=False, save_figs=False, save_data=False, output_prefix='BS'):
+def plot_bs(input_file='EIGENVAL', ISPIN=None, N_kps_per_section=None, reciprocal_point_labels=None, Ef=None,
+            ylim=None, on_figs=None):
     """
     Plot the band structure, with consideration of spin-polarization.
     Accepts input file 'EIGENVAL', or 'vasprun.xml'.
@@ -119,18 +118,8 @@ def plot_bs(input_file='EIGENVAL', ISPIN=None, N_kps_per_section=None, reciproca
         For vasprun.xml-type input, infer from 'vasprun.xml'.
     ylim: list
         the range of y-axis, 2 values in a list
-    display: bool
-        Display figures or not. Default to True.
     on_figs: list/int
         the current figure numbers to plot to, default to new figures
-    return_refs: bool
-        Return the axes reference(s) drawing or not. Default to False.
-    save_figs: bool
-        Save figures or not. Default to False. 
-    save_data: bool
-        Save data or not. Default to False.
-    output_prefix: string
-        prefix string before the output files, default to 'BS'
 
     Returns
     -------
@@ -321,50 +310,43 @@ def plot_bs(input_file='EIGENVAL', ISPIN=None, N_kps_per_section=None, reciproca
     reciprocal_point_labels = ['$' + i + '$' if '\\' in i else i for i in reciprocal_point_labels]
 
     # partial confluence
+    figs_assert(on_figs, ISPIN, 'bs')
     if ISPIN == 1:
         data -= Ef
-        # Plot the bands.
         initiate_figs(on_figs)
         ax = plt.gca()
+        color_cycle = plt.rcParams['axes.color_cycle']
         for band in range(N_bands):
-            plt.plot(kps_linearized, data[:, band])
-        plot_helper_settings(ylim, reciprocal_point_locations, reciprocal_point_labels,
-                             save_figs, output_prefix+'.pdf')
-        axes = {'ax': ax}
+            plt.plot(kps_linearized, data[:, band], color_cycle[0])
+        plot_helper_settings(ylim, reciprocal_point_locations, reciprocal_point_labels)
         data = np.column_stack((kps_linearized, data))
         return_dict['data'] = {
                 'columns': col_names,
-                'data': data
+                'data': data,
+                'ax': ax
         }
-        if save_data:
-            np.savetxt(output_prefix + '.txt', data, '%15.6E', header=' '.join(col_names))
 
     elif ISPIN == 2:
         data1 -= Ef
         data2 -= Ef
-        # plot the bands of up and down overlapping
         initiate_figs(on_figs)
         ax = plt.gca()
         color_cycle = plt.rcParams['axes.color_cycle']
         for band in range(N_bands):
             plt.plot(kps_linearized, data1[:, band], color_cycle[0], label='spin up')
             plt.plot(kps_linearized, data2[:, band], color_cycle[1], label='spin down')
-        plot_helper_settings(ylim, reciprocal_point_locations, reciprocal_point_labels,
-                             save_figs, output_prefix+'-overlapping.pdf')
-        axes = {'ax': ax}
+        plot_helper_settings(ylim, reciprocal_point_locations, reciprocal_point_labels)
         data1 = np.column_stack((kps_linearized, data1))
         data2 = np.column_stack((kps_linearized, data2))
         return_dict['data_spin_up'] = {
                 'columns': col_names1,
-                'data': data1
+                'data': data1,
+                'ax': ax
             }
         return_dict['data_spin_down'] = {
                 'columns': col_names2,
-                'data': data2
+                'data': data2,
+                'ax': ax
             }
-        if save_data:
-            np.savetxt(output_prefix + '_spin_up.txt', data1, '%15.6E', header=' '.join(col_names1))
-            np.savetxt(output_prefix + '_spin_down.txt', data2, '%15.6E', header=' '.join(col_names2))
 
-    return_dict = display_or_close_figs(display, return_refs, return_dict, axes)
     return return_dict

@@ -1,42 +1,35 @@
 #!/usr/bin/env python
 import argparse
-import matplotlib
+import re
+import matplotlib as mpl
 
 parser = argparse.ArgumentParser(description="""Plot the total density of states, with
             consideration of spin-polarization. Accepts input file 'DOSCAR', or 'vasprun.xml'.""")
-parser.add_argument('-i', '--input', metavar='DOSCAR', default='DOSCAR', help="the input DOSCAR file name")
+parser.add_argument('-i', metavar='input', default='DOSCAR', help="the input file name, default to 'DOSCAR'")
 parser.add_argument('--ISPIN', type=int, help="manually override ISPIN detection")
-parser.add_argument('--xlim', type=eval, help="the range of x-axis, in the form of '[min,max]'.")
-parser.add_argument('--ylim_upper', type=eval, help="the upper limit of y-axis(, of the spin-combined plot if ISPIN == 2) \
-                                                in the form of '[min,max]'.")
-parser.add_argument('-p', '--display', action="store_true", help="display figure but not save it.")
-parser.add_argument('-s', '--save-data', action="store_true", help="save extracted EIGENVAL data or not.")
-parser.add_argument('-t', '--style', help="use a plotting style for matplotlib >= 1.4")
-parser.add_argument('-o', '--output-prefix', default='TDOS', help="the output files' prefix")
+parser.add_argument('--xlim', nargs=2, metavar=('from', 'to'), type=float, help="the range of x-axis")
+parser.add_argument('--ylim_upper', type=float, help="the upper limit of y-axis (of the spin-combined plot if ISPIN == 2)")
+parser.add_argument('-s', metavar='savefig_name', help="if specified, save to file but not display")
+parser.add_argument('-t', help="use a plotting style for matplotlib >= 1.4")
 args = parser.parse_args()
-if args.display:
-    display = True
-    save_figs = False
-else:
-    display = False
-    save_figs = True
-
-if not args.display:
-    matplotlib.use('Agg')
-else:
-    if matplotlib.get_backend() == 'MacOSX':
-        try:
-            matplotlib.use('TkAgg')
-            print("Switched from MacOSX backend to TkAgg.")
-        except ValueError:
-            print("Can't switched to TkAgg. Keep using MacOSX backend.")
+if args.s:
+    mpl.use('Agg')
 import matplotlib.pyplot as plt
-if args.style:
+
+if args.t:
     try:
-        plt.style.use(args.style)
+        plt.style.use(args.t)
     except AttributeError:
         print("Style is only supported for matplotlib >= 1.4.")
 
 from pydass_vasp.plotting import plot_tdos
-plot_tdos(input_file=args.input, ISPIN=args.ISPIN, xlim=args.xlim, ylim_upper=args.ylim_upper, display=display,
-          return_refs=False, save_figs=save_figs, save_data=args.save_data, output_prefix=args.output_prefix)
+plot_tdos(input_file=args.i, ISPIN=args.ISPIN, xlim=args.xlim, ylim_upper=args.ylim_upper)
+
+if args.s:
+    figname_sp = re.match('(.*)(\..*)', args.s).groups()
+    plt.figure(1)
+    plt.savefig(figname_sp[0] + '-spin-combined' + figname_sp[1])
+    plt.figure(2)
+    plt.savefig(figname_sp[0] + '-spin-separated' + figname_sp[1])
+else:
+    plt.show()

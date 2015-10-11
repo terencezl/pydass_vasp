@@ -2,12 +2,12 @@ import re
 import warnings
 import numpy as np
 import matplotlib.pyplot as plt
-from .helpers import determine_tag_value, figs_assert, initiate_figs, display_or_close_figs
+from .helpers import determine_tag_value, figs_assert, initiate_figs
 from ..xml_utils import parse
 
 
 # internal
-def plot_helper_settings(axis_range, data_type, save_figs, output):
+def plot_helper_settings(axis_range, data_type):
     plt.axhline(y=0, c='k')
     plt.axvline(x=0, ls='--', c='k', alpha=0.5)
     xlim, ylim = axis_range
@@ -25,15 +25,12 @@ def plot_helper_settings(axis_range, data_type, save_figs, output):
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         plt.legend(loc=0, fontsize='small')
-    ax = plt.gca()
-    ax.figure.set_tight_layout(True)
+    fig = plt.gcf()
+    fig.set_tight_layout(True)
     plt.draw()
-    if save_figs:
-        plt.savefig(output)
 
 
-def plot_tdos(input_file='DOSCAR', ISPIN=None, xlim=None, ylim_upper=None, display=True,
-              on_figs=None, return_refs=False, save_figs=False, save_data=False, output_prefix='TDOS'):
+def plot_tdos(input_file='DOSCAR', ISPIN=None, xlim=None, ylim_upper=None, on_figs=None):
     """
     Plot the total density of states, with consideration of spin-polarization.
     Accepts input file 'DOSCAR', or 'vasprun.xml'.
@@ -52,25 +49,15 @@ def plot_tdos(input_file='DOSCAR', ISPIN=None, xlim=None, ylim_upper=None, displ
         the range of x-axis, 2 values in a list
     ylim_upper: int/float
         the upper limit of y-axis(, of the spin-combined plot if ISPIN == 2)
-    display: bool
-        Display figures or not. Default to True.
     on_figs: list/int
         the current figure numbers to plot to, default to new figures
-    return_refs: bool
-        Return the axes reference(s) drawing or not. Default to False.
-    save_figs: bool
-        Save figures or not. Default to False.
-    save_data: bool
-        Save data or not. Default to False.
-    output_prefix: string
-        prefix string before the output files, default to 'TDOS'
 
     Returns
     -------
     a dict, containing
         'data': a dict that has 2D array of data,
             easily to Pandas DataFrame by pd.DataFrame(**returned_dict['data'])
-        'ax': the axes reference, if return_refs == True
+        'ax': the axes reference
     """
     # get data
     if re.match(r".*\.xml", input_file):
@@ -127,11 +114,8 @@ def plot_tdos(input_file='DOSCAR', ISPIN=None, xlim=None, ylim_upper=None, displ
         initiate_figs(on_figs)
         plt.plot(data[:, 0], data[:, 1])
         ax = plt.gca()
-        plot_helper_settings((xlim, [0, ylim_upper]), 'tdos', save_figs, output=output_prefix + '.pdf')
-        axes = {'ax': ax}
-        return_dict = {'data': {'columns': col_names, 'data': data}}
-        if save_data:
-            np.savetxt(output_prefix + '.txt', data, '%15.6E', header=' '.join(col_names))
+        plot_helper_settings((xlim, [0, ylim_upper]), 'tdos')
+        return_dict = {'data': {'columns': col_names, 'data': data, 'ax': ax}}
 
     elif ISPIN == 2:
         col_names1 = ['E', 'total_up', 'integrated_up']
@@ -142,7 +126,7 @@ def plot_tdos(input_file='DOSCAR', ISPIN=None, xlim=None, ylim_upper=None, displ
         initiate_figs(on_figs)
         plt.plot(data1[:, 0], data1[:, 1] + data2[:, 1], label='spin up + down')
         ax1 = plt.gca()
-        plot_helper_settings((xlim, [0, ylim_upper]), 'tdos', save_figs, output=output_prefix + '-spin-combined.pdf')
+        plot_helper_settings((xlim, [0, ylim_upper]), 'tdos')
         # Plot the separated TDOS
         initiate_figs(on_figs)
         plt.plot(data1[:, 0], data1[:, 1], label='spin up')
@@ -153,20 +137,15 @@ def plot_tdos(input_file='DOSCAR', ISPIN=None, xlim=None, ylim_upper=None, displ
         if ylim_upper:
             ylim_upper_sp = ylim_upper/2.
             ylim_lower_sp = -ylim_upper_sp
-        plot_helper_settings((xlim, [ylim_lower_sp, ylim_upper_sp]), 'tdos', save_figs, output=output_prefix + '-spin-separated.pdf')
-        axes = {'ax_spin_combined': ax1, 'ax_spin_separated': ax2}
+        plot_helper_settings((xlim, [ylim_lower_sp, ylim_upper_sp]), 'tdos')
         return_dict = {'data_spin_up': {'columns': col_names1, 'data': data1},
-                       'data_spin_down': {'columns': col_names2, 'data': data2}}
-        if save_data:
-            np.savetxt(output_prefix + '_spin_up.txt', data1, '%15.6E', header=' '.join(col_names1))
-            np.savetxt(output_prefix + '_spin_down.txt', data2, '%15.6E', header=' '.join(col_names2))
+                       'data_spin_down': {'columns': col_names2, 'data': data2},
+                       'ax_spin_combined': ax1, 'ax_spin_separated': ax2}
 
-    return_dict = display_or_close_figs(display, return_refs, return_dict, axes)
     return return_dict
 
 
-def plot_ldos(atom, input_file='DOSCAR', ISPIN=None, LORBIT=None, xlim=None, ylim_upper=None, display=True,
-              on_figs=None, return_refs=False, save_figs=False, save_data=False, output_prefix='LDOS'):
+def plot_ldos(atom, input_file='DOSCAR', ISPIN=None, LORBIT=None, xlim=None, ylim_upper=None, on_figs=None):
     """
     Plot the local projected density of states, with consideration of spin-polarization.
     Accepts input file 'DOSCAR', or 'vasprun.xml'.
@@ -191,25 +170,15 @@ def plot_ldos(atom, input_file='DOSCAR', ISPIN=None, LORBIT=None, xlim=None, yli
         the range of x-axis, 2 values in a list
     ylim_upper: int/float
         the upper limit of y-axis(, of the spin-combined plot if ISPIN == 2)
-    display: bool
-        Display figures or not. Default to True.
     on_figs: list/int
         the current figure numbers to plot to, default to new figures
-    return_refs: bool
-        Return the axes reference(s) drawing or not. Default to False.
-    save_figs: bool
-        Save figures or not. Default to False.
-    save_data: bool
-        Save data or not. Default to False.
-    output_prefix: string
-        prefix string before the output files, default to 'LDOS'
 
     Returns
     -------
     a dict, containing
         'data': a dict that has 2D array of data,
             easily to Pandas DataFrame by pd.DataFrame(**returned_dict['data'])
-        'ax': the axes reference, if return_refs == True
+        'ax': the axes reference
     """
     # get data
     if re.match(r".*\.xml", input_file):
@@ -296,11 +265,8 @@ def plot_ldos(atom, input_file='DOSCAR', ISPIN=None, LORBIT=None, xlim=None, yli
             for i in range(1, 10):
                 plt.plot(data[:, 0], data[:, i], label=col_names[i])
         ax = plt.gca()
-        plot_helper_settings((xlim, [0, ylim_upper]), 'ldos', save_figs, output=output_prefix + '.pdf')
-        axes = {'ax': ax}
-        return_dict = {'data': {'columns': col_names, 'data': data}}
-        if save_data:
-            np.savetxt(output_prefix + '.txt', data, '%15.6E', header=' '.join(col_names))
+        plot_helper_settings((xlim, [0, ylim_upper]), 'ldos')
+        return_dict = {'data': {'columns': col_names, 'data': data}, 'ax': ax}
 
     elif ISPIN == 2:
         data1[:, 0] -= Ef
@@ -320,7 +286,7 @@ def plot_ldos(atom, input_file='DOSCAR', ISPIN=None, LORBIT=None, xlim=None, yli
             for i in range(1, 10):
                 plt.plot(data1[:, 0], data1[:, i] + data2[:, i], label=col_names1[i] + ' + ' + col_names2[i])
         ax1 = plt.gca()
-        plot_helper_settings((xlim, [0, ylim_upper]), 'ldos', save_figs, output=output_prefix + '-spin-combined.pdf')
+        plot_helper_settings((xlim, [0, ylim_upper]), 'ldos')
         # plot spin separated
         initiate_figs(on_figs)
         if LORBIT == 10 or LORBIT == 0:
@@ -337,20 +303,15 @@ def plot_ldos(atom, input_file='DOSCAR', ISPIN=None, LORBIT=None, xlim=None, yli
         if ylim_upper:
             ylim_upper_sp = ylim_upper/2.
             ylim_lower_sp = -ylim_upper_sp
-        plot_helper_settings((xlim, [ylim_lower_sp, ylim_upper_sp]), 'ldos', save_figs, output=output_prefix + '-spin-separated.pdf')
-        axes = {'ax_spin_combined': ax1, 'ax_spin_separated': ax2}
+        plot_helper_settings((xlim, [ylim_lower_sp, ylim_upper_sp]), 'ldos')
         return_dict = {'data_spin_up': {'columns': col_names1, 'data': data1},
-                       'data_spin_down': {'columns': col_names2, 'data': data2}}
-        if save_data:
-            np.savetxt(output_prefix + '_spin_up.txt', data1, '%15.6E', header=' '.join(col_names1))
-            np.savetxt(output_prefix + '_spin_down.txt', data2, '%15.6E', header=' '.join(col_names2))
+                       'data_spin_down': {'columns': col_names2, 'data': data2},
+                       'ax_spin_combined': ax1, 'ax_spin_separated': ax2}
 
-    return_dict = display_or_close_figs(display, return_refs, return_dict, axes)
     return return_dict
 
 
-def plot_cohp(bond, input_file='COHPCAR.lobster', ISPIN=None, xlim=None, ylim=None, display=True,
-              on_figs=None, return_refs=False, save_figs=False, save_data=False, output_prefix='COHP'):
+def plot_cohp(bond, input_file='COHPCAR.lobster', ISPIN=None, xlim=None, ylim=None, on_figs=None):
     """
     Plot the -COHP, with consideration of spin-polarization.
 
@@ -367,25 +328,15 @@ def plot_cohp(bond, input_file='COHPCAR.lobster', ISPIN=None, xlim=None, ylim=No
         the range of x-axis, 2 values in a list
     ylim: list
         the range of y-axis, 2 values in a list(, of the spin-combined plot if ISPIN == 2)
-    display: bool
-        Display figures or not. Default to True.
     on_figs: list/int
         the current figure numbers to plot to, default to new figures
-    return_refs: bool
-        Return the axes reference(s) drawing or not. Default to False.
-    save_figs: bool
-        Save figures or not. Default to False.
-    save_data: bool
-        Save data or not. Default to False.
-    output_prefix: string
-        prefix string before the output files, default to 'COHP'
 
     Returns
     -------
     a dict, containing
         'data': a dict that has 2D array of data,
             easily to Pandas DataFrame by pd.DataFrame(**returned_dict['data'])
-        'ax': the axes reference, if return_refs == True
+        'ax': the axes reference
     """
     # get data
     with open(input_file, 'r') as f:
@@ -426,11 +377,8 @@ def plot_cohp(bond, input_file='COHPCAR.lobster', ISPIN=None, xlim=None, ylim=No
         initiate_figs(on_figs)
         plt.plot(data[:, 0], -data[:, col_num])
         ax = plt.gca()
-        plot_helper_settings((xlim, ylim), 'cohp', save_figs, output=output_prefix + '.pdf')
-        axes = {'ax': ax}
-        return_dict = {'data': {'columns': col_names, 'data': data}}
-        if save_data:
-            np.savetxt(output_prefix + '.txt', data, '%15.6E', header=' '.join(col_names))
+        plot_helper_settings((xlim, ylim), 'cohp')
+        return_dict = {'data': {'columns': col_names, 'data': data}, 'ax': ax}
 
     elif ISPIN == 2:
         col_names1 = ['E', 'avg_up', 'avg_integrated_up']
@@ -447,8 +395,8 @@ def plot_cohp(bond, input_file='COHPCAR.lobster', ISPIN=None, xlim=None, ylim=No
         initiate_figs(on_figs)
         plt.plot(data1[:, 0], -data1[:, col_bond] - data2[:, col_bond], label='spin up + down')
         ax1 = plt.gca()
-        plot_helper_settings((xlim, ylim), 'cohp', save_figs, output=output_prefix + '-spin-combined.pdf')
-        # Plot the overlapped COHP
+        plot_helper_settings((xlim, ylim), 'cohp')
+        # Plot the separated COHP
         initiate_figs(on_figs)
         plt.plot(data1[:, 0], -data1[:, col_bond], label='spin up')
         plt.plot(data2[:, 0], -data2[:, col_bond], label='spin down')
@@ -458,13 +406,9 @@ def plot_cohp(bond, input_file='COHPCAR.lobster', ISPIN=None, xlim=None, ylim=No
             ylim_sp = ylim[:]
             ylim_sp[0] /= 2.
             ylim_sp[1] /= 2.
-        plot_helper_settings((xlim, ylim_sp), 'cohp', save_figs, output=output_prefix + '-spin-overlapped.pdf')
-        axes = {'ax_spin_combined': ax1, 'ax_spin_overlapped': ax2}
+        plot_helper_settings((xlim, ylim_sp), 'cohp')
         return_dict = {'data_spin_up': {'columns': col_names1, 'data': data1},
-                       'data_spin_down': {'columns': col_names2, 'data': data2}}
-        if save_data:
-            np.savetxt(output_prefix + '_spin_up.txt', data, '%15.6E', header=' '.join(col_names1))
-            np.savetxt(output_prefix + '_spin_down.txt', data, '%15.6E', header=' '.join(col_names2))
+                       'data_spin_down': {'columns': col_names2, 'data': data2},
+                       'ax_spin_combined': ax1, 'ax_spin_separated': ax2}
 
-    return_dict = display_or_close_figs(display, return_refs, return_dict, axes)
     return return_dict
