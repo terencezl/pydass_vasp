@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit as cf
-from ..plotting.helpers import initiate_figs
+from ..electronic_structure.helpers import initiate_figs
 
 
 # internal use

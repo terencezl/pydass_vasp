@@ -22,8 +22,8 @@ if args.t:
     except AttributeError:
         print("Style is only supported for matplotlib >= 1.4.")
 
-from pydass_vasp.plotting import plot_bs
-plot_bs(input_file=args.i, ISPIN=args.ISPIN, Ef=args.Ef, ylim=args.ylim)
+from pydass_vasp.electronic_structure import get_bs
+get_bs(input_file=args.i, ISPIN=args.ISPIN, Ef=args.Ef, plot=True, ylim=args.ylim)
 
 if args.s:
     figname_sp = re.match('(.*)(\..*)', args.s).groups()

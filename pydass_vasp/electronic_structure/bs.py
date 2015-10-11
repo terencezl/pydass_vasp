@@ -91,7 +91,7 @@ def plot_helper_settings(ylim, reciprocal_point_locations, reciprocal_point_labe
     plt.draw()
 
 
-def plot_bs(input_file='EIGENVAL', ISPIN=None, N_kps_per_section=None, reciprocal_point_labels=None, Ef=None,
+def get_bs(input_file='EIGENVAL', ISPIN=None, N_kps_per_section=None, reciprocal_point_labels=None, Ef=None, plot=False,
             ylim=None, on_figs=None):
     """
     Plot the band structure, with consideration of spin-polarization.
@@ -116,6 +116,8 @@ def plot_bs(input_file='EIGENVAL', ISPIN=None, N_kps_per_section=None, reciproca
         user specified Ef
         If not given, for EIGENVAL-type input, infer from 'OUTCAR'/'DOSCAR'
         For vasprun.xml-type input, infer from 'vasprun.xml'.
+    plot: bool
+        whether to plot the data, default to False
     ylim: list
         the range of y-axis, 2 values in a list
     on_figs: list/int
@@ -137,7 +139,7 @@ def plot_bs(input_file='EIGENVAL', ISPIN=None, N_kps_per_section=None, reciproca
             print("Using user specified ISPIN.")
         else:
             ISPIN = int(root.find(
-            "./parameters/separator[@name='electronic']/separator[@name='electronic spin']/i[@name='ISPIN']").text)
+                "./parameters/separator[@name='electronic']/separator[@name='electronic spin']/i[@name='ISPIN']").text)
         if Ef:
             print("Using user specified Ef.")
         else:
@@ -241,7 +243,7 @@ def plot_bs(input_file='EIGENVAL', ISPIN=None, N_kps_per_section=None, reciproca
     kp_section_pairs = np.zeros((N_kp_sections, 2, 3))
     for section in range(N_kp_sections):
         kp_section_pairs[section] = [kps[N_kps_per_section * section],
-                                                    kps[N_kps_per_section * (section + 1) - 1]]
+                                     kps[N_kps_per_section * (section + 1) - 1]]
 
     # generate the linearized kps_linearized as x-axis.
     reciprocal_point_locations = np.zeros(N_kp_sections + 1)
@@ -250,7 +252,7 @@ def plot_bs(input_file='EIGENVAL', ISPIN=None, N_kps_per_section=None, reciproca
         reciprocal_point_locations[section + 1] = reciprocal_point_locations[section] + np.linalg.norm(
             section_pair[1] - section_pair[0])
         kps_linearized_sectioned[section] = np.linspace(reciprocal_point_locations[section],
-                                                           reciprocal_point_locations[section + 1], N_kps_per_section)
+                                                        reciprocal_point_locations[section + 1], N_kps_per_section)
     kps_linearized = kps_linearized_sectioned.flatten()
 
     if ISPIN == 1:
@@ -273,22 +275,22 @@ def plot_bs(input_file='EIGENVAL', ISPIN=None, N_kps_per_section=None, reciproca
             data = np.zeros((N_kps, N_bands))
             for kp in range(N_kps):
                 for band, elem in enumerate(root.findall(
-                    "./calculation/eigenvalues/array/set/set[@comment='spin 1']/set[@comment='kpoint "
-                    + str(kp + 1) + "']/r")):
+                                        "./calculation/eigenvalues/array/set/set[@comment='spin 1']/set[@comment='kpoint "
+                                        + str(kp + 1) + "']/r")):
                     data[kp, band] = elem.text.split()[0]
 
         if ISPIN == 2:
             data1 = np.zeros((N_kps, N_bands))
             for kp in range(N_kps):
                 for band, elem in enumerate(root.findall(
-                    "./calculation/eigenvalues/array/set/set[@comment='spin 1']/set[@comment='kpoint "
-                    + str(kp + 1) + "']/r")):
+                                        "./calculation/eigenvalues/array/set/set[@comment='spin 1']/set[@comment='kpoint "
+                                        + str(kp + 1) + "']/r")):
                     data1[kp, band] = elem.text.split()[0]
             data2 = np.zeros((N_kps, N_bands))
             for kp in range(N_kps):
                 for band, elem in enumerate(root.findall(
-                    "./calculation/eigenvalues/array/set/set[@comment='spin 2']/set[@comment='kpoint "
-                    + str(kp + 1) + "']/r")):
+                                        "./calculation/eigenvalues/array/set/set[@comment='spin 2']/set[@comment='kpoint "
+                                        + str(kp + 1) + "']/r")):
                     data2[kp, band] = elem.text.split()[0]
 
     elif re.match(r".*EIGENVAL.*", input_file):
@@ -309,44 +311,37 @@ def plot_bs(input_file='EIGENVAL', ISPIN=None, N_kps_per_section=None, reciproca
     # make Greek letters real
     reciprocal_point_labels = ['$' + i + '$' if '\\' in i else i for i in reciprocal_point_labels]
 
-    # partial confluence
-    figs_assert(on_figs, ISPIN, 'bs')
     if ISPIN == 1:
         data -= Ef
-        initiate_figs(on_figs)
-        ax = plt.gca()
-        color_cycle = plt.rcParams['axes.color_cycle']
-        for band in range(N_bands):
-            plt.plot(kps_linearized, data[:, band], color_cycle[0])
-        plot_helper_settings(ylim, reciprocal_point_locations, reciprocal_point_labels)
         data = np.column_stack((kps_linearized, data))
-        return_dict['data'] = {
-                'columns': col_names,
-                'data': data,
-                'ax': ax
-        }
-
+        return_dict = {'data': {'columns': col_names, 'data': data}}
     elif ISPIN == 2:
         data1 -= Ef
         data2 -= Ef
-        initiate_figs(on_figs)
-        ax = plt.gca()
-        color_cycle = plt.rcParams['axes.color_cycle']
-        for band in range(N_bands):
-            plt.plot(kps_linearized, data1[:, band], color_cycle[0], label='spin up')
-            plt.plot(kps_linearized, data2[:, band], color_cycle[1], label='spin down')
-        plot_helper_settings(ylim, reciprocal_point_locations, reciprocal_point_labels)
         data1 = np.column_stack((kps_linearized, data1))
         data2 = np.column_stack((kps_linearized, data2))
-        return_dict['data_spin_up'] = {
-                'columns': col_names1,
-                'data': data1,
-                'ax': ax
-            }
-        return_dict['data_spin_down'] = {
-                'columns': col_names2,
-                'data': data2,
-                'ax': ax
-            }
+        return_dict = {'data_spin_up': {'columns': col_names1, 'data': data1},
+                       'data_spin_down': {'columns': col_names2, 'data': data2},
+        }
+
+    if plot:
+        # plot
+        # figs_assert(on_figs, ISPIN, 'bs')
+        color_cycle = plt.rcParams['axes.color_cycle']
+        if ISPIN == 1:
+            initiate_figs(on_figs)
+            ax = plt.gca()
+            for band in range(N_bands):
+                plt.plot(kps_linearized, data[:, band], color_cycle[0])
+            plot_helper_settings(ylim, reciprocal_point_locations, reciprocal_point_labels)
+        elif ISPIN == 2:
+            initiate_figs(on_figs)
+            ax = plt.gca()
+            for band in range(N_bands):
+                plt.plot(kps_linearized, data1[:, band], color_cycle[0], label='spin up')
+                plt.plot(kps_linearized, data2[:, band], color_cycle[1], label='spin down')
+            plot_helper_settings(ylim, reciprocal_point_locations, reciprocal_point_labels)
+
+        return_dict.update({'ax': ax})
 
     return return_dict

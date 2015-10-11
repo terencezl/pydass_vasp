@@ -27,7 +27,7 @@ def determine_tag_value(tag):
 # internal
 def figs_assert(on_figs, ISPIN, data_type):
     if ISPIN == 2:
-        if data_type == 'tdos' or data_type == 'ldos' or data_type == 'cohp' or data_type == 'bs':
+        if data_type == 'tdos' or data_type == 'ldos' or data_type == 'lobster':
             assert on_figs is None or \
                    (isinstance(on_figs, list) and len(on_figs) == 2), \
                 'The number of figures should be 2!'
