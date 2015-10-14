@@ -331,13 +331,13 @@ def get_bs(input_file='EIGENVAL', ISPIN=None, N_kps_per_section=None, reciprocal
         if ISPIN == 1:
             initiate_figs(on_figs)
             ax = plt.gca()
-            for band in range(N_bands):
+            for band in range(1, N_bands + 1):
                 plt.plot(kps_linearized, data[:, band], color_cycle[0])
             plot_helper_settings(ylim, reciprocal_point_locations, reciprocal_point_labels)
         elif ISPIN == 2:
             initiate_figs(on_figs)
             ax = plt.gca()
-            for band in range(N_bands):
+            for band in range(1, N_bands + 1):
                 plt.plot(kps_linearized, data1[:, band], color_cycle[0], label='spin up')
                 plt.plot(kps_linearized, data2[:, band], color_cycle[1], label='spin down')
             plot_helper_settings(ylim, reciprocal_point_locations, reciprocal_point_labels)

@@ -5,7 +5,7 @@ from .helpers import determine_tag_value, figs_assert, initiate_figs, plot_helpe
 from ..xml_utils import parse
 
 
-def get_tdos(input_file='DOSCAR', ISPIN=None, plot=False, xlim=None, ylim_upper=None, on_figs=None):
+def get_tdos(input_file='DOSCAR', ISPIN=None, Ef=None, plot=False, xlim=None, ylim_upper=None, on_figs=None):
     """
     Plot the total density of states, with consideration of spin-polarization.
     Accepts input file 'DOSCAR', or 'vasprun.xml'.
@@ -19,6 +19,10 @@ def get_tdos(input_file='DOSCAR', ISPIN=None, plot=False, xlim=None, ylim_upper=
     ISPIN: int
         user specified ISPIN
         If not given, for DOSCAR-type input, infer from 'OUTCAR'/'INCAR'.
+        For vasprun.xml-type input, infer from 'vasprun.xml'.
+    Ef: float
+        user specified Ef
+        If not given, infer from 'DOSCAR'
         For vasprun.xml-type input, infer from 'vasprun.xml'.
     plot: bool
         whether to plot the data, default to False
@@ -129,7 +133,8 @@ def get_tdos(input_file='DOSCAR', ISPIN=None, plot=False, xlim=None, ylim_upper=
     return return_dict
 
 
-def get_ldos(atom, input_file='DOSCAR', ISPIN=None, LORBIT=None, plot=False, xlim=None, ylim_upper=None, on_figs=None):
+def get_ldos(atom, input_file='DOSCAR', ISPIN=None, LORBIT=None, Ef=None, plot=False, xlim=None, ylim_upper=None,
+             on_figs=None):
     """
     Plot the local projected density of states, with consideration of spin-polarization.
     Accepts input file 'DOSCAR', or 'vasprun.xml'.
@@ -149,6 +154,10 @@ def get_ldos(atom, input_file='DOSCAR', ISPIN=None, LORBIT=None, plot=False, xli
     LORBIT: int
         user specified LORBIT
         If not given, for DOSCAR-type input, infer from 'OUTCAR'/'INCAR'.
+        For vasprun.xml-type input, infer from 'vasprun.xml'.
+    Ef: float
+        user specified Ef
+        If not given, infer from 'DOSCAR'
         For vasprun.xml-type input, infer from 'vasprun.xml'.
     plot: bool
         whether to plot the data, default to False

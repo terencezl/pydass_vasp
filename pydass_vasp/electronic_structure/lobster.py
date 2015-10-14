@@ -7,7 +7,7 @@ from .helpers import determine_tag_value, figs_assert, initiate_figs, plot_helpe
 def get_lobster(input_file='COHPCAR.lobster', ISPIN=None, plot=False, type='COHP', bond=0, xlim=None, ylim=None,
                 on_figs=None):
     """
-    Plot the -COHP, with consideration of spin-polarization.
+    Plot the -COHP or COOP, with consideration of spin-polarization.
 
     Parameters
     ----------
