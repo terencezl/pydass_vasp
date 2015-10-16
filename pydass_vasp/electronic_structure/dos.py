@@ -5,25 +5,25 @@ from .helpers import determine_tag_value, figs_assert, initiate_figs, plot_helpe
 from ..xml_utils import parse
 
 
-def get_tdos(input_file='DOSCAR', ISPIN=None, Ef=None, plot=False, xlim=None, ylim_upper=None, on_figs=None):
+def get_tdos(filepath='DOSCAR', ISPIN=None, Ef=None, plot=False, xlim=None, ylim_upper=None, on_figs=None):
     """
     Plot the total density of states, with consideration of spin-polarization.
-    Accepts input file 'DOSCAR', or 'vasprun.xml'.
+    Accepts file type 'DOSCAR', or 'vasprun.xml'.
 
     Parameters
     ----------
-    input_file: string
-        input file name, default to 'DOSCAR'
+    filepath: string
+        file path, default to 'DOSCAR'
         For DOSCAR-type, can be any string containing 'DOSCAR'.
-        For vasprun.xml-type input, can be any string ending with '.xml'.
+        For vasprun.xml-type file, can be any string ending with '.xml'.
     ISPIN: int
         user specified ISPIN
-        If not given, for DOSCAR-type input, infer from 'OUTCAR'/'INCAR'.
-        For vasprun.xml-type input, infer from 'vasprun.xml'.
+        If not given, for DOSCAR-type file, infer from 'OUTCAR'/'INCAR'.
+        For vasprun.xml-type file, infer from 'vasprun.xml'.
     Ef: float
         user specified Ef
         If not given, infer from 'DOSCAR'
-        For vasprun.xml-type input, infer from 'vasprun.xml'.
+        For vasprun.xml-type file, infer from 'vasprun.xml'.
     plot: bool
         whether to plot the data, default to False
     xlim: list
@@ -41,8 +41,8 @@ def get_tdos(input_file='DOSCAR', ISPIN=None, Ef=None, plot=False, xlim=None, yl
         'ax': the axes reference
     """
     # get data
-    if re.match(r".*\.xml", input_file):
-        root = parse(input_file)
+    if re.match(r".*\.xml", filepath):
+        root = parse(filepath)
 
         NEDOS = int(root.find("./parameters/separator[@name='dos']/i[@name='NEDOS']").text)
         Ef = float(root.find("./calculation/dos/i[@name='efermi']").text)
@@ -68,8 +68,8 @@ def get_tdos(input_file='DOSCAR', ISPIN=None, Ef=None, plot=False, xlim=None, yl
                     "./calculation/dos/total/array/set/set[@comment='spin 2']/r")):
                 data2[n_step] = elem.text.split()
 
-    elif re.match(r".*DOSCAR.*", input_file):
-        with open(input_file, 'r') as f:
+    elif re.match(r".*DOSCAR.*", filepath):
+        with open(filepath, 'r') as f:
             DOSCAR = f.readlines()
         for i in range(len(DOSCAR)):
             DOSCAR[i] = DOSCAR[i].split()
@@ -79,7 +79,7 @@ def get_tdos(input_file='DOSCAR', ISPIN=None, Ef=None, plot=False, xlim=None, yl
         if ISPIN:
             print("Using user specified ISPIN.")
         else:
-            ISPIN = determine_tag_value('ISPIN')
+            ISPIN = determine_tag_value('ISPIN', filepath)
 
         data = np.array(DOSCAR[6:6 + NEDOS], dtype=float)
         if ISPIN == 2:
@@ -133,32 +133,32 @@ def get_tdos(input_file='DOSCAR', ISPIN=None, Ef=None, plot=False, xlim=None, yl
     return return_dict
 
 
-def get_ldos(atom, input_file='DOSCAR', ISPIN=None, LORBIT=None, Ef=None, plot=False, xlim=None, ylim_upper=None,
+def get_ldos(atom, filepath='DOSCAR', ISPIN=None, LORBIT=None, Ef=None, plot=False, xlim=None, ylim_upper=None,
              on_figs=None):
     """
     Plot the local projected density of states, with consideration of spin-polarization.
-    Accepts input file 'DOSCAR', or 'vasprun.xml'.
+    Accepts file type 'DOSCAR', or 'vasprun.xml'.
 
     Parameters
     ----------
     atom: int
         the atom number in DOSCAR/POSCAR interested, counting from 1
-    input_file: string
-        input file name, default to 'DOSCAR'
+    filepath: string
+        file path, default to 'DOSCAR'
         For DOSCAR-type, can be any string containing 'DOSCAR'.
-        For vasprun.xml-type input, can be any string ending with '.xml'.
+        For vasprun.xml-type file, can be any string ending with '.xml'.
     ISPIN: int
         user specified ISPIN
-        If not given, for DOSCAR-type input, infer from 'OUTCAR'/'INCAR'.
-        For vasprun.xml-type input, infer from 'vasprun.xml'.
+        If not given, for DOSCAR-type file, infer from 'OUTCAR'/'INCAR'.
+        For vasprun.xml-type file, infer from 'vasprun.xml'.
     LORBIT: int
         user specified LORBIT
-        If not given, for DOSCAR-type input, infer from 'OUTCAR'/'INCAR'.
-        For vasprun.xml-type input, infer from 'vasprun.xml'.
+        If not given, for DOSCAR-type file, infer from 'OUTCAR'/'INCAR'.
+        For vasprun.xml-type file, infer from 'vasprun.xml'.
     Ef: float
         user specified Ef
         If not given, infer from 'DOSCAR'
-        For vasprun.xml-type input, infer from 'vasprun.xml'.
+        For vasprun.xml-type file, infer from 'vasprun.xml'.
     plot: bool
         whether to plot the data, default to False
     xlim: list
@@ -176,8 +176,8 @@ def get_ldos(atom, input_file='DOSCAR', ISPIN=None, LORBIT=None, Ef=None, plot=F
         'ax': the axes reference
     """
     # get data
-    if re.match(r".*\.xml", input_file):
-        root = parse(input_file)
+    if re.match(r".*\.xml", filepath):
+        root = parse(filepath)
 
         NEDOS = int(root.find("./parameters/separator[@name='dos']/i[@name='NEDOS']").text)
         Ef = float(root.find("./calculation/dos/i[@name='efermi']").text)
@@ -190,7 +190,7 @@ def get_ldos(atom, input_file='DOSCAR', ISPIN=None, LORBIT=None, Ef=None, plot=F
         if LORBIT:
             print("Using user specified LORBIT.")
         else:
-            LORBIT = determine_tag_value('LORBIT')
+            LORBIT = determine_tag_value('LORBIT', filepath)
 
         if ISPIN == 1:
             if LORBIT == 10 or LORBIT == 0:
@@ -219,8 +219,8 @@ def get_ldos(atom, input_file='DOSCAR', ISPIN=None, LORBIT=None, Ef=None, plot=F
                                     atom) + "']/set[@comment='spin 2']/r")):
                 data2[n_step] = elem.text.split()
 
-    elif re.match(r".*DOSCAR.*", input_file):
-        with open(input_file, 'r') as f:
+    elif re.match(r".*DOSCAR.*", filepath):
+        with open(filepath, 'r') as f:
             DOSCAR = f.readlines()
         for i in range(len(DOSCAR)):
             DOSCAR[i] = DOSCAR[i].split()
@@ -230,11 +230,11 @@ def get_ldos(atom, input_file='DOSCAR', ISPIN=None, LORBIT=None, Ef=None, plot=F
         if ISPIN:
             print("Using user specified ISPIN.")
         else:
-            ISPIN = determine_tag_value('ISPIN')
+            ISPIN = determine_tag_value('ISPIN', filepath)
         if LORBIT:
             print("Using user specified LORBIT.")
         else:
-            LORBIT = determine_tag_value('LORBIT')
+            LORBIT = determine_tag_value('LORBIT', filepath)
 
         data = np.array(DOSCAR[(6 + (NEDOS + 1) * atom):(6 + (NEDOS + 1) * atom + NEDOS)], dtype=float)
         if ISPIN == 2:

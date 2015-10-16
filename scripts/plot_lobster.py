@@ -4,7 +4,8 @@ import re
 import matplotlib as mpl
 
 parser = argparse.ArgumentParser(description="""Plot the LOBSTER -COHP or COOP, with consideration of spin-polarization.""")
-parser.add_argument('-i', metavar='input', default='COHPCAR.lobster', help="the input file name, default to 'COHPCAR.lobster'")
+parser.add_argument('-f', metavar='input', default='COHPCAR.lobster',
+                    help="the input file name, default to 'COHPCAR.lobster'")
 parser.add_argument('--ISPIN', type=int, help="manually override ISPIN detection")
 parser.add_argument('-y', metavar='type', default='COHP', help="the input file type, default to 'COHP'")
 parser.add_argument('bond', type=int, help='bond number to plot')
@@ -24,7 +25,8 @@ if args.t:
         print("Style is only supported for matplotlib >= 1.4.")
 
 from pydass_vasp.electronic_structure import get_lobster
-get_lobster(bond=args.bond, type=args.y, input_file=args.i, ISPIN=args.ISPIN, plot=True, xlim=args.xlim, ylim=args.ylim)
+
+get_lobster(bond=args.bond, type=args.y, filepath=args.f, ISPIN=args.ISPIN, plot=True, xlim=args.xlim, ylim=args.ylim)
 
 if args.s:
     figname_sp = re.match('(.*)(\..*)', args.s).groups()

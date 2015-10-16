@@ -1,3 +1,4 @@
+import os
 import re
 import warnings
 import numpy as np
@@ -91,22 +92,22 @@ def plot_helper_settings(ylim, reciprocal_point_locations, reciprocal_point_labe
     plt.draw()
 
 
-def get_bs(input_file='EIGENVAL', ISPIN=None, N_kps_per_section=None, reciprocal_point_labels=None, Ef=None, plot=False,
+def get_bs(filepath='EIGENVAL', ISPIN=None, N_kps_per_section=None, reciprocal_point_labels=None, Ef=None, plot=False,
             ylim=None, on_figs=None):
     """
     Plot the band structure, with consideration of spin-polarization.
-    Accepts input file 'EIGENVAL', or 'vasprun.xml'.
+    Accepts file type 'EIGENVAL', or 'vasprun.xml'.
 
     Parameters
     ----------
-    input_file: string
-        input file name, default to 'EIGENVAL'
+    filepath: string
+        file path, default to 'EIGENVAL'
         For EIGENVAL-type, can be any string containing 'EIGENVAL'.
-        For vasprun.xml-type input, can be any string ending with '.xml'.
+        For vasprun.xml-type file, can be any string ending with '.xml'.
     ISPIN: int
         user specified ISPIN
-        If not given, for EIGENVAL-type input, infer from 'OUTCAR'/'INCAR'.
-        For vasprun.xml-type input, infer from 'vasprun.xml'.
+        If not given, for EIGENVAL-type file, infer from 'OUTCAR'/'INCAR'.
+        For vasprun.xml-type file, infer from 'vasprun.xml'.
     N_kps_per_section: int
         user specified number of k-points per line section
     reciprocal_point_labels: list
@@ -114,8 +115,8 @@ def get_bs(input_file='EIGENVAL', ISPIN=None, N_kps_per_section=None, reciprocal
         Its length has to be the number of line sections + 1
     Ef: float
         user specified Ef
-        If not given, for EIGENVAL-type input, infer from 'OUTCAR'/'DOSCAR'
-        For vasprun.xml-type input, infer from 'vasprun.xml'.
+        If not given, for EIGENVAL-type file, infer from 'OUTCAR'/'DOSCAR'
+        For vasprun.xml-type file, infer from 'vasprun.xml'.
     plot: bool
         whether to plot the data, default to False
     ylim: list
@@ -132,8 +133,9 @@ def get_bs(input_file='EIGENVAL', ISPIN=None, N_kps_per_section=None, reciprocal
             easily to Pandas DataFrame by pd.DataFrame(**returned_dict['data'])
         'ax': the axes reference, if return_refs == True
     """
-    if re.match(r".*\.xml", input_file):
-        root = parse(input_file)
+    dirname = os.path.dirname(filepath)
+    if re.match(r".*\.xml", filepath):
+        root = parse(filepath)
 
         if ISPIN:
             print("Using user specified ISPIN.")
@@ -157,7 +159,7 @@ def get_bs(input_file='EIGENVAL', ISPIN=None, N_kps_per_section=None, reciprocal
             print("Using user specified reciprocal point symbols.")
         else:
             try:
-                with open('OUTCAR', 'r') as f:
+                with open(os.path.join(dirname, 'OUTCAR'), 'r') as f:
                     for line in f:
                         if re.match(r".*k-points in units of 2pi/SCALE and weight:.*", line):
                             reciprocal_point_labels = line.replace(
@@ -165,7 +167,7 @@ def get_bs(input_file='EIGENVAL', ISPIN=None, N_kps_per_section=None, reciprocal
                             break
             except IOError:
                 try:
-                    with open('KPOINTS', 'r') as f:
+                    with open(os.path.join(dirname, 'KPOINTS'), 'r') as f:
                         KPOINTS = f.readlines()
                     reciprocal_point_labels = KPOINTS[0].strip().split('-')
                 except IOError:
@@ -175,102 +177,7 @@ def get_bs(input_file='EIGENVAL', ISPIN=None, N_kps_per_section=None, reciprocal
         for kp, elem in enumerate(root.findall("./kpoints/varray[@name='kpointlist']/v")):
             kps[kp] = elem.text.split()[:3]
 
-    elif re.match(r".*EIGENVAL.*", input_file):
-        # get ISPIN
-        if ISPIN:
-            print("Using user specified ISPIN.")
-        else:
-            ISPIN = determine_tag_value('ISPIN')
-        # get Ef
-        if Ef:
-            print("Using user specified Ef.")
-        else:
-            try:
-                with open('OUTCAR') as f:
-                    for line in f:
-                        if re.match(r"\s*E-fermi :.*", line):
-                            Ef = float(line.split()[2])
-            except IOError:
-                try:
-                    with open('DOSCAR', 'r') as f:
-                        for i in range(6):
-                            line = f.readline()
-                    # Fermi energy. Found in DOSCAR, 6th line, 4th number.
-                    Ef = float(line.split()[3])
-                except IOError:
-                    raise IOError("Can't determine Ef! Either manually specify it, or provide OUTCAR/DOSCAR.")
-
-        # read the main file
-        with open(input_file, 'r') as f:
-            EIGENVAL = f.readlines()
-        for i in range(len(EIGENVAL)):
-            EIGENVAL[i] = EIGENVAL[i].split()
-        # How many bands are to be drawn? 6th line, 3rd number.
-        N_bands = int(EIGENVAL[5][2])
-        # How many KPs in total? Can be found in EIGENVAL, 6th line, 2nd number.
-        N_kps = int(EIGENVAL[5][1])
-
-        # get nkp per sections
-        if N_kps_per_section:
-            print("Using user specified number of k-points per line section.")
-        else:
-            try:
-                with open('KPOINTS', 'r') as f:
-                    KPOINTS = f.readlines()
-                N_kps_per_section = int(KPOINTS[1])
-            except IOError:
-                raise IOError(
-                    "Can't determine number of k-points per line section! Either manually specify it, or provide KPOINTS.")
-
-        N_kp_sections = int(N_kps / N_kps_per_section)
-
-        # get the start and end point coordinate of each section. From OUTCAR.
-        kps = np.zeros((N_kps, 3))
-        with open('OUTCAR', 'r') as f:
-            for line in f:
-                if re.match(r".*k-points in units of 2pi/SCALE and weight:.*", line):
-                    if reciprocal_point_labels:
-                        print("Using user specified reciprocal point symbols.")
-                    else:
-                        reciprocal_point_labels = line.replace(
-                            'k-points in units of 2pi/SCALE and weight:', '').strip().split('-')
-                    break
-            for kp in range(N_kps):
-                kps[kp] = next(f).split()[:3]
-
-    # confluence of two processing approaches
-    # generate the section pairs
-    kp_section_pairs = np.zeros((N_kp_sections, 2, 3))
-    for section in range(N_kp_sections):
-        kp_section_pairs[section] = [kps[N_kps_per_section * section],
-                                     kps[N_kps_per_section * (section + 1) - 1]]
-
-    # generate the linearized kps_linearized as x-axis.
-    reciprocal_point_locations = np.zeros(N_kp_sections + 1)
-    kps_linearized_sectioned = np.zeros((N_kp_sections, N_kps_per_section))
-    for section, section_pair in enumerate(kp_section_pairs):
-        reciprocal_point_locations[section + 1] = reciprocal_point_locations[section] + np.linalg.norm(
-            section_pair[1] - section_pair[0])
-        kps_linearized_sectioned[section] = np.linspace(reciprocal_point_locations[section],
-                                                        reciprocal_point_locations[section + 1], N_kps_per_section)
-    kps_linearized = kps_linearized_sectioned.flatten()
-
-    if ISPIN == 1:
-        col_names = ['band_' + str(i) for i in range(N_bands + 1)]
-        col_names[0] = 'k_points'
-    elif ISPIN == 2:
-        col_names1 = ['band_' + str(i) + '_up' for i in range(N_bands + 1)]
-        col_names1[0] = 'k_points'
-        col_names2 = ['band_' + str(i) + '_down' for i in range(N_bands + 1)]
-        col_names2[0] = 'k_points'
-
-    return_dict = {
-        'reciprocal_point_labels': reciprocal_point_labels,
-        'reciprocal_point_locations': reciprocal_point_locations
-    }
-
-    # diverging again
-    if re.match(r".*\.xml", input_file):
+        # get eigenvalues data
         if ISPIN == 1:
             data = np.zeros((N_kps, N_bands))
             for kp in range(N_kps):
@@ -293,7 +200,70 @@ def get_bs(input_file='EIGENVAL', ISPIN=None, N_kps_per_section=None, reciprocal
                                         + str(kp + 1) + "']/r")):
                     data2[kp, band] = elem.text.split()[0]
 
-    elif re.match(r".*EIGENVAL.*", input_file):
+    elif re.match(r".*EIGENVAL.*", filepath):
+        # get ISPIN
+        if ISPIN:
+            print("Using user specified ISPIN.")
+        else:
+            ISPIN = determine_tag_value('ISPIN', filepath)
+        # get Ef
+        if Ef:
+            print("Using user specified Ef.")
+        else:
+            try:
+                with open(os.path.join(dirname, 'OUTCAR'), 'r') as f:
+                    for line in f:
+                        if re.match(r"\s*E-fermi :.*", line):
+                            Ef = float(line.split()[2])
+            except IOError:
+                try:
+                    with open(os.path.join(dirname, 'DOSCAR'), 'r') as f:
+                        for i in range(6):
+                            line = f.readline()
+                    # Fermi energy. Found in DOSCAR, 6th line, 4th number.
+                    Ef = float(line.split()[3])
+                except IOError:
+                    raise IOError("Can't determine Ef! Either manually specify it, or provide OUTCAR/DOSCAR.")
+
+        # read the main file
+        with open(filepath, 'r') as f:
+            EIGENVAL = f.readlines()
+        for i in range(len(EIGENVAL)):
+            EIGENVAL[i] = EIGENVAL[i].split()
+        # How many bands are to be drawn? 6th line, 3rd number.
+        N_bands = int(EIGENVAL[5][2])
+        # How many KPs in total? Can be found in EIGENVAL, 6th line, 2nd number.
+        N_kps = int(EIGENVAL[5][1])
+
+        # get nkp per sections
+        if N_kps_per_section:
+            print("Using user specified number of k-points per line section.")
+        else:
+            try:
+                with open(os.path.join(dirname, 'KPOINTS'), 'r') as f:
+                    KPOINTS = f.readlines()
+                N_kps_per_section = int(KPOINTS[1])
+            except IOError:
+                raise IOError(
+                    "Can't determine number of k-points per line section! Either manually specify it, or provide KPOINTS.")
+
+        N_kp_sections = int(N_kps / N_kps_per_section)
+
+        # get the start and end point coordinate of each section. From OUTCAR.
+        kps = np.zeros((N_kps, 3))
+        with open(os.path.join(dirname, 'OUTCAR'), 'r') as f:
+            for line in f:
+                if re.match(r".*k-points in units of 2pi/SCALE and weight:.*", line):
+                    if reciprocal_point_labels:
+                        print("Using user specified reciprocal point symbols.")
+                    else:
+                        reciprocal_point_labels = line.replace(
+                            'k-points in units of 2pi/SCALE and weight:', '').strip().split('-')
+                    break
+            for kp in range(N_kps):
+                kps[kp] = next(f).split()[:3]
+
+        # get eigenvalues data
         if ISPIN == 1:
             data = np.zeros((N_kps, N_bands))
             for kp in range(0, N_kps):
@@ -308,21 +278,52 @@ def get_bs(input_file='EIGENVAL', ISPIN=None, N_kps_per_section=None, reciprocal
                     data1[kp, band] = float(EIGENVAL[8 + band + (N_bands + 2) * kp][1])
                     data2[kp, band] = float(EIGENVAL[8 + band + (N_bands + 2) * kp][2])
 
+    # confluence of two processing approaches
+    # generate the kp_section_pairs
+    kp_section_pairs = np.zeros((N_kp_sections, 2, 3))
+    for section in range(N_kp_sections):
+        kp_section_pairs[section] = [kps[N_kps_per_section * section],
+                                     kps[N_kps_per_section * (section + 1) - 1]]
+
+    # generate the linearized kps_linearized as x-axis.
+    reciprocal_point_locations = np.zeros(N_kp_sections + 1)
+    kps_linearized_sectioned = np.zeros((N_kp_sections, N_kps_per_section))
+    for section, section_pair in enumerate(kp_section_pairs):
+        reciprocal_point_locations[section + 1] = reciprocal_point_locations[section] + np.linalg.norm(
+            section_pair[1] - section_pair[0])
+        kps_linearized_sectioned[section] = np.linspace(reciprocal_point_locations[section],
+                                                        reciprocal_point_locations[section + 1], N_kps_per_section)
+    kps_linearized = kps_linearized_sectioned.flatten()
+
     # make Greek letters real
     reciprocal_point_labels = ['$' + i + '$' if '\\' in i else i for i in reciprocal_point_labels]
+
+    return_dict = {
+        'reciprocal_point_labels': reciprocal_point_labels,
+        'reciprocal_point_locations': reciprocal_point_locations
+    }
+
+    if ISPIN == 1:
+        col_names = ['band_' + str(i) for i in range(N_bands + 1)]
+        col_names[0] = 'k_points'
+    elif ISPIN == 2:
+        col_names1 = ['band_' + str(i) + '_up' for i in range(N_bands + 1)]
+        col_names1[0] = 'k_points'
+        col_names2 = ['band_' + str(i) + '_down' for i in range(N_bands + 1)]
+        col_names2[0] = 'k_points'
 
     if ISPIN == 1:
         data -= Ef
         data = np.column_stack((kps_linearized, data))
-        return_dict = {'data': {'columns': col_names, 'data': data}}
+        return_dict.update({'data': {'columns': col_names, 'data': data}})
     elif ISPIN == 2:
         data1 -= Ef
         data2 -= Ef
         data1 = np.column_stack((kps_linearized, data1))
         data2 = np.column_stack((kps_linearized, data2))
-        return_dict = {'data_spin_up': {'columns': col_names1, 'data': data1},
+        return_dict.update({'data_spin_up': {'columns': col_names1, 'data': data1},
                        'data_spin_down': {'columns': col_names2, 'data': data2},
-        }
+                            })
 
     if plot:
         # plot

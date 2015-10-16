@@ -1,19 +1,21 @@
+import os
 import re
 import warnings
 import matplotlib.pyplot as plt
 
 
 # internal
-def determine_tag_value(tag):
+def determine_tag_value(tag, filepath):
+    dirname = os.path.dirname(filepath)
     try:
-        with open('OUTCAR', 'r') as f:
+        with open(os.path.join(dirname, 'OUTCAR'), 'r') as f:
             for line in f:
                 if tag in line:
                     tag_value = int(line.split()[2])
                     break
     except IOError:
         try:
-            with open('INCAR', 'r') as f:
+            with open(os.path.join(dirname, 'INCAR'), 'r') as f:
                 for line in f:
                     m = re.match(r'\s*' + tag + r'\s*=\s*(\d)\s*.*', line)
                     if m:
