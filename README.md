@@ -94,18 +94,19 @@ This Python package is the result of frustration of searching for an organized, 
     ```
     
         Plot the total density of states, with consideration of spin-polarization.
-        Accepts input file 'DOSCAR', or 'vasprun.xml'.
+        Accepts file type 'DOSCAR', or 'vasprun.xml'.
     
         Parameters
         ----------
-        input_file: string
-            input file name, default to 'DOSCAR'
-            For DOSCAR-type, can be any string containing 'DOSCAR'.
-            For vasprun.xml-type input, can be any string ending with '.xml'.
+        filepath: string
+            file path, default to 'DOSCAR'
+            For DOSCAR-type file, can be any string containing 'DOSCAR'.
+            For vasprun.xml-type file, can be any string ending with '.xml'.
         ISPIN: int
             user specified ISPIN
-            If not given, for DOSCAR-type input, infer from 'OUTCAR'/'INCAR'.
-            For vasprun.xml-type input, infer from 'vasprun.xml'.
+            If not given, for DOSCAR-type file, infer from 'OUTCAR'/'INCAR'.
+        Ef: float
+            user specified Ef
         plot: bool
             whether to plot the data, default to False
         xlim: list

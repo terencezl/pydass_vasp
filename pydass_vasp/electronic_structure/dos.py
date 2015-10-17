@@ -14,16 +14,13 @@ def get_tdos(filepath='DOSCAR', ISPIN=None, Ef=None, plot=False, xlim=None, ylim
     ----------
     filepath: string
         file path, default to 'DOSCAR'
-        For DOSCAR-type, can be any string containing 'DOSCAR'.
+        For DOSCAR-type file, can be any string containing 'DOSCAR'.
         For vasprun.xml-type file, can be any string ending with '.xml'.
     ISPIN: int
         user specified ISPIN
         If not given, for DOSCAR-type file, infer from 'OUTCAR'/'INCAR'.
-        For vasprun.xml-type file, infer from 'vasprun.xml'.
     Ef: float
         user specified Ef
-        If not given, infer from 'DOSCAR'
-        For vasprun.xml-type file, infer from 'vasprun.xml'.
     plot: bool
         whether to plot the data, default to False
     xlim: list
@@ -145,20 +142,17 @@ def get_ldos(atom, filepath='DOSCAR', ISPIN=None, LORBIT=None, Ef=None, plot=Fal
         the atom number in DOSCAR/POSCAR interested, counting from 1
     filepath: string
         file path, default to 'DOSCAR'
-        For DOSCAR-type, can be any string containing 'DOSCAR'.
+        For DOSCAR-type file, can be any string containing 'DOSCAR'.
         For vasprun.xml-type file, can be any string ending with '.xml'.
     ISPIN: int
         user specified ISPIN
         If not given, for DOSCAR-type file, infer from 'OUTCAR'/'INCAR'.
-        For vasprun.xml-type file, infer from 'vasprun.xml'.
     LORBIT: int
         user specified LORBIT
-        If not given, for DOSCAR-type file, infer from 'OUTCAR'/'INCAR'.
-        For vasprun.xml-type file, infer from 'vasprun.xml'.
+        If not given, for both DOSCAR- and vasprun.xml-types of file, infer from 'OUTCAR'/'INCAR'. Because there is an
+        error in vasprun.xml.
     Ef: float
         user specified Ef
-        If not given, infer from 'DOSCAR'
-        For vasprun.xml-type file, infer from 'vasprun.xml'.
     plot: bool
         whether to plot the data, default to False
     xlim: list
