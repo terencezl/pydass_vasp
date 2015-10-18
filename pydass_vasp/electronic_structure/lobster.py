@@ -4,24 +4,24 @@ import matplotlib.pyplot as plt
 from .helpers import determine_tag_value, figs_assert, initiate_figs, plot_helper_settings
 
 
-def get_lobster(input_file='COHPCAR.lobster', ISPIN=None, plot=False, type='COHP', bond=0, xlim=None, ylim=None,
+def get_lobster(filepath='COHPCAR.lobster', ISPIN=None, plot=False, type='COHP', bond=0, xlim=None, ylim=None,
                 on_figs=None):
     """
     Plot the -COHP or COOP, with consideration of spin-polarization.
 
     Parameters
     ----------
-    input_file: string
-        input file name, default to 'COHPCAR.lobster'
+    filepath: string
+        filepath, default to 'COHPCAR.lobster'
     ISPIN: int
         user specified ISPIN
-        If not given, infer from OUTCAR/INCAR.
+        If not given, infer from 'OUTCAR'/'INCAR'.
     plot: bool
         whether to plot the data, default to False
     type: str
         COHP or COOP
     bond: int
-        the bond number in COHPCAR.lobster/COOPCAR.lobster, counting from 1. Default to 0, meaning the average
+        the bond number in 'COHPCAR.lobster'/'COOPCAR.lobster', counting from 1. Default to 0, meaning the average
     xlim: list
         the range of x-axis, 2 values in a list
     ylim: list
@@ -37,7 +37,7 @@ def get_lobster(input_file='COHPCAR.lobster', ISPIN=None, plot=False, type='COHP
         'ax': the axes reference
     """
     # get data
-    with open(input_file, 'r') as f:
+    with open(filepath, 'r') as f:
         LOBSTERCAR = f.readlines()
 
     for line_num, line in enumerate(LOBSTERCAR):
@@ -59,7 +59,7 @@ def get_lobster(input_file='COHPCAR.lobster', ISPIN=None, plot=False, type='COHP
     if ISPIN:
         print("Using user specified ISPIN.")
     else:
-        ISPIN = determine_tag_value('ISPIN')
+        ISPIN = determine_tag_value('ISPIN', filepath)
 
     data = np.array(LOBSTERCAR[data_start_line:data_start_line + NEDOS], dtype=float)
 
