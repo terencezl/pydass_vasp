@@ -44,6 +44,16 @@ def vinet(V, V0, B0, B0_prime, E0):
                  (1 + (xi * (1 - x) - 1) * np.exp(xi * (1 - x))))
 
 
+def vinet_p(V, V0, B0, B0_prime):
+    """
+    Vinet equation of state in the pressure-volume form
+    """
+    V = np.array(V)
+    x = (V / V0) ** (1.0 / 3)
+    xi = 3.0 / 2 * (B0_prime - 1)
+    return 3 * B0 / x ** 2 * (1 - x) * np.exp(xi * (1 - x))
+
+
 # a decorator
 def fix_B0_prime(f, B0_prime):
     if '_p' in f.__name__:
