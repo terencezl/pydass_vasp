@@ -13,29 +13,43 @@ def get_r_squared(Y, Y_fit_eqlen):
     return r_squared
 
 
-def B_M_eqn(V, V0, B0, B0_prime, E0):
+def birch_murnaghan(V, V0, B0, B0_prime, E0):
     """
     3rd order Birch-Murnaghan equation of state, in the energy-volume form
     """
-    return (E0 + 9 * V0 * B0 / 16. * (((V0 / V) ** (2 / 3.) - 1) ** 3 * B0_prime +
-        ((V0 / V) ** (2 / 3.) - 1) ** 2 * (6 - 4 * (V0 / V) ** (2 / 3.))))
+    V = np.array(V)
+    return E0 + 9 * V0 * B0 / 16. * (
+        ((V0 / V) ** (2 / 3.) - 1) ** 3 * B0_prime +
+        ((V0 / V) ** (2 / 3.) - 1) ** 2 * (6 - 4 * (V0 / V) ** (2 / 3.)))
 
 
-def B_M_eqn_pv(V, V0, B0, B0_prime):
+def birch_murnaghan_p(V, V0, B0, B0_prime):
     """
     3rd order Birch-Murnaghan equation of state, in the pressure-volume form
     The unit of pressure depends on the unit of the input B0.
     """
-    return (3*B0/2. * ((V0/V)**(7/3.) - (V0/V)**(5/3.)) *
-        (1 + 3/4. * (B0_prime - 4) * ((V0/V)**(2/3.) - 1)))
+    V = np.array(V)
+    return 3 * B0 / 2. * ((V0 / V) ** (7 / 3.) - (V0 / V) ** (5 / 3.)) * \
+           (1 + 3 / 4. * (B0_prime - 4) * ((V0 / V) ** (2 / 3.) - 1))
+
+
+def vinet(V, V0, B0, B0_prime, E0):
+    """
+    Vinet equation of state in the energy-volume form
+    """
+    V = np.array(V)
+    x = (V / V0) ** (1.0 / 3)
+    xi = 3.0 / 2 * (B0_prime - 1)
+    return E0 + (9 * B0 * V0 / (xi ** 2) *
+                 (1 + (xi * (1 - x) - 1) * np.exp(xi * (1 - x))))
 
 
 # a decorator
-def fn_fix_B0_prime(f, B0_prime):
-    if f.func_name == 'B_M_eqn':
+def fix_B0_prime(f, B0_prime):
+    if '_p' in f.__name__:
         def g(V, V0, B0, E0):
             return f(V, V0, B0, B0_prime, E0)
-    elif f.func_name == 'B_M_eqn_pv':
+    elif '_p' not in f.__name__:
         def g(V, V0, B0):
             return f(V, V0, B0, B0_prime)
     else:
@@ -43,30 +57,26 @@ def fn_fix_B0_prime(f, B0_prime):
     return g
 
 
-def eos_fit(V, Y, p_v=False, fix_B0_prime=None, plot=False, on_figs=None):
+def eos_fit(V, Y, eos='vinet', B0_prime=None, plot=False, on_figs=None):
     """
     Fit the volume and total energy, or pressure to the Birch-Murnaghan equation of state.
+
+    Note: bulk modulus B0 will be returned in the unit of GPa.
 
     Parameters
     ----------
     V: array
         volume (Angstrom^3)
     Y: array
-        total energy (eV), or pressure (GPa) if p_v == True
-    fix_B0_prime: float
-        Keep B0_prime fixed to a given value or not. Default to None.
-    display: bool
-        Display figures or not. Default to False.
+        total energy (eV), or pressure (GPa) if eos has '_p'
+    eos: string
+        chosen from ['vinet', 'birch_murnaghan']. Default to 'vinet'
+    B0_prime: float
+        Keep B0_prime fixed to a given value or not. Default to None
+    plot: bool
+        whether to plot the data, default to False.
     on_figs: list/int
         the current figure numbers to plot to, default to new figures
-    return_refs: bool
-        Return the axes reference(s) drawing or not. Default to False.
-    save_figs: bool
-        Save figures or not. Default to False.
-    save_data: bool
-        Save data or not. Default to False.
-    output_prefix: string
-        prefix string before the output files, default to 'eos_fit'
 
     Returns
     -------
@@ -75,25 +85,24 @@ def eos_fit(V, Y, p_v=False, fix_B0_prime=None, plot=False, on_figs=None):
         'r_squared': value for evaluating error
         'fitted_data': a dict that has 2D array of fitted data
             easily to Pandas DataFrame by pd.DataFrame(**returned_dict['fitted_data'])
-        'ax': the axes reference, if return_refs == True
     """
     V = np.array(V)
     Y = np.array(Y)
 
-    if not fix_B0_prime:
-        if not p_v:
+    if not B0_prime:
+        if '_p' not in eos:
             initial_parameters = [V.mean(), 2.5, 4, Y.mean()]
-            fit_eqn = B_M_eqn
+            fit_eqn = eval(eos)
         else:
             initial_parameters = [V.mean(), 2.5, 4]
-            fit_eqn = B_M_eqn_pv
+            fit_eqn = eval(eos)
     else:
-        if not p_v:
+        if '_p' not in eos:
             initial_parameters = [V.mean(), 2.5, Y.mean()]
-            fit_eqn = fn_fix_B0_prime(B_M_eqn, fix_B0_prime)
+            fit_eqn = fix_B0_prime(eval(eos), B0_prime)
         else:
             initial_parameters = [V.mean(), 2.5]
-            fit_eqn = fn_fix_B0_prime(B_M_eqn_pv, fix_B0_prime)
+            fit_eqn = fix_B0_prime(eval(eos), B0_prime)
 
     popt, pcov = cf(fit_eqn, V, Y, initial_parameters)
     V_fit = np.linspace(sorted(V)[0], sorted(V)[-1], 1000)
@@ -101,18 +110,18 @@ def eos_fit(V, Y, p_v=False, fix_B0_prime=None, plot=False, on_figs=None):
     Y_fit_eqlen = fit_eqn(V, *popt)
     r_squared = get_r_squared(Y, Y_fit_eqlen)
     data = np.column_stack((V_fit, Y_fit))
-    if not p_v:
+    if '_p' not in eos:
         col_names = ['V_fit', 'E_fit']
     else:
-        col_names = ['V_fit', 'P_fit']
+        col_names = ['V_fit', 'p_fit']
 
     params = {'V0': popt[0], 'B0': popt[1] * 160.2}
-    if not fix_B0_prime:
+    if not B0_prime:
         params['B0_prime'] = popt[2]
-        if not p_v:
+        if '_p' not in eos:
             params['E0'] = popt[3]
     else:
-        if not p_v:
+        if '_p' not in eos:
             params['E0'] = popt[2]
 
     return_dict = {'params': params, 'r_squared': r_squared,
@@ -124,7 +133,7 @@ def eos_fit(V, Y, p_v=False, fix_B0_prime=None, plot=False, on_figs=None):
         plt.plot(V_fit, Y_fit, '-')
         axes = {'ax': plt.gca()}
         plt.xlabel(r'V ($\AA^{3}$)')
-        if not p_v:
+        if '_p' not in eos:
             plt.ylabel('E (eV)')
         else:
             plt.ylabel('P (GPa)')
@@ -145,7 +154,7 @@ def polyfit(X, Y, order, plot=False, on_figs=None):
     order: int
         the polynomial order
     plot: bool
-        plot figures or not. Default to False.
+        plot figures or not. Default to False
     on_figs: list/int
         the current figure numbers to plot to, default to new figures
 
