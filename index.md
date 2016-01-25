@@ -1,3 +1,9 @@
+---
+layout: default
+title: Home
+permalink: /
+---
+
 pydass_vasp (or, badass wasp)
 =============================
 Convenient Python modules and wrapping script executables.
