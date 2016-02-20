@@ -2,6 +2,7 @@ import os
 import re
 import warnings
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from .helpers import determine_tag_value, figs_assert, initiate_figs
 from ..xml_utils import parse
@@ -129,8 +130,7 @@ def get_bs(filepath='EIGENVAL', ISPIN=None, N_kps_per_section=None, reciprocal_p
     a dict, containing
         'reciprocal_point_labels', the symbols of those points
         'reciprocal_point_locations', their locations on the x-axis
-        'data', a dict that has 2D array of data,
-            easily to Pandas DataFrame by pd.DataFrame(**returned_dict['data'])
+        'data', a pandas dataframe
         'ax': the axes reference, if return_refs == True
     """
     dirname = os.path.dirname(filepath)
@@ -312,8 +312,8 @@ def get_bs(filepath='EIGENVAL', ISPIN=None, N_kps_per_section=None, reciprocal_p
         data2 -= Ef
         data1 = np.column_stack((kps_linearized, data1))
         data2 = np.column_stack((kps_linearized, data2))
-        return_dict.update({'data_spin_up': {'columns': col_names1, 'data': data1},
-                       'data_spin_down': {'columns': col_names2, 'data': data2},
+        return_dict.update({'data_spin_up': pd.DataFrame(**{'columns': col_names1, 'data': data1}),
+                            'data_spin_down': pd.DataFrame(**{'columns': col_names2, 'data': data2}),
                             })
 
     if plot:

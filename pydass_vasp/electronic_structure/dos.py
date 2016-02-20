@@ -1,5 +1,6 @@
 import re
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from .helpers import determine_tag_value, figs_assert, initiate_figs, plot_helper_settings
 from ..xml_utils import parse
@@ -13,7 +14,7 @@ def get_tdos(filepath='DOSCAR', ISPIN=None, Ef=None, plot=False, xlim=None, ylim
     Parameters
     ----------
     filepath: string
-        file path, default to 'DOSCAR'
+        filepath, default to 'DOSCAR'
         For DOSCAR-type file, can be any string containing 'DOSCAR'.
         For vasprun.xml-type file, can be any string ending with '.xml'.
     ISPIN: int
@@ -33,8 +34,7 @@ def get_tdos(filepath='DOSCAR', ISPIN=None, Ef=None, plot=False, xlim=None, ylim
     Returns
     -------
     a dict, containing
-        'data': a dict that has 2D array of data,
-            easily to Pandas DataFrame by pd.DataFrame(**returned_dict['data'])
+        'data': a pandas dataframe
         'ax': the axes reference
     """
     # get data
@@ -93,8 +93,8 @@ def get_tdos(filepath='DOSCAR', ISPIN=None, Ef=None, plot=False, xlim=None, ylim
         col_names2 = ['E', 'tot_down', 'tot_integrated_down']
         data1[:, 0] -= Ef
         data2[:, 0] -= Ef
-        return_dict = {'data_spin_up': {'columns': col_names1, 'data': data1},
-                       'data_spin_down': {'columns': col_names2, 'data': data2},
+        return_dict = {'data_spin_up': pd.DataFrame(**{'columns': col_names1, 'data': data1}),
+                       'data_spin_down': pd.DataFrame(**{'columns': col_names2, 'data': data2}),
                        }
 
     if plot:
@@ -141,7 +141,7 @@ def get_ldos(atom, filepath='DOSCAR', ISPIN=None, LORBIT=None, Ef=None, plot=Fal
     atom: int
         the atom number in DOSCAR/POSCAR interested, counting from 1
     filepath: string
-        file path, default to 'DOSCAR'
+        filepath, default to 'DOSCAR'
         For DOSCAR-type file, can be any string containing 'DOSCAR'.
         For vasprun.xml-type file, can be any string ending with '.xml'.
     ISPIN: int
@@ -165,8 +165,7 @@ def get_ldos(atom, filepath='DOSCAR', ISPIN=None, LORBIT=None, Ef=None, plot=Fal
     Returns
     -------
     a dict, containing
-        'data': a dict that has 2D array of data,
-            easily to Pandas DataFrame by pd.DataFrame(**returned_dict['data'])
+        'data': a dataframe
         'ax': the axes reference
     """
     # get data
@@ -258,8 +257,8 @@ def get_ldos(atom, filepath='DOSCAR', ISPIN=None, LORBIT=None, Ef=None, plot=Fal
                           'd_xz_down', 'd_x2y2_down']
         data1[:, 0] -= Ef
         data2[:, 0] -= Ef
-        return_dict = {'data_spin_up': {'columns': col_names1, 'data': data1},
-                       'data_spin_down': {'columns': col_names2, 'data': data2},
+        return_dict = {'data_spin_up': pd.DataFrame(**{'columns': col_names1, 'data': data1}),
+                       'data_spin_down': pd.DataFrame(**{'columns': col_names2, 'data': data2}),
                        }
 
     if plot:

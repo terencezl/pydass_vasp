@@ -62,13 +62,13 @@ def plot_helper_settings(axis_range, data_type):
         plt.ylim(ylim)
     plt.xlabel('Energy (eV)')
     if data_type == 'tdos':
-        plt.ylabel('TDOS (States / Unit Cell / eV)')
+        plt.ylabel('TDOS (States / Unit cell / eV)')
     elif data_type == 'ldos':
-        plt.ylabel('LDOS (States / Unit Cell / eV)')
+        plt.ylabel('PDOS (States / Unit cell / eV)')
     elif data_type == 'COHP':
-        plt.ylabel('-pCOHP (Arbitrary Unit / Unit Cell / eV)')
+        plt.ylabel('-pCOHP per bond')
     elif data_type == 'COOP':
-        plt.ylabel('pCOOP (Arbitrary Unit / Unit Cell / eV)')
+        plt.ylabel('pCOOP per bond')
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         plt.legend(loc=0, fontsize='small')

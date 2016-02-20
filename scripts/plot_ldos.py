@@ -6,7 +6,7 @@ import matplotlib as mpl
 parser = argparse.ArgumentParser(description="""Plot the local projected density of states, with
             consideration of spin-polarization. Accepts input file 'DOSCAR', or 'vasprun.xml'.""")
 parser.add_argument('atom', type=int, help='atom to plot')
-parser.add_argument('-f', metavar='filepath', default='DOSCAR', help="the input file name, default to 'DOSCAR'")
+parser.add_argument('-f', metavar='filepath', default='DOSCAR', help="the filepath, default to 'DOSCAR'")
 parser.add_argument('--ISPIN', type=int, help="manually override ISPIN detection")
 parser.add_argument('--LORBIT', type=int, help="manually override LORBIT detection")
 parser.add_argument('--xlim', nargs=2, metavar=('from', 'to'), type=float, help="the range of x-axis")

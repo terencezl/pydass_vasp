@@ -1,13 +1,17 @@
+import os
 import re
+import subprocess
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
+
 from .helpers import determine_tag_value, figs_assert, initiate_figs, plot_helper_settings
 
 
 def get_lobster(filepath='COHPCAR.lobster', ISPIN=None, plot=False, type='COHP', bond=0, xlim=None, ylim=None,
                 on_figs=None):
     """
-    Plot the -COHP or COOP, with consideration of spin-polarization.
+    Get the COHPCAR or COOPCAR, with consideration of spin-polarization.
 
     Parameters
     ----------
@@ -32,8 +36,7 @@ def get_lobster(filepath='COHPCAR.lobster', ISPIN=None, plot=False, type='COHP',
     Returns
     -------
     a dict, containing
-        'data': a dict that has 2D array of data,
-            easily to Pandas DataFrame by pd.DataFrame(**returned_dict['data'])
+        'data': a pandas dataframe
         'ax': the axes reference
     """
     # get data
@@ -79,8 +82,8 @@ def get_lobster(filepath='COHPCAR.lobster', ISPIN=None, plot=False, type='COHP',
             col_names1.extend(['bond_{0}_up'.format(n_bond), 'bond_{0}_integrated_up'.format(n_bond)])
             col_names2.extend(['bond_{0}_down'.format(n_bond), 'bond_{0}_integrated_down'.format(n_bond)])
 
-        return_dict = {'data_spin_up': {'columns': col_names1, 'data': data1},
-                       'data_spin_down': {'columns': col_names2, 'data': data2},
+        return_dict = {'data_spin_up': pd.DataFrame(**{'columns': col_names1, 'data': data1}),
+                       'data_spin_down': pd.DataFrame(**{'columns': col_names2, 'data': data2}),
                        }
 
     if plot:
@@ -126,3 +129,66 @@ def get_lobster(filepath='COHPCAR.lobster', ISPIN=None, plot=False, type='COHP',
             return_dict.update({'ax_spin_combined': ax1, 'ax_spin_separated': ax2})
 
     return return_dict
+
+
+def get_integrated_lobster(filepath='ICOHPLIST.lobster', return_total=True):
+    """
+    Get the ICOHPLIST or ICOOPLIST, with consideration of spin-polarization.
+
+    Parameters
+    ----------
+    filepath: string
+        filepath, default to 'ICOHPLIST.lobster'
+    return_total: bool
+        whether return the spin-up and spin-down summed dataframe or a dict with
+        key 1 meaning spin-up, key 2 meaning spin-down, default to True
+
+    Returns
+    ----------
+    a pandas dataframe if return_total is True, or a dict if return_total is False
+    """
+    if 'COHP' in os.path.basename(filepath):
+        filetype = 'COHP'
+    elif 'COOP' in os.path.basename(filepath):
+        filetype = 'COOP'
+
+    linenum_list = [int(i.split(':')[0]) for i in
+                    subprocess.getoutput(' '.join(['grep -n', filetype, filepath])).split('\n')]
+    ILOBSTERLIST_dict = {}
+    if len(linenum_list) == 1:
+        is_mag = False
+        ILOBSTERLIST_dict[1] = pd.read_table(filepath, sep='\s+', index_col='COHP#', usecols=range(5))
+    else:
+        is_mag = True
+        n_interactions = linenum_list[1] - linenum_list[0] - 1
+        ILOBSTERLIST_dict[1] = pd.read_table(filepath, nrows=n_interactions, sep='\s+', index_col='COHP#',
+                                             usecols=range(5))
+        ILOBSTERLIST_dict[-1] = pd.read_table(filepath, skiprows=n_interactions + 1, nrows=n_interactions, sep='\s+',
+                                              index_col='COHP#', usecols=range(5))
+
+    ILOBSTER = ILOBSTERLIST_dict[1] + ILOBSTERLIST_dict[-1] if is_mag else ILOBSTERLIST_dict[1]
+    if return_total:
+        return ILOBSTER
+    else:
+        return ILOBSTERLIST_dict
+
+
+def filter_lobster_by_elements(e1, e2, ILOBSTER):
+    """
+    Get the filtered ICOHPLIST or ICOOPLIST, by the constituting elements.
+
+    Parameters
+    ----------
+    e1, e2: string
+        element symbols. Order doesn't matter
+    ILOBSTER: pandas dataframe of ICOHPLIST or ICOOPLIST
+
+    Returns
+    ----------
+    a filtered pandas dataframe by elements
+    """
+    e1_regex = '^' + e1 + '\d+$'
+    e2_regex = '^' + e2 + '\d+$'
+    mask = ((ILOBSTER['atomMU'].str.contains(e1_regex) & ILOBSTER['atomNU'].str.contains(e2_regex)) | \
+            (ILOBSTER['atomNU'].str.contains(e1_regex) & ILOBSTER['atomMU'].str.contains(e2_regex)))
+    return ILOBSTER[mask]

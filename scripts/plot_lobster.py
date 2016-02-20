@@ -4,11 +4,11 @@ import re
 import matplotlib as mpl
 
 parser = argparse.ArgumentParser(description="""Plot the LOBSTER -COHP or COOP, with consideration of spin-polarization.""")
-parser.add_argument('-f', metavar='input', default='COHPCAR.lobster',
-                    help="the input file name, default to 'COHPCAR.lobster'")
+parser.add_argument('bond', type=int, help='bond number to plot')
+parser.add_argument('-f', metavar='filepath', default='COHPCAR.lobster',
+                    help="the filepath, default to 'COHPCAR.lobster'")
 parser.add_argument('--ISPIN', type=int, help="manually override ISPIN detection")
 parser.add_argument('-y', metavar='type', default='COHP', help="the input file type, default to 'COHP'")
-parser.add_argument('bond', type=int, help='bond number to plot')
 parser.add_argument('--xlim', nargs=2, metavar=('from', 'to'), type=float, help="the range of x-axis")
 parser.add_argument('--ylim', nargs=2, metavar=('from', 'to'), type=float, help="the range of y-axis")
 parser.add_argument('-s', metavar='savefig_name', help="if specified, save to file but not display")
