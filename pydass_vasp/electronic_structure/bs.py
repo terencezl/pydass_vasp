@@ -96,7 +96,7 @@ def plot_helper_settings(ylim, reciprocal_point_locations, reciprocal_point_labe
 def get_bs(filepath='EIGENVAL', ISPIN=None, N_kps_per_section=None, reciprocal_point_labels=None, Ef=None, plot=False,
             ylim=None, on_figs=None):
     """
-    Plot the band structure, with consideration of spin-polarization.
+    Get the band structure, with consideration of spin-polarization.
     Accepts file type 'EIGENVAL', or 'vasprun.xml'.
 
     Parameters

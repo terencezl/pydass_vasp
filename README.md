@@ -73,9 +73,9 @@ Returned dictionary:
 What is it?
 -----------
 
-This Python package is the result of frustration of searching for an organized, straightforward and flexible approach of plotting, fitting and manipulation of [VASP](https://www.vasp.at/) files (typically `POSCAR`) in a few key strokes as long as you have a terminal, and preferably a (S)FTP client. It has the following features:
+This Python package is the result of frustration of searching for an organized, straightforward and flexible approach of plotting and fitting of [VASP](https://www.vasp.at/) files in a few key strokes as long as you have a terminal, and preferably a (S)FTP client. It has the following features:
 
-* It is a Python package with a straightforward structure. When you `import pydass_vasp`, you have sub-packages `pydass_vasp.electronic_structure`, `pydass_vasp.fitting`, `pydass_vasp.poscar`, each containing a few functions to carry out your tasks, with a careful selection of options to choose from. Return values are Python dictionaries, informative enough to be flexible for post-processing. When there is no need for an object, don't bother creating one.
+* It is a Python package with a straightforward structure. When you `import pydass_vasp`, you have sub-packages `pydass_vasp.electronic_structure`, `pydass_vasp.fitting`, each containing a few functions to carry out your tasks, with a careful selection of options to choose from. Return values are Python dictionaries, informative enough to be flexible for post-processing. When there is no need for an object, don't bother creating one.
 
 * It also has scripts that utilize the main package. They are simply 'wrappers' to the functions that are used the most frequently, typically `electronic_structure` and `fitting` functions. Instead of `cd`ing into a directory and launching the Python interpreter `python`, making the imports and calling the functions, you just need to stay in your terminal shell and type `plot_tdos.py` to plot the total density of states (DOS), `plot_ldos.py 1` to plot the local projected DOS of the first atom, and `plot_bs.py` to plot the band structure. These scripts accept arguments and options as flexible as their function counterparts.
 
@@ -99,7 +99,7 @@ This Python package is the result of frustration of searching for an organized, 
         Parameters
         ----------
         filepath: string
-            file path, default to 'DOSCAR'
+            filepath, default to 'DOSCAR'
             For DOSCAR-type file, can be any string containing 'DOSCAR'.
             For vasprun.xml-type file, can be any string ending with '.xml'.
         ISPIN: int
@@ -119,20 +119,19 @@ This Python package is the result of frustration of searching for an organized, 
         Returns
         -------
         a dict, containing
-            'data': a dict that has 2D array of data,
-                easily to Pandas DataFrame by pd.DataFrame(**returned_dict['data'])
+            'data': a pandas dataframe
             'ax': the axes reference
 
 * The returned dictionary also leave room for adjustments. Take `pydass_vasp.electronic_structure.get_tdos()` as an example.
 
     ```python
 	returned_dict = {		
-		'data': {'columns': col_names, 'data': data}
+		'data': dataframe
 		'ax': ax
 	}
     ```
 		
-	`returned_dict['data']` has a 2D numpy array of data, and their column names. This construction is preferred because if you have [pandas](http://pandas.pydata.org/), you can just convert it to a DataFrame by `pd.DataFrame(**returned_dict['data'])`.
+	`returned_dict['data']` has a pandas dataframe.
 
 	`returned_dict['ax']` is the matplotlib axes reference. When `ISPIN` is 2, they are two elements: `'ax_spin_up'` and `'ax_spin_down'`.
 
@@ -144,7 +143,7 @@ More on options
 ---------------
 As an example, we again consider `pydass_vasp.electronic_structure.get_tdos()`, shortened as `get_tdos()`.
 
-`get_tdos(input_file='vasprun.xml')` switches from taking in `DOSCAR` to `vasprun.xml`. It lets you select what file you prefer to use. Any filename containing `'DOSCAR'` is considered to be of `DOSCAR` type, any filename ending with `'.xml'` is considered to be of `vasprun.xml` type.
+`get_tdos(filepath='vasprun.xml')` switches from taking in `DOSCAR` to `vasprun.xml`. It lets you select what file you prefer to use. Any filename containing `'DOSCAR'` is considered to be of `DOSCAR` type, any filename ending with `'.xml'` is considered to be of `vasprun.xml` type.
 
 `get_tdos(ISPIN=2)` lets you manually override the auto-detection of `ISPIN` from files other than `DOSCAR`. The program will skip the corresponding part of work. This is helpful when you only have the major data file `DOSCAR` transferred to you local machine, and do not have the other files necessary to extract the parameters to proceed plotting. To leave no confusion, when `ISPIN` is 2, two figures are generated, one with spin up and down combined, the other with two overlapping curves, denoting spin up and spin down separately.
 
@@ -159,6 +158,7 @@ Dependencies
 ------------
 * NumPy
 * SciPy
+* pandas
 * matplotlib
 * IPython (optional, but better to have)
 
@@ -173,6 +173,9 @@ If you have [pip](https://pip.readthedocs.org/en/latest/), which is a must have,
 To uninstall,
 
 	pip uninstall pydass_vasp
+
+To install a newer version, use the `-U` tag, but you might not want to update all the dependencies, so maybe just uninstall pydass_vasp and then reinstall it. 
+
 
 Getting Help
 ------------

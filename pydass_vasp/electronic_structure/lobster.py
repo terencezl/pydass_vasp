@@ -8,13 +8,15 @@ import matplotlib.pyplot as plt
 from .helpers import determine_tag_value, figs_assert, initiate_figs, plot_helper_settings
 
 
-def get_lobster(filepath='COHPCAR.lobster', ISPIN=None, plot=False, type='COHP', bond=0, xlim=None, ylim=None,
+def get_lobster(bond=0, filepath='COHPCAR.lobster', ISPIN=None, plot=False, xlim=None, ylim=None,
                 on_figs=None):
     """
     Get the COHPCAR or COOPCAR, with consideration of spin-polarization.
 
     Parameters
     ----------
+    bond: int
+        the bond number in 'COHPCAR.lobster'/'COOPCAR.lobster', counting from 1. Default to 0, meaning the average
     filepath: string
         filepath, default to 'COHPCAR.lobster'
     ISPIN: int
@@ -22,10 +24,6 @@ def get_lobster(filepath='COHPCAR.lobster', ISPIN=None, plot=False, type='COHP',
         If not given, infer from 'OUTCAR'/'INCAR'.
     plot: bool
         whether to plot the data, default to False
-    type: str
-        COHP or COOP
-    bond: int
-        the bond number in 'COHPCAR.lobster'/'COOPCAR.lobster', counting from 1. Default to 0, meaning the average
     xlim: list
         the range of x-axis, 2 values in a list
     ylim: list
@@ -40,6 +38,8 @@ def get_lobster(filepath='COHPCAR.lobster', ISPIN=None, plot=False, type='COHP',
         'ax': the axes reference
     """
     # get data
+    basename = os.path.basename(filepath)
+    datatype = 'COHP' if 'COHP' in basename.upper() else 'COOP'
     with open(filepath, 'r') as f:
         LOBSTERCAR = f.readlines()
 
@@ -93,30 +93,30 @@ def get_lobster(filepath='COHPCAR.lobster', ISPIN=None, plot=False, type='COHP',
         if ISPIN == 1:
             col_num = bond * 2 + 1
             initiate_figs(on_figs)
-            if type == 'COHP':
+            if datatype == 'COHP':
                 plt.plot(data[:, 0], -data[:, col_num])
-            elif type == 'COOP':
+            elif datatype == 'COOP':
                 plt.plot(data[:, 0], data[:, col_num])
             ax = plt.gca()
-            plot_helper_settings((xlim, ylim), type)
+            plot_helper_settings((xlim, ylim), datatype)
             return_dict.update({'ax': ax})
 
         elif ISPIN == 2:
             col_bond = bond * 2 + 1
             # Plot the combined COHP/COOP
             initiate_figs(on_figs)
-            if type == 'COHP':
+            if datatype == 'COHP':
                 plt.plot(data1[:, 0], -data1[:, col_bond] - data2[:, col_bond], label='spin up + down')
-            elif type == 'COOP':
+            elif datatype == 'COOP':
                 plt.plot(data1[:, 0], data1[:, col_bond] + data2[:, col_bond], label='spin up + down')
             ax1 = plt.gca()
-            plot_helper_settings((xlim, ylim), type)
+            plot_helper_settings((xlim, ylim), datatype)
             # Plot the separated COHP/COOP
             initiate_figs(on_figs)
-            if type == 'COHP':
+            if datatype == 'COHP':
                 plt.plot(data1[:, 0], -data1[:, col_bond], label='spin up')
                 plt.plot(data2[:, 0], -data2[:, col_bond], label='spin down')
-            elif type == 'COOP':
+            elif datatype == 'COOP':
                 plt.plot(data1[:, 0], data1[:, col_bond], label='spin up')
                 plt.plot(data2[:, 0], data2[:, col_bond], label='spin down')
             ax2 = plt.gca()
@@ -125,7 +125,7 @@ def get_lobster(filepath='COHPCAR.lobster', ISPIN=None, plot=False, type='COHP',
                 ylim_sp = ylim[:]
                 ylim_sp[0] /= 2.
                 ylim_sp[1] /= 2.
-            plot_helper_settings((xlim, ylim_sp), type)
+            plot_helper_settings((xlim, ylim_sp), datatype)
             return_dict.update({'ax_spin_combined': ax1, 'ax_spin_separated': ax2})
 
     return return_dict
@@ -157,14 +157,14 @@ def get_integrated_lobster(filepath='ICOHPLIST.lobster', return_total=True):
     ILOBSTERLIST_dict = {}
     if len(linenum_list) == 1:
         is_mag = False
-        ILOBSTERLIST_dict[1] = pd.read_table(filepath, sep='\s+', index_col='COHP#', usecols=range(5))
+        ILOBSTERLIST_dict[1] = pd.read_table(filepath, sep='\s+', index_col=filetype + '#', usecols=range(5))
     else:
         is_mag = True
         n_interactions = linenum_list[1] - linenum_list[0] - 1
-        ILOBSTERLIST_dict[1] = pd.read_table(filepath, nrows=n_interactions, sep='\s+', index_col='COHP#',
+        ILOBSTERLIST_dict[1] = pd.read_table(filepath, nrows=n_interactions, sep='\s+', index_col=filetype + '#',
                                              usecols=range(5))
         ILOBSTERLIST_dict[-1] = pd.read_table(filepath, skiprows=n_interactions + 1, nrows=n_interactions, sep='\s+',
-                                              index_col='COHP#', usecols=range(5))
+                                              index_col=filetype + '#', usecols=range(5))
 
     ILOBSTER = ILOBSTERLIST_dict[1] + ILOBSTERLIST_dict[-1] if is_mag else ILOBSTERLIST_dict[1]
     if return_total:

@@ -8,7 +8,7 @@ from ..xml_utils import parse
 
 def get_tdos(filepath='DOSCAR', ISPIN=None, Ef=None, plot=False, xlim=None, ylim_upper=None, on_figs=None):
     """
-    Plot the total density of states, with consideration of spin-polarization.
+    Get the total density of states, with consideration of spin-polarization.
     Accepts file type 'DOSCAR', or 'vasprun.xml'.
 
     Parameters
@@ -133,7 +133,7 @@ def get_tdos(filepath='DOSCAR', ISPIN=None, Ef=None, plot=False, xlim=None, ylim
 def get_ldos(atom, filepath='DOSCAR', ISPIN=None, LORBIT=None, Ef=None, plot=False, xlim=None, ylim_upper=None,
              on_figs=None):
     """
-    Plot the local projected density of states, with consideration of spin-polarization.
+    Get the local projected density of states, with consideration of spin-polarization.
     Accepts file type 'DOSCAR', or 'vasprun.xml'.
 
     Parameters

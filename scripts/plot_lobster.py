@@ -8,7 +8,6 @@ parser.add_argument('bond', type=int, help='bond number to plot')
 parser.add_argument('-f', metavar='filepath', default='COHPCAR.lobster',
                     help="the filepath, default to 'COHPCAR.lobster'")
 parser.add_argument('--ISPIN', type=int, help="manually override ISPIN detection")
-parser.add_argument('-y', metavar='type', default='COHP', help="the input file type, default to 'COHP'")
 parser.add_argument('--xlim', nargs=2, metavar=('from', 'to'), type=float, help="the range of x-axis")
 parser.add_argument('--ylim', nargs=2, metavar=('from', 'to'), type=float, help="the range of y-axis")
 parser.add_argument('-s', metavar='savefig_name', help="if specified, save to file but not display")
@@ -26,7 +25,7 @@ if args.t:
 
 from pydass_vasp.electronic_structure import get_lobster
 
-get_lobster(bond=args.bond, type=args.y, filepath=args.f, ISPIN=args.ISPIN, plot=True, xlim=args.xlim, ylim=args.ylim)
+get_lobster(bond=args.bond, filepath=args.f, ISPIN=args.ISPIN, plot=True, xlim=args.xlim, ylim=args.ylim)
 
 if args.s:
     figname_sp = re.match('(.*)(\..*)', args.s).groups()
