@@ -42,13 +42,14 @@ setup(name='pydass_vasp',
       author='Terence Zhi Liu',
       author_email='zhi.liu@utoledo.edu',
       license='MIT',
-      packages=['pydass_vasp', 'pydass_vasp.electronic_structure', 'pydass_vasp.fitting', 'pydass_vasp.poscar'],
+      packages=['pydass_vasp', 'pydass_vasp.electronic_structure', 'pydass_vasp.fitting'],
       scripts=['scripts/plot_tdos.py', 'scripts/plot_ldos.py', 'scripts/plot_lobster.py', 'scripts/plot_bs.py'],
       install_requires=[
           'numpy',
           'scipy',
+          'pandas',
           'matplotlib >= 1.3'
       ],
       include_package_data=True,
       # zip_safe=False
-)
+      )

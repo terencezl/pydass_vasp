@@ -5,7 +5,7 @@ Convenient Python modules and wrapping script executables.
 ##### Example: plotting band structure
 
 ```python
-pydass_vasp.electronic_structure.get_bs(plot=True, xlim=[-4,6])
+pydass_vasp.electronic_structure.get_bs(plot=True, ylim=[-4,6])
 ```
 
 ![band_structure](http://terencezl.github.io/pydass_vasp/public/imgs/band_structure.png)
