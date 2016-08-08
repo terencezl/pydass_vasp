@@ -67,7 +67,7 @@ def fix_B0_prime(f, B0_prime):
     return g
 
 
-def eos_fit(V, Y, eos='vinet', B0_prime=None, plot=False, on_figs=None):
+def eos_fit(V, Y, eos='birch_murnaghan', B0_prime=None, plot=False, on_figs=None):
     """
     Fit the volume and total energy, or pressure to the Birch-Murnaghan equation of state.
 
@@ -80,7 +80,7 @@ def eos_fit(V, Y, eos='vinet', B0_prime=None, plot=False, on_figs=None):
     Y: array
         total energy (eV), or pressure (GPa) if eos has '_p'
     eos: string
-        chosen from ['vinet', 'birch_murnaghan']. Default to 'vinet'
+        chosen from ['birch_murnaghan', 'vinet']. Default to 'birch_murnaghan'
     B0_prime: float
         Keep B0_prime fixed to a given value or not. Default to None
     plot: bool

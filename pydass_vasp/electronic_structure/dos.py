@@ -87,7 +87,7 @@ def get_tdos(filepath='DOSCAR', ISPIN=None, Ef=None, plot=False, xlim=None, ylim
     if ISPIN == 1:
         col_names = ['E', 'tot', 'tot_integrated']
         data[:, 0] -= Ef
-        return_dict = {'data': {'columns': col_names, 'data': data}}
+        return_dict = {'data': pd.DataFrame(**{'columns': col_names, 'data': data})}
     elif ISPIN == 2:
         col_names1 = ['E', 'tot_up', 'tot_integrated_up']
         col_names2 = ['E', 'tot_down', 'tot_integrated_down']
@@ -245,7 +245,7 @@ def get_ldos(atom, filepath='DOSCAR', ISPIN=None, LORBIT=None, Ef=None, plot=Fal
         elif LORBIT == 11 or LORBIT == 1:
             col_names = ['E', 's', 'p_y', 'p_z', 'p_x', 'd_xy', 'd_yz', 'd_z2', 'd_xz', 'd_x2y2']
         data[:, 0] -= Ef
-        return_dict = {'data': {'columns': col_names, 'data': data}}
+        return_dict = {'data': pd.DataFrame(**{'columns': col_names, 'data': data})}
     elif ISPIN == 2:
         if LORBIT == 10 or LORBIT == 0:
             col_names1 = ['E', 's_up', 'p_up', 'd_up']

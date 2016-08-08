@@ -302,7 +302,7 @@ def get_bs(filepath='EIGENVAL', ISPIN=None, N_kps_per_section=None, reciprocal_p
         col_names[0] = 'k_points'
         data -= Ef
         data = np.column_stack((kps_linearized, data))
-        return_dict.update({'data': {'columns': col_names, 'data': data}})
+        return_dict.update({'data': pd.DataFrame(**{'columns': col_names, 'data': data})})
     elif ISPIN == 2:
         col_names1 = ['band_' + str(i) + '_up' for i in range(N_bands + 1)]
         col_names1[0] = 'k_points'

@@ -71,7 +71,7 @@ def get_lobster(bond=0, filepath='COHPCAR.lobster', ISPIN=None, plot=False, xlim
         col_names = ['E', 'avg', 'avg_integrated']
         for n_bond in range(1, N_bonds + 1):
             col_names.extend(['bond_{0}'.format(n_bond), 'bond_{0}_integrated'.format(n_bond)])
-        return_dict = {'data': {'columns': col_names, 'data': data}}
+        return_dict = {'data': pd.DataFrame(**{'columns': col_names, 'data': data})}
     elif ISPIN == 2:
         data1 = data[:, :(3 + 2 * N_bonds)]
         data2 = data[:, (3 + 2 * N_bonds):(5 + 4 * N_bonds)]
